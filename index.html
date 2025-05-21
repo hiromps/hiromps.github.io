@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VALORANT Tracker Overlay</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div id="inputSection" class="input-section">
+        <h2>VALORANT プレイヤー情報</h2>
+        <div class="input-form">
+            <input type="text" id="playerName" placeholder="プレイヤー名" required>
+            <input type="text" id="playerTag" placeholder="タグ" required>
+            <button onclick="generateURL()">URLを生成</button>
+        </div>
+        <div class="url-output">
+            <input type="text" id="generatedURL" readonly>
+            <button onclick="copyURL()">コピー</button>
+        </div>
+    </div>
+
+    <div class="overlay">
+        <div class="rank-section">
+            <img src="assets/images/ranks/ランクなし.png" alt="Rank Icon" class="rank-icon" id="rankIcon">
+            <div class="rank-details">
+                <div class="rank-name-line">
+                    <span class="rank-name" id="rankText">ランクなし</span> <span class="rr" id="rrText">0RR</span>
+                </div>
+                <span class="win-loss" id="winLossText">0 Win / 0 Loss</span>
+            </div>
+        </div>
+        <div class="last-match-section" id="lastMatchSection">
+            <span class="last-match-text" id="lastMatchText">Last Match +0pts</span>
+        </div>
+    </div>
+
+    <script src="config.js"></script>
+    <script src="js/api.js"></script>
+    <script>
+        async function updatePlayerInfo(name, tag) {
+            try {
+                const stats = await fetchPlayerStats(name, tag);
+
+                console.log('Stats:', stats);
+
+                if (stats && stats.data) {
+                    const playerData = stats.data; // stats.data の内容を直接使用
+
+                    // ランク情報を更新
+                    const currentRank = playerData.currenttierpatched;
+                    const rankingInTier = playerData.ranking_in_tier;
+                    const mmrChange = playerData.mmr_change_to_last_game; // MMR変動値を取得
+
+                    if (currentRank) {
+                        // APIから取得した画像のURLを使用
+                        if (playerData.images && playerData.images.large) {
+                             document.getElementById('rankIcon').src = playerData.images.large;
+                        } else {
+                             // APIに画像URLがない場合はローカル画像を使用（フォールバック）
+                             document.getElementById('rankIcon').src = getRankImageUrl(currentRank);
+                        }
+
+                        document.getElementById('rankText').textContent = currentRank;
+                        document.getElementById('rrText').textContent = `${rankingInTier || 0}RR`;
+
+                        // 勝敗情報はMMRデータに含まれていないため表示しない（必要であればプロフィールAPIから取得）
+                        document.getElementById('winLossText').textContent = '';
+
+                        // 直近のマッチ結果（MMR変動値）を更新
+                        const lastMatchSection = document.getElementById('lastMatchSection');
+                        const lastMatchText = document.getElementById('lastMatchText');
+
+                        if (mmrChange !== undefined) {
+                            const sign = mmrChange >= 0 ? '+' : '';
+                            lastMatchText.textContent = `Last Match ${sign}${mmrChange}pts`;
+                            lastMatchSection.style.backgroundColor = mmrChange >= 0 ? '#4CAF50' : '#F44336';
+                            lastMatchSection.style.display = 'block';
+                        } else {
+                            lastMatchSection.style.display = 'none';
+                        }
+
+                    } else { // currentRank がない場合 (例: ランクなし)
+                        document.getElementById('rankIcon').src = 'assets/images/ranks/ランクなし.png';
+                        document.getElementById('rankText').textContent = 'ランクなし';
+                        document.getElementById('rrText').textContent = '';
+                        document.getElementById('winLossText').textContent = '';
+                        document.getElementById('lastMatchSection').style.display = 'none';
+                    }
+
+                    // プロフィールAPIからのデータ（エージェントアイコン、KDA等）は使用しないため関連コードはコメントアウトのまま
+                    // document.getElementById('playerName').textContent = `${name}#${tag}`;
+                    // if (profile && profile.data && profile.data.agent) {
+                    //     document.getElementById('agentIcon').src = getAgentImageUrl(profile.data.agent.name);
+                    // }
+                    // if (profile && profile.data && profile.data.stats) {
+                    //     const stats = profile.data.stats;
+                    //     document.getElementById('kda').textContent = `${stats.kills || 0}/${stats.deaths || 0}/${stats.assists || 0}`;
+                    //     document.getElementById('hsPercent').textContent = `${Math.round((stats.headshots || 0) / (stats.bodyshots || 1) * 100)}%`;
+                    //     document.getElementById('adr').textContent = Math.round((stats.damage || 0) / (stats.matches || 1));
+                    // }
+
+                } else { // stats または stats.data が存在しない場合
+                    document.getElementById('rankIcon').src = 'assets/images/ranks/ランクなし.png';
+                    document.getElementById('rankText').textContent = 'データなし';
+                    document.getElementById('rrText').textContent = '';
+                    document.getElementById('winLossText').textContent = '';
+                    document.getElementById('lastMatchSection').style.display = 'none';
+                }
+
+            } catch (error) {
+                console.error('Error updating player info:', error);
+                // エラー発生時も表示をリセット
+                document.getElementById('rankIcon').src = 'assets/images/ranks/ランクなし.png';
+                document.getElementById('rankText').textContent = 'エラー';
+                document.getElementById('rrText').textContent = '';
+                document.getElementById('winLossText').textContent = '';
+                document.getElementById('lastMatchSection').style.display = 'none';
+            }
+        }
+
+        function generateURL() {
+            const playerName = document.getElementById('playerName').value;
+            const playerTag = document.getElementById('playerTag').value;
+            
+            if (!playerName || !playerTag) {
+                alert('プレイヤー名とタグを入力してください。');
+                return;
+            }
+
+            const currentURL = window.location.href.split('?')[0];
+            const newURL = `${currentURL}?name=${encodeURIComponent(playerName)}&tag=${encodeURIComponent(playerTag)}`;
+            document.getElementById('generatedURL').value = newURL;
+        }
+
+        function copyURL() {
+            const urlInput = document.getElementById('generatedURL');
+            urlInput.select();
+            document.execCommand('copy');
+            alert('URLをコピーしました！');
+        }
+
+        // URLパラメータからプレイヤー情報を取得して表示
+        window.onload = function() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const name = urlParams.get('name');
+            const tag = urlParams.get('tag');
+            
+            if (name && tag) {
+                // URLパラメータがある場合は入力フォームを非表示
+                document.getElementById('inputSection').style.display = 'none';
+                // オーバーレイの位置を調整
+                document.querySelector('.overlay').style.top = '50%';
+                document.querySelector('.overlay').style.transform = 'translateY(-50%)';
+                // プレイヤー情報を更新
+                updatePlayerInfo(name, tag);
+            }
+        }
+    </script>
+</body>
+</html> 

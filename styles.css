@@ -1,0 +1,238 @@
+:root {
+    --valorant-red: #ff4655;
+    --valorant-dark: #0f1923;
+    --valorant-light: #ece8e1;
+    --valorant-grey: #3a444e;
+    --valorant-green: #4CAF50;
+    --valorant-red-bg: #F44336;
+}
+
+body {
+    margin: 0;
+    padding: 0;
+    font-family: 'Arial', sans-serif;
+    background: transparent;
+    overflow: hidden; /* スクロールバーを非表示に */
+}
+
+.overlay {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    display: flex;
+    flex-direction: column;
+    background: var(--valorant-dark);
+    border: 2px solid var(--valorant-grey);
+    border-radius: 8px;
+    color: var(--valorant-light);
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+    overflow: hidden;
+    width: 420px; /* 幅は維持 */
+}
+
+.player-info {
+    display: flex;
+    align-items: center;
+    margin-bottom: 15px;
+}
+
+.agent-icon {
+    width: 80px;
+    height: 80px;
+    margin-right: 20px;
+    border-radius: 50%;
+    border: 2px solid var(--valorant-red);
+    object-fit: cover;
+}
+
+.player-details {
+    flex-grow: 1;
+}
+
+.player-name {
+    margin: 0;
+    font-size: 1.4em;
+    color: var(--valorant-light);
+}
+
+.player-rank {
+    margin: 5px 0 0;
+    font-size: 1.1em;
+    color: var(--valorant-red);
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.rank-section {
+    display: flex;
+    align-items: center;
+    padding: 5px 5px;  /*上下左右のパディングを狭く */
+    background: var(--valorant-grey);
+}
+
+.rank-icon {
+    width: 150px; /* アイコンサイズ維持 */
+    height: 150px; /* アイコンサイズ維持 */
+    object-fit: contain;
+    margin-right: 15px; /* アイコンとテキストの間隔 */
+    flex-shrink: 0; /* アイコンが縮小されないようにする */
+}
+
+.rank-details {
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1; /* 残りのスペースを埋めるように拡大 */
+    justify-content: center; /* 縦方向中央揃え */
+}
+
+.rank-name-line {
+    display: flex;
+    align-items: baseline;
+    margin-bottom: 5px; /* ランク名と勝敗の間隔 */
+}
+
+.rank-name {
+    font-size: 1.8em; /* フォントサイズ */
+    font-weight: bold;
+    color: var(--valorant-light);
+    white-space: nowrap; /* ランク名が改行されないようにする */
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.rr {
+    font-size: 1.3em; /* フォントサイズ */
+    color: var(--valorant-red);
+    margin-left: 5px; /* RRとランク名の間隔 */
+}
+
+.win-loss {
+    font-size: 1.1em; /* フォントサイズ */
+    color: var(--valorant-light);
+    opacity: 0.8;
+    white-space: nowrap; /* 勝敗情報が改行されないようにする */
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.last-match-section {
+    padding: 8px 15px; /* パディングは維持 */
+    text-align: center;
+    font-weight: bold;
+    font-size: 1.1em; /* フォントサイズ */
+}
+
+.last-match-section[style*="background-color: rgb(76, 175, 80)"] {
+    /* 緑色の背景 */
+    background-color: var(--valorant-green) !important;
+}
+
+.last-match-section[style*="background-color: rgb(244, 67, 54)"] {
+    /* 赤色の背景 */
+    background-color: var(--valorant-red-bg) !important;
+}
+
+.last-match-text {
+    color: white;
+}
+
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 15px;
+    margin-top: 20px;
+}
+
+.stat-item {
+    text-align: center;
+    padding: 12px;
+    background: rgba(255, 70, 85, 0.1);
+    border-radius: 6px;
+}
+
+.stat-label {
+    display: block;
+    font-size: 0.9em;
+    color: var(--valorant-light);
+    margin-bottom: 8px;
+}
+
+.stat-value {
+    display: block;
+    font-size: 1.3em;
+    color: var(--valorant-red);
+    font-weight: bold;
+}
+
+.input-section {
+    max-width: 600px;
+    margin: 20px auto;
+    padding: 20px;
+    background-color: #1f1f1f;
+    border-radius: 8px;
+    color: white;
+}
+
+.input-section h2 {
+    text-align: center;
+    margin-bottom: 20px;
+    color: #ff4655;
+}
+
+.input-form {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 15px;
+}
+
+.input-form input {
+    flex: 1;
+    padding: 10px;
+    border: 1px solid #333;
+    border-radius: 4px;
+    background-color: #2a2a2a;
+    color: white;
+}
+
+.input-form button {
+    padding: 10px 20px;
+    background-color: #ff4655;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.input-form button:hover {
+    background-color: #ff2d3f;
+}
+
+.url-output {
+    display: flex;
+    gap: 10px;
+}
+
+.url-output input {
+    flex: 1;
+    padding: 10px;
+    border: 1px solid #333;
+    border-radius: 4px;
+    background-color: #2a2a2a;
+    color: white;
+}
+
+.url-output button {
+    padding: 10px 20px;
+    background-color: #0f1923;
+    color: white;
+    border: 1px solid #ff4655;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.url-output button:hover {
+    background-color: #1a2634;
+} 
