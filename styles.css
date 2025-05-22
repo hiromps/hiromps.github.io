@@ -398,6 +398,13 @@ body {
         width: 400;
         margin: 0;
     }
+
+    .ad-container {
+        display: block; /* PCでは表示 */
+        width: 728px; /* 広告ユニットの推奨サイズに合わせるか適宜調整 */
+        margin: 20px auto; /* 上下にマージン、左右中央寄せ */
+        text-align: center; /* 広告ユニット内の要素を中央寄せ */
+    }
 }
 
 /* レスポンシブデザイン対応 */
@@ -418,6 +425,7 @@ body {
         right: auto;
         transform: none; /* 中央寄せtransformを解除 */
         margin: 10px auto; /* 上下にマージン、左右中央寄せ */
+        order: 1; /* 2番目に表示 */
     }
 
     .rank-section {
@@ -425,17 +433,17 @@ body {
     }
 
     .rank-icon {
-        width: 130px;
-        height: 130px;
+        width: 100px;
+        height: 100px;
         margin-right: 8px;
     }
 
     .rank-name {
-        font-size: 1.4em;
+        font-size: 1.8em;
     }
 
     .rr {
-        font-size: 1.2em;
+        font-size: 1.6em;
     }
 
     .win-loss {
@@ -451,6 +459,7 @@ body {
         margin: 10px auto; /* 上下にマージン、左右中央寄せ */
         padding: 15px;
         max-width: 350px; /* オーバーレイの幅に合わせる */
+        order: 0; /* 1番目に表示 */
     }
 
     .input-form {
@@ -472,6 +481,33 @@ body {
         width: 100%;
         min-width: unset;
     }
+
+    .author-section {
+        position: static !important; /* 固定解除を確実に */
+        margin: 10px auto !important; /* 上下にマージン、左右中央寄せを確実に */
+        top: auto !important; /* 固定位置解除を確実に */
+        right: auto !important; /* 固定位置解除を確実に */
+        left: auto !important; /* 左固定も解除 */
+        bottom: auto !important; /* 下固定も解除 */
+        align-items: center; /* 中央寄せ */
+        order: 2; /* 3番目に表示 */
+    }
+
+    .ad-container {
+        order: 3; /* 4番目に表示 */
+        margin: 10px auto; /* 上下にマージン、左右中央寄せ */
+        width: 90%;
+        max-width: 350px; /* 他の要素の幅に合わせる */
+    }
+
+    .author-avatar {
+        width: 60px;
+        height: 60px;
+    }
+    
+    .author-text {
+        font-size: 0.9em;
+    }
 }
 
 @media screen and (max-width: 480px) {
@@ -489,11 +525,11 @@ body {
     }
 
     .rank-name {
-        font-size: 1.2em;
+        font-size: 1.8em;
     }
 
     .rr {
-        font-size: 1em;
+        font-size: 1.6em;
         font-weight: bold;
     }
 
@@ -539,4 +575,39 @@ body {
     body:has(input[id="generatedURL"][value*="obs"]) .input-section {
         display: none !important;
     }
+
+    body:has(input[id="generatedURL"][value*="obs"]) .ad-container {
+        display: none !important; /* OBSモードでは非表示 */
+    }
+}
+
+/* 製作者紹介セクション */
+.author-section {
+    position: fixed; /* 画面に固定 */
+    top: 20px; /* 上から20px */
+    right: 20px; /* 右から20px */
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end; /* 右寄せ */
+    z-index: 10; /* 他の要素より前面に */
+    color: var(--valorant-light); /* テキスト色 */
+}
+
+.author-text {
+    margin: 0 0 5px 0; /* 下に少しマージン */
+    font-size: 1em;
+    font-weight: bold;
+    text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.5); /* 読みやすく影を追加 */
+}
+
+.author-avatar {
+    width: 120px; /* アバター画像のサイズ */
+    height: 120px;
+    border-radius: 50%; /* 丸くする */
+    object-fit: cover; /* 画像の表示方法 */
+}
+
+/* Google AdSense広告ユニット */
+.ad-container {
+    display: none; /* デフォルトでは非表示 */
 } 

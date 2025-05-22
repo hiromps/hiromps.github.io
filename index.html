@@ -5,9 +5,32 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>VALORANT Tracker Overlay</title>
     <link rel="stylesheet" href="styles.css">
+    <!-- Google AdSense script -->
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6090439809602995"
+     crossorigin="anonymous"></script>
 </head>
 <body>
     <div class="background"></div>
+    
+    <!-- 製作者紹介セクション -->
+    <div class="author-section">
+        <p class="author-text">Project by にど寝</p>
+        <img src="assets/images/nidone.png" alt="製作者アバター" class="author-avatar">
+    </div>
+
+    <!-- Google AdSense広告ユニット -->
+    <div class="ad-container">
+        <ins class="adsbygoogle"
+             style="display:block"
+             data-ad-client="ca-pub-6090439809602995"
+             data-ad-slot="1000000000000000"
+             data-ad-format="auto"
+             data-full-width-responsive="true"></ins>
+        <script>
+             (adsbygoogle = window.adsbygoogle || []).push({});
+        </script>
+    </div>
+
     <div id="inputSection" class="input-section">
         <h2>VALORANT プレイヤー情報</h2>
         <div class="input-form">
@@ -196,6 +219,13 @@
                         overlayElement.style.right = 'auto'; // 右固定を解除
                         overlayElement.style.transform = 'translate(-50%, -50%)'; // 中央寄せ
                     }
+
+                    // 製作者紹介セクションを非表示
+                    const authorSectionElement = document.querySelector('.author-section');
+                    if (authorSectionElement) {
+                        authorSectionElement.style.display = 'none';
+                    }
+
                 } else {
                     // 通常のブラウザ表示でのオーバーレイ位置調整
                     document.querySelector('.overlay').style.top = '50%';
