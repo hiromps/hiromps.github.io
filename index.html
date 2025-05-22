@@ -44,6 +44,11 @@
         </div>
     </div>
 
+    <!-- カスタマイズボタン -->
+    <div class="customize-button-container">
+        <button id="customizeButton">カスタマイズ</button>
+    </div>
+
     <div class="overlay">
         <div class="rank-section">
             <img src="assets/images/ranks/ランクなし.png" alt="Rank Icon" class="rank-icon" id="rankIcon">
@@ -60,9 +65,273 @@
         </div>
     </div>
 
+    <!-- カラーピッカーモーダル -->
+    <div id="colorPickerModal" class="color-picker-modal">
+        <div class="color-picker-content">
+            <h3>カスタマイズ</h3>
+            <div class="color-picker-section">
+                <label for="rankBgColorPicker">ランク背景色:</label>
+                <input type="color" id="rankBgColorPicker" value="#3a444e">
+                <input type="range" id="rankBgOpacitySlider" min="0" max="100" value="100">
+                <span id="rankBgOpacityValue">100%</span>
+            </div>
+            <div class="color-picker-section">
+                <label for="bgColorPicker">ラストマッチの背景色:</label>
+                <input type="color" id="bgColorPicker" value="#0f1923">
+                <input type="range" id="bgOpacitySlider" min="0" max="100" value="90">
+                <span id="bgOpacityValue">90%</span>
+            </div>
+            <div class="color-picker-section">
+                <label for="textColorPicker">文字色:</label>
+                <input type="color" id="textColorPicker" value="#ece8e1">
+            </div>
+            <div class="color-picker-section">
+                <label for="rrColorPicker">RRテキスト色:</label>
+                <input type="color" id="rrColorPicker" value="#ff4655">
+            </div>
+            <div class="color-picker-section">
+                <label for="winLossTextColorPicker">Win/Loss テキスト色:</label>
+                <input type="color" id="winLossTextColorPicker" value="#ece8e1">
+            </div>
+            <div class="color-picker-buttons">
+                <button onclick="applyCustomColors()">適用</button>
+                <button onclick="closeColorPicker()">キャンセル</button>
+                <button onclick="resetCustomColors()">リセット</button>
+            </div>
+        </div>
+    </div>
+
     <script src="config.js"></script>
     <script src="js/api.js"></script>
     <script>
+        // カラーピッカーモーダルの表示/非表示
+        function showColorPicker() {
+            const modal = document.getElementById('colorPickerModal');
+            modal.style.display = 'flex';
+        }
+
+        function closeColorPicker() {
+            const modal = document.getElementById('colorPickerModal');
+            modal.style.display = 'none';
+        }
+
+        // 背景色の透明度スライダーの更新
+        document.getElementById('bgOpacitySlider').addEventListener('input', function(e) {
+            document.getElementById('bgOpacityValue').textContent = e.target.value + '%';
+        });
+
+        document.getElementById('rankBgOpacitySlider').addEventListener('input', function(e) {
+            document.getElementById('rankBgOpacityValue').textContent = e.target.value + '%';
+        });
+
+        // カスタムカラーの適用
+        function applyCustomColors() {
+            const bgColor = document.getElementById('bgColorPicker').value;
+            const bgOpacity = document.getElementById('bgOpacitySlider').value;
+            const rankBgColor = document.getElementById('rankBgColorPicker').value;
+            const rankBgOpacity = document.getElementById('rankBgOpacitySlider').value;
+            const textColor = document.getElementById('textColorPicker').value;
+            const rrColor = document.getElementById('rrColorPicker').value;
+            const winLossTextColor = document.getElementById('winLossTextColorPicker').value;
+
+            // 背景色をrgba形式に変換
+            const r = parseInt(bgColor.slice(1, 3), 16);
+            const g = parseInt(bgColor.slice(3, 5), 16);
+            const b = parseInt(bgColor.slice(5, 7), 16);
+            const rgbaBgColor = `rgba(${r}, ${g}, ${b}, ${bgOpacity / 100})`;
+
+            // ランク背景色をrgba形式に変換
+            const rankR = parseInt(rankBgColor.slice(1, 3), 16);
+            const rankG = parseInt(rankBgColor.slice(3, 5), 16);
+            const rankB = parseInt(rankBgColor.slice(5, 7), 16);
+            const rgbaRankBgColor = `rgba(${rankR}, ${rankG}, ${rankB}, ${rankBgOpacity / 100})`;
+
+            // CSS変数を更新
+            document.documentElement.style.setProperty('--overlay-bg-color', rgbaBgColor);
+            document.documentElement.style.setProperty('--rank-bg-color', rgbaRankBgColor);
+            document.documentElement.style.setProperty('--text-color', textColor);
+            document.documentElement.style.setProperty('--rr-color', rrColor);
+            document.documentElement.style.setProperty('--win-loss-text-color', winLossTextColor);
+
+            // 設定を保存
+            localStorage.setItem('customBgColor', bgColor);
+            localStorage.setItem('customBgOpacity', bgOpacity);
+            localStorage.setItem('customRankBgColor', rankBgColor);
+            localStorage.setItem('customRankBgOpacity', rankBgOpacity);
+            localStorage.setItem('customTextColor', textColor);
+            localStorage.setItem('customRrColor', rrColor);
+            localStorage.setItem('customWinLossTextColor', winLossTextColor);
+
+            closeColorPicker();
+        }
+
+        // 保存された設定を読み込む
+        function loadSavedSettings() {
+            const savedBgColor = localStorage.getItem('customBgColor');
+            const savedBgOpacity = localStorage.getItem('customBgOpacity');
+            const savedRankBgColor = localStorage.getItem('customRankBgColor');
+            const savedRankBgOpacity = localStorage.getItem('customRankBgOpacity');
+            const savedTextColor = localStorage.getItem('customTextColor');
+            const savedRrColor = localStorage.getItem('customRrColor');
+            const savedWinLossTextColor = localStorage.getItem('customWinLossTextColor');
+
+            if (savedBgColor && savedBgOpacity && savedTextColor) {
+                // オーバーレイ背景色の設定
+                const r = parseInt(savedBgColor.slice(1, 3), 16);
+                const g = parseInt(savedBgColor.slice(3, 5), 16);
+                const b = parseInt(savedBgColor.slice(5, 7), 16);
+                const rgbaBgColor = `rgba(${r}, ${g}, ${b}, ${savedBgOpacity / 100})`;
+
+                // ランク背景色の設定
+                const rankR = parseInt(savedRankBgColor.slice(1, 3), 16);
+                const rankG = parseInt(savedRankBgColor.slice(3, 5), 16);
+                const rankB = parseInt(savedRankBgColor.slice(5, 7), 16);
+                const rgbaRankBgColor = `rgba(${rankR}, ${rankG}, ${rankB}, ${savedRankBgOpacity / 100})`;
+
+                document.documentElement.style.setProperty('--overlay-bg-color', rgbaBgColor);
+                document.documentElement.style.setProperty('--rank-bg-color', rgbaRankBgColor);
+                document.documentElement.style.setProperty('--text-color', savedTextColor);
+                if (savedRrColor) {
+                    document.documentElement.style.setProperty('--rr-color', savedRrColor);
+                }
+                if (savedWinLossTextColor) {
+                    document.documentElement.style.setProperty('--win-loss-text-color', savedWinLossTextColor);
+                }
+
+                // カラーピッカーの値を更新
+                document.getElementById('bgColorPicker').value = savedBgColor;
+                document.getElementById('bgOpacitySlider').value = savedBgOpacity;
+                document.getElementById('bgOpacityValue').textContent = savedBgOpacity + '%';
+                document.getElementById('rankBgColorPicker').value = savedRankBgColor;
+                document.getElementById('rankBgOpacitySlider').value = savedRankBgOpacity;
+                document.getElementById('rankBgOpacityValue').textContent = savedRankBgOpacity + '%';
+                document.getElementById('textColorPicker').value = savedTextColor;
+                if (savedRrColor) {
+                    document.getElementById('rrColorPicker').value = savedRrColor;
+                }
+                if (savedWinLossTextColor) {
+                    document.getElementById('winLossTextColorPicker').value = savedWinLossTextColor;
+                }
+            }
+        }
+
+        // 設定をデフォルトに戻す
+        function resetCustomColors() {
+            // デフォルト値を定義
+            const defaultBgColor = '#0f1923'; // VALORANT風のダークカラー
+            const defaultBgOpacity = '90';
+            const defaultRankBgColor = '#3a444e'; // VALORANT風のグレー
+            const defaultRankBgOpacity = '100';
+            const defaultTextColor = '#ece8e1'; // VALORANT風のライトカラー
+            const defaultRrColor = '#ff4655'; // VALORANT風のレッド
+            const defaultWinLossTextColor = '#ece8e1'; // デフォルトは他のテキスト色と同じ
+
+            // カラーピッカーの値をデフォルトに戻す
+            document.getElementById('bgColorPicker').value = defaultBgColor;
+            document.getElementById('bgOpacitySlider').value = defaultBgOpacity;
+            document.getElementById('bgOpacityValue').textContent = defaultBgOpacity + '%';
+            document.getElementById('rankBgColorPicker').value = defaultRankBgColor;
+            document.getElementById('rankBgOpacitySlider').value = defaultRankBgOpacity;
+            document.getElementById('rankBgOpacityValue').textContent = defaultRankBgOpacity + '%';
+            document.getElementById('textColorPicker').value = defaultTextColor;
+            document.getElementById('rrColorPicker').value = defaultRrColor;
+            document.getElementById('winLossTextColorPicker').value = defaultWinLossTextColor;
+
+            // デフォルト値を適用
+            applyCustomColors();
+
+            // localStorageから設定を削除
+            localStorage.removeItem('customBgColor');
+            localStorage.removeItem('customBgOpacity');
+            localStorage.removeItem('customRankBgColor');
+            localStorage.removeItem('customRankBgOpacity');
+            localStorage.removeItem('customTextColor');
+            localStorage.removeItem('customRrColor');
+            localStorage.removeItem('customWinLossTextColor');
+        }
+
+        // カスタマイズボタンのイベントリスナーを設定
+        document.addEventListener('DOMContentLoaded', function() {
+            const customizeButton = document.getElementById('customizeButton');
+            if (customizeButton) {
+                customizeButton.addEventListener('click', showColorPicker);
+            }
+
+            // 保存された設定を読み込む
+            loadSavedSettings();
+        });
+
+        // URLパラメータからプレイヤー情報を取得して表示
+        window.onload = function() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const name = urlParams.get('name');
+            const tag = urlParams.get('tag');
+            const isOBS = urlParams.has('obs');
+
+            // モーダルの外側をクリックしたら閉じる
+            window.onclick = function(event) {
+                const modal = document.getElementById('colorPickerModal');
+                if (event.target == modal) {
+                    closeColorPicker();
+                }
+            }
+
+            if (name && tag) {
+                // URLパラメータがある場合は入力フォームを非表示
+                document.getElementById('inputSection').style.display = 'none';
+
+                if (isOBS) {
+                    // OBSモードの場合のスタイル調整
+                    document.body.style.backgroundColor = 'transparent';
+                    document.body.style.overflow = 'hidden';
+                    // bodyにOBSモードクラスを追加
+                    document.body.classList.add('obs-mode');
+
+                    // 背景アニメーション要素を非表示
+                    const backgroundElement = document.querySelector('.background');
+                    if (backgroundElement) {
+                        backgroundElement.style.display = 'none';
+                    }
+
+                    // オーバーレイのOBS向け位置調整（中央に配置）
+                    const overlayElement = document.querySelector('.overlay');
+                    if (overlayElement) {
+                        overlayElement.style.position = 'absolute';
+                        overlayElement.style.top = '50%';
+                        overlayElement.style.left = '50%';
+                        overlayElement.style.right = 'auto';
+                        overlayElement.style.transform = 'translate(-50%, -50%)';
+                    }
+
+                    // 製作者紹介セクションを非表示
+                    const authorSectionElement = document.querySelector('.author-section');
+                    if (authorSectionElement) {
+                        authorSectionElement.style.display = 'none';
+                    }
+
+                } else {
+                    // 通常のブラウザ表示でのオーバーレイ位置調整
+                    document.querySelector('.overlay').style.top = '50%';
+                    document.querySelector('.overlay').style.transform = 'translateY(-50%)';
+                }
+
+                // プレイヤー情報を更新
+                updatePlayerInfo(name, tag);
+            } else if (isOBS) {
+                // name, tag パラメータがないが OBS モードの場合
+                document.getElementById('inputSection').style.display = 'none';
+                const backgroundElement = document.querySelector('.background');
+                if (backgroundElement) {
+                    backgroundElement.style.display = 'none';
+                }
+                // データがない旨を表示
+                document.getElementById('rankText').textContent = '情報なし';
+                document.getElementById('rrText').textContent = '';
+                document.getElementById('winLossText').textContent = '';
+                document.getElementById('lastMatchSection').style.display = 'none';
+            }
+        }
+
         async function updatePlayerInfo(name, tag) {
             try {
                 const stats = await fetchPlayerStats(name, tag);
@@ -187,71 +456,6 @@
             urlInput.select();
             document.execCommand('copy');
             alert('URLをコピーしました！');
-        }
-
-        // URLパラメータからプレイヤー情報を取得して表示
-        window.onload = function() {
-            const urlParams = new URLSearchParams(window.location.search);
-            const name = urlParams.get('name');
-            const tag = urlParams.get('tag');
-            const isOBS = urlParams.has('obs'); // obsパラメータを確認
-            
-            if (name && tag) {
-                // URLパラメータがある場合は入力フォームを非表示
-                document.getElementById('inputSection').style.display = 'none';
-
-                if (isOBS) {
-                    // OBSモードの場合のスタイル調整
-                    document.body.style.backgroundColor = 'transparent'; // bodyの背景を透過
-                    document.body.style.overflow = 'hidden'; // スクロールバーを非表示
-                    // 背景アニメーション要素を非表示
-                    const backgroundElement = document.querySelector('.background');
-                    if (backgroundElement) {
-                        backgroundElement.style.display = 'none';
-                    }
-
-                    // オーバーレイのOBS向け位置調整（中央に配置）
-                    const overlayElement = document.querySelector('.overlay');
-                    if (overlayElement) {
-                        overlayElement.style.position = 'absolute'; // OBS内の要素として絶対配置
-                        overlayElement.style.top = '50%';
-                        overlayElement.style.left = '50%';
-                        overlayElement.style.right = 'auto'; // 右固定を解除
-                        overlayElement.style.transform = 'translate(-50%, -50%)'; // 中央寄せ
-                    }
-
-                    // 製作者紹介セクションを非表示
-                    const authorSectionElement = document.querySelector('.author-section');
-                    if (authorSectionElement) {
-                        authorSectionElement.style.display = 'none';
-                    }
-
-                } else {
-                    // 通常のブラウザ表示でのオーバーレイ位置調整
-                    document.querySelector('.overlay').style.top = '50%';
-                    document.querySelector('.overlay').style.transform = 'translateY(-50%)';
-                    // PCレイアウトでの右寄せはCSSで制御されるためここではLeft/Rightの変更は不要
-                }
-
-                // プレイヤー情報を更新
-                updatePlayerInfo(name, tag);
-            } else if (isOBS) {
-                 // name, tag パラメータがないが OBS モードの場合
-                document.getElementById('inputSection').style.display = 'none';
-                 const backgroundElement = document.querySelector('.background');
-                 if (backgroundElement) {
-                     backgroundElement.style.display = 'none';
-                 }
-                 // データがない旨を表示する、などの追加処理が必要であればここに記述
-                 // 例: オーバーレイに「プレイヤー情報が設定されていません」と表示
-                 document.getElementById('rankText').textContent = '情報なし';
-                 document.getElementById('rrText').textContent = '';
-                 document.getElementById('winLossText').textContent = '';
-                 document.getElementById('lastMatchSection').style.display = 'none';
-            } else {
-                // name, tag パラメータがない通常のブラウザ表示の場合
-                // 何もしない（入力フォームが表示されたままになる）
-            }
         }
     </script>
 </body>

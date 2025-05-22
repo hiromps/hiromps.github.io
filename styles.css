@@ -5,6 +5,14 @@
     --valorant-grey: #3a444e;
     --valorant-green: #4CAF50;
     --valorant-red-bg: #F44336;
+    --overlay-bg-color: rgba(15, 25, 35, 0.9); /* オーバーレイの背景色のデフォルト値 */
+    --rank-bg-color: var(--valorant-grey);
+    --border-color: var(--valorant-red); /* ボーダー色のデフォルト値 */
+    --text-color: var(--valorant-light);
+    --rr-color: var(--valorant-red);
+    --win-color: var(--valorant-green);
+    --loss-color: var(--valorant-red-bg);
+    --win-loss-text-color: var(--text-color);
 }
 
 /* 背景アニメーション用のスタイル */
@@ -84,11 +92,11 @@ body {
     right: 20px;
     display: flex;
     flex-direction: column;
-    background: rgba(15, 25, 35, 0.9);
+    background: var(--overlay-bg-color); /* 変数を適用 */
     backdrop-filter: blur(10px);
-    border: 1px solid var(--valorant-red);
+    border: 1px solid var(--border-color); /* 変数を適用 */
     border-radius: 8px;
-    color: var(--valorant-light);
+    color: var(--text-color);
     box-shadow: 0 0 20px rgba(255, 70, 85, 0.2);
     overflow: hidden;
     width: 300px;
@@ -138,7 +146,7 @@ body {
     display: flex;
     align-items: center;
     padding: 0;
-    background: var(--valorant-grey);
+    background: var(--rank-bg-color);
 }
 
 .rank-icon {
@@ -168,7 +176,7 @@ body {
 .rank-name {
     font-size: 1.6em; /* デフォルトサイズ */
     font-weight: bold;
-    color: var(--valorant-light);
+    color: var(--text-color);
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -177,17 +185,26 @@ body {
 
 .rr {
     font-size: 1.4em; /* デフォルトサイズ */
-    color: var(--valorant-red);
+    color: var(--rr-color);
     font-weight: bold;
 }
 
 .win-loss {
     font-size: 1em;
-    color: var(--valorant-light);
+    color: var(--win-loss-text-color);
     opacity: 0.8;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+    font-weight: bold;
+}
+
+.win-loss span:first-child { /* Winのスタイル */
+    /* color: var(--win-color); */
+}
+
+.win-loss span:last-child { /* Lossのスタイル */
+    /* color: var(--loss-color); */
 }
 
 .last-match-section {
@@ -216,7 +233,7 @@ body {
 .last-match-text {
     position: relative; /* ゲージの上に表示 */
     z-index: 1; /* ゲージより前面に */
-    color: white;
+    color: var(--text-color);
 }
 
 .last-match-section[style*="background-color: rgb(76, 175, 80)"] {
@@ -266,7 +283,7 @@ body {
     backdrop-filter: blur(10px);
     border-radius: 8px;
     color: white;
-    border: 1px solid var(--valorant-red);
+    border: 1px solid var(--border-color); /* 変数を適用 */
     box-shadow: 0 0 20px rgba(255, 70, 85, 0.2);
     transition: transform 0.3s ease;
     box-sizing: border-box;
@@ -336,7 +353,7 @@ body {
     padding: 10px 20px;
     background-color: #0f1923;
     color: white;
-    border: 1px solid #ff4655;
+    border: 1px solid var(--border-color); /* 変数を適用 */
     border-radius: 4px;
     cursor: pointer;
     transition: background-color 0.3s;
@@ -345,6 +362,27 @@ body {
 
 .url-output button:hover {
     background-color: #1a2634;
+}
+
+/* カスタマイズボタンのコンテナ */
+.customize-button-container {
+    text-align: center; /* ボタンを中央寄せ */
+    margin-top: 20px; /* 上に余白 */
+    margin-bottom: 20px; /* 下に余白 */
+}
+
+.customize-button-container button {
+    padding: 10px 20px;
+    background-color: var(--valorant-grey); /* VALORANT風のグレー */
+    color: var(--valorant-light); /* VALORANT風のライトカラー */
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.customize-button-container button:hover {
+    background-color: #5a646e; /* ホバー時の色 */
 }
 
 /* PCレイアウト */
@@ -397,6 +435,13 @@ body {
         right: 0;
         width: 400;
         margin: 0;
+    }
+
+    .customize-button-container {
+        width: 100%;
+        max-width: 550px; /* 入力セクションの幅に合わせる */
+        margin: 20px 0; /* PCレイアウトでのマージン調整 */
+        text-align: left; /* PCレイアウトでは左寄せ */
     }
 
     .ad-container {
@@ -460,6 +505,14 @@ body {
         padding: 15px;
         max-width: 350px; /* オーバーレイの幅に合わせる */
         order: 0; /* 1番目に表示 */
+    }
+
+    .customize-button-container {
+        width: 90%;
+        margin: 10px auto; /* 上下にマージン、左右中央寄せ */
+        order: -1; /* 任意: 例えば入力セクションの上に表示したい場合 */
+        /* order: 1; /* 入力セクションの下、オーバーレイの上に表示したい場合 */
+        order: 2; /* オーバーレイの下、author-sectionの上に表示 */
     }
 
     .input-form {
@@ -552,33 +605,49 @@ body {
 
 /* OBS用スタイル */
 /* URLに '?obs' パラメータが含まれている場合に適用 */
-@media screen and (max-width: 9999px) {
-    body:has(input[id="generatedURL"][value*="obs"]) {
-        background-color: transparent !important;
-        overflow: hidden !important;
-    }
+/* bodyにobs-modeクラスが付与されている場合に適用 */
+body.obs-mode {
+    background-color: transparent !important;
+    overflow: hidden !important;
+}
 
-    body:has(input[id="generatedURL"][value*="obs"]) .background {
-        display: none !important;
-    }
+body.obs-mode .background {
+    display: none !important;
+}
 
-    body:has(input[id="generatedURL"][value*="obs"]) .overlay {
-        position: absolute !important;
-        top: 50% !important;
-        left: 50% !important;
-        right: auto !important; /* 右固定を解除 */
-        transform: translate(-50%, -50%) !important; /* 中央寄せ */
-        margin: 0 !important; /* マージンをリセット */
-    }
+body.obs-mode .overlay {
+    position: absolute !important;
+    top: 50% !important;
+    left: 50% !important;
+    right: auto !important; /* 右固定を解除 */
+    transform: translate(-50%, -50%) !important; /* 中央寄せ */
+    margin: 0 !important; /* マージンをリセット */
+}
 
-    /* 入力フォームも非表示 */
-    body:has(input[id="generatedURL"][value*="obs"]) .input-section {
-        display: none !important;
-    }
+/* 入力フォームも非表示 */
+body.obs-mode .input-section {
+    display: none !important;
+}
 
-    body:has(input[id="generatedURL"][value*="obs"]) .ad-container {
-        display: none !important; /* OBSモードでは非表示 */
-    }
+body.obs-mode .customize-button-container {
+    display: none !important; /* OBSモードでは非表示 */
+}
+
+body.obs-mode .ad-container {
+    display: none !important; /* OBSモードでは非表示 */
+}
+
+/* 入力フォームも非表示 */
+body:has(input[id="generatedURL"][value*="obs"]) .input-section {
+    display: none !important;
+}
+
+body:has(input[id="generatedURL"][value*="obs"]) .customize-button-container {
+    display: none !important; /* OBSモードでは非表示 */
+}
+
+body:has(input[id="generatedURL"][value*="obs"]) .ad-container {
+    display: none !important; /* OBSモードでは非表示 */
 }
 
 /* 製作者紹介セクション */
@@ -601,13 +670,111 @@ body {
 }
 
 .author-avatar {
-    width: 120px; /* アバター画像のサイズ */
+    width: 120px;
     height: 120px;
     border-radius: 50%; /* 丸くする */
+    border: 2px solid var(--border-color); /* 変数を適用 */
     object-fit: cover; /* 画像の表示方法 */
 }
 
 /* Google AdSense広告ユニット */
 .ad-container {
     display: none; /* デフォルトでは非表示 */
+}
+
+/* カラーピッカーモーダル */
+.color-picker-modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.7);
+    z-index: 1000;
+    justify-content: center;
+    align-items: center;
+}
+
+.color-picker-content {
+    background-color: var(--valorant-dark);
+    padding: 20px;
+    border-radius: 8px;
+    border: 1px solid var(--valorant-red);
+    min-width: 300px;
+}
+
+.color-picker-content h3 {
+    color: var(--valorant-light);
+    margin-top: 0;
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+.color-picker-section {
+    margin-bottom: 15px;
+}
+
+.color-picker-section label {
+    display: block;
+    color: var(--valorant-light);
+    margin-bottom: 5px;
+}
+
+.color-picker-section input[type="color"] {
+    width: 100%;
+    height: 40px;
+    border: none;
+    border-radius: 4px;
+    margin-bottom: 5px;
+}
+
+.color-picker-section input[type="range"] {
+    width: 100%;
+    margin: 10px 0;
+}
+
+.color-picker-section span {
+    color: var(--valorant-light);
+    font-size: 0.9em;
+}
+
+.color-picker-buttons {
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
+    margin-top: 20px;
+}
+
+.color-picker-buttons button {
+    flex: 1;
+    padding: 10px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.color-picker-buttons button:first-child {
+    background-color: var(--valorant-red);
+    color: white;
+}
+
+.color-picker-buttons button:last-child {
+    background-color: var(--valorant-grey);
+    color: var(--valorant-light);
+}
+
+.color-picker-buttons button:nth-child(3) { /* リセットボタンのスタイル */
+    background-color: #5a646e; /* デフォルトとは異なるグレーなど */
+    color: var(--valorant-light);
+}
+
+.color-picker-buttons button:hover {
+    opacity: 0.9;
+}
+
+/* OBSモードでのカラーピッカー非表示 */
+body.obs-mode .color-picker-modal {
+    display: none !important;
 } 
