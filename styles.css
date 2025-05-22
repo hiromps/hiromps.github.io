@@ -7,7 +7,7 @@
     --valorant-red-bg: #F44336;
     --overlay-bg-color: rgba(15, 25, 35, 0.9); /* オーバーレイの背景色のデフォルト値 */
     --rank-bg-color: var(--valorant-grey);
-    --border-color: var(--valorant-red); /* ボーダー色のデフォルト値 */
+    --border-color: var(--border-color); /* ボーダー色のデフォルト値 */
     --text-color: var(--valorant-light);
     --rr-color: var(--valorant-red);
     --win-color: var(--valorant-green);
@@ -80,7 +80,7 @@ body {
     margin: 0;
     padding: 0;
     font-family: 'Arial', sans-serif;
-    background: transparent;
+    background-color: transparent !important; /* 強制的に透明にする */
     overflow: hidden; /* スクロールバーを非表示に */
     min-height: 100vh;
     position: relative;
@@ -93,11 +93,11 @@ body {
     display: flex;
     flex-direction: column;
     background: var(--overlay-bg-color); /* 変数を適用 */
-    backdrop-filter: blur(10px);
+    /* background-color: transparent; */
+    /* backdrop-filter: blur(10px); */
     border: 1px solid var(--border-color); /* 変数を適用 */
-    border-radius: 8px;
+    border-radius: 8px; /* 角を丸く */
     color: var(--text-color);
-    box-shadow: 0 0 20px rgba(255, 70, 85, 0.2);
     overflow: hidden;
     width: 300px;
     height: auto;
@@ -217,7 +217,7 @@ body {
     justify-content: center;
     position: relative; /* 子要素の絶対配置のために必要 */
     overflow: hidden; /* ゲージがはみ出さないように隠す */
-    background-color: rgba(0, 0, 0, 0.2); /* ゲージの背景色（任意）*/
+    background-color: var(--valorant-red-bg); /* デフォルトの背景色を赤に */
 }
 
 .mmr-gauge-fill {
