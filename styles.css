@@ -91,7 +91,8 @@ body {
     color: var(--valorant-light);
     box-shadow: 0 0 20px rgba(255, 70, 85, 0.2);
     overflow: hidden;
-    width: 420px; /* 幅は維持 */
+    width: 300px;
+    height: auto;
     transition: transform 0.3s ease;
 }
 
@@ -136,60 +137,86 @@ body {
 .rank-section {
     display: flex;
     align-items: center;
-    padding: 5px 5px;  /*上下左右のパディングを狭く */
+    padding: 0;
     background: var(--valorant-grey);
 }
 
 .rank-icon {
-    width: 150px; /* アイコンサイズ維持 */
-    height: 150px; /* アイコンサイズ維持 */
+    width: 80px;
+    height: 80px;
     object-fit: contain;
-    margin-right: 15px; /* アイコンとテキストの間隔 */
-    flex-shrink: 0; /* アイコンが縮小されないようにする */
+    margin-right: 10px;
+    flex-shrink: 0;
 }
 
 .rank-details {
     display: flex;
     flex-direction: column;
-    flex-grow: 1; /* 残りのスペースを埋めるように拡大 */
-    justify-content: center; /* 縦方向中央揃え */
+    flex-grow: 1;
+    justify-content: center;
+    gap: 3px;
+    min-width: 0; /* テキストのオーバーフローを防ぐ */
 }
 
 .rank-name-line {
     display: flex;
     align-items: baseline;
-    margin-bottom: 5px; /* ランク名と勝敗の間隔 */
+    gap: 5px;
+    min-width: 0; /* テキストのオーバーフローを防ぐ */
 }
 
 .rank-name {
-    font-size: 1.8em; /* フォントサイズ */
+    font-size: 1.6em; /* デフォルトサイズ */
     font-weight: bold;
     color: var(--valorant-light);
-    white-space: nowrap; /* ランク名が改行されないようにする */
+    white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+    min-width: 0; /* テキストのオーバーフローを防ぐ */
 }
 
 .rr {
-    font-size: 1.3em; /* フォントサイズ */
+    font-size: 1.4em; /* デフォルトサイズ */
     color: var(--valorant-red);
-    margin-left: 5px; /* RRとランク名の間隔 */
+    font-weight: bold;
 }
 
 .win-loss {
-    font-size: 1.1em; /* フォントサイズ */
+    font-size: 1em;
     color: var(--valorant-light);
     opacity: 0.8;
-    white-space: nowrap; /* 勝敗情報が改行されないようにする */
+    white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
 }
 
 .last-match-section {
-    padding: 8px 15px; /* パディングは維持 */
+    padding: 5px 10px;
     text-align: center;
     font-weight: bold;
-    font-size: 1.1em; /* フォントサイズ */
+    font-size: 1em;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative; /* 子要素の絶対配置のために必要 */
+    overflow: hidden; /* ゲージがはみ出さないように隠す */
+    background-color: rgba(0, 0, 0, 0.2); /* ゲージの背景色（任意）*/
+}
+
+.mmr-gauge-fill {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: 0; /* 初期幅は0 */
+    background-color: var(--valorant-green); /* デフォルト緑 */
+    transition: width 0.5s ease; /* アニメーション */
+}
+
+.last-match-text {
+    position: relative; /* ゲージの上に表示 */
+    z-index: 1; /* ゲージより前面に */
+    color: white;
 }
 
 .last-match-section[style*="background-color: rgb(76, 175, 80)"] {
@@ -200,10 +227,6 @@ body {
 .last-match-section[style*="background-color: rgb(244, 67, 54)"] {
     /* 赤色の背景 */
     background-color: var(--valorant-red-bg) !important;
-}
-
-.last-match-text {
-    color: white;
 }
 
 .stats-grid {
@@ -236,6 +259,7 @@ body {
 
 .input-section {
     max-width: 600px;
+    width: 100%;
     margin: 20px auto;
     padding: 20px;
     background-color: rgba(31, 31, 31, 0.9);
@@ -245,6 +269,7 @@ body {
     border: 1px solid var(--valorant-red);
     box-shadow: 0 0 20px rgba(255, 70, 85, 0.2);
     transition: transform 0.3s ease;
+    box-sizing: border-box;
 }
 
 .input-section:hover {
@@ -261,15 +286,18 @@ body {
     display: flex;
     gap: 10px;
     margin-bottom: 15px;
+    flex-wrap: wrap;
 }
 
 .input-form input {
     flex: 1;
+    min-width: 200px;
     padding: 10px;
     border: 1px solid #333;
     border-radius: 4px;
     background-color: #2a2a2a;
     color: white;
+    box-sizing: border-box;
 }
 
 .input-form button {
@@ -280,6 +308,7 @@ body {
     border-radius: 4px;
     cursor: pointer;
     transition: background-color 0.3s;
+    white-space: nowrap;
 }
 
 .input-form button:hover {
@@ -289,15 +318,18 @@ body {
 .url-output {
     display: flex;
     gap: 10px;
+    flex-wrap: wrap;
 }
 
 .url-output input {
     flex: 1;
+    min-width: 200px;
     padding: 10px;
     border: 1px solid #333;
     border-radius: 4px;
     background-color: #2a2a2a;
     color: white;
+    box-sizing: border-box;
 }
 
 .url-output button {
@@ -308,6 +340,7 @@ body {
     border-radius: 4px;
     cursor: pointer;
     transition: background-color 0.3s;
+    white-space: nowrap;
 }
 
 .url-output button:hover {
@@ -324,7 +357,8 @@ body {
     }
 
     .input-section {
-        width: 400px;
+        width: 100%;
+        max-width: 400px;
         margin: 0;
         margin-bottom: 20px;
     }
@@ -333,7 +367,7 @@ body {
         position: relative;
         top: 0;
         right: 0;
-        width: 400px;
+        width: 400;
         margin: 0;
     }
 }
@@ -341,20 +375,31 @@ body {
 /* レスポンシブデザイン対応 */
 @media screen and (max-width: 768px) {
     body {
-        padding: 0;
+        padding: 10px; /* 画面端に少し余白 */
+        display: flex; /* 子要素をflexboxで配置 */
+        flex-direction: column; /* 子要素を縦に並べる */
+        align-items: center; /* 子要素を中央寄せ */
     }
 
     .overlay {
         width: 90%;
-        max-width: 420px;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
+        max-width: 350px;
+        position: relative; /* 標準フローで配置 */
+        top: auto; /* 固定位置を解除 */
+        left: auto; /* 固定位置を解除 */
+        right: auto;
+        transform: none; /* 中央寄せtransformを解除 */
+        margin: 10px auto; /* 上下にマージン、左右中央寄せ */
+    }
+
+    .rank-section {
+        padding: 4px;
     }
 
     .rank-icon {
-        width: 100px;
-        height: 100px;
+        width: 130px;
+        height: 130px;
+        margin-right: 8px;
     }
 
     .rank-name {
@@ -362,7 +407,7 @@ body {
     }
 
     .rr {
-        font-size: 1.1em;
+        font-size: 1.2em;
     }
 
     .win-loss {
@@ -370,13 +415,14 @@ body {
     }
 
     .last-match-section {
-        font-size: 0.9em;
+        padding: 4px 8px;
     }
 
     .input-section {
         width: 90%;
-        margin: 10px auto;
+        margin: 10px auto; /* 上下にマージン、左右中央寄せ */
         padding: 15px;
+        max-width: 350px; /* オーバーレイの幅に合わせる */
     }
 
     .input-form {
@@ -386,6 +432,7 @@ body {
     .input-form input,
     .input-form button {
         width: 100%;
+        min-width: unset;
     }
 
     .url-output {
@@ -395,6 +442,7 @@ body {
     .url-output input,
     .url-output button {
         width: 100%;
+        min-width: unset;
     }
 }
 
@@ -403,9 +451,13 @@ body {
         width: 95%;
     }
 
+    .rank-section {
+        padding: 0;
+    }
+
     .rank-icon {
-        width: 80px;
-        height: 80px;
+        width: 110px;
+        height: 110px;
     }
 
     .rank-name {
@@ -414,6 +466,7 @@ body {
 
     .rr {
         font-size: 1em;
+        font-weight: bold;
     }
 
     .win-loss {
@@ -421,8 +474,7 @@ body {
     }
 
     .last-match-section {
-        font-size: 0.8em;
-        padding: 6px 10px;
+        padding: 3px 6px;
     }
 }
 
@@ -431,5 +483,32 @@ body {
     .input-form button,
     .url-output button {
         padding: 12px 20px; /* タッチターゲットを大きく */
+    }
+}
+
+/* OBS用スタイル */
+/* URLに '?obs' パラメータが含まれている場合に適用 */
+@media screen and (max-width: 9999px) {
+    body:has(input[id="generatedURL"][value*="obs"]) {
+        background-color: transparent !important;
+        overflow: hidden !important;
+    }
+
+    body:has(input[id="generatedURL"][value*="obs"]) .background {
+        display: none !important;
+    }
+
+    body:has(input[id="generatedURL"][value*="obs"]) .overlay {
+        position: absolute !important;
+        top: 50% !important;
+        left: 50% !important;
+        right: auto !important; /* 右固定を解除 */
+        transform: translate(-50%, -50%) !important; /* 中央寄せ */
+        margin: 0 !important; /* マージンをリセット */
+    }
+
+    /* 入力フォームも非表示 */
+    body:has(input[id="generatedURL"][value*="obs"]) .input-section {
+        display: none !important;
     }
 } 

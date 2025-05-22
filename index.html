@@ -32,6 +32,7 @@
             </div>
         </div>
         <div class="last-match-section" id="lastMatchSection">
+            <div class="mmr-gauge-fill"></div>
             <span class="last-match-text" id="lastMatchText">Last Match +0pts</span>
         </div>
     </div>
@@ -71,12 +72,36 @@
                         // 直近のマッチ結果（MMR変動値）を更新
                         const lastMatchSection = document.getElementById('lastMatchSection');
                         const lastMatchText = document.getElementById('lastMatchText');
+                        const mmrGaugeFill = lastMatchSection.querySelector('.mmr-gauge-fill');
 
                         if (mmrChange !== undefined) {
                             const sign = mmrChange >= 0 ? '+' : '';
                             lastMatchText.textContent = `Last Match ${sign}${mmrChange}pts`;
-                            lastMatchSection.style.backgroundColor = mmrChange >= 0 ? '#4CAF50' : '#F44336';
-                            lastMatchSection.style.display = 'block';
+
+                            // ゲージの幅を計算 (例: ±100を最大/最小としてパーセンテージ化)
+                            let gaugePercentage = Math.min(100, Math.abs(mmrChange)); // 最大100%
+                            
+                            if (mmrChange > 0) {
+                                mmrGaugeFill.style.width = `${gaugePercentage}%`;
+                                mmrGaugeFill.style.backgroundColor = '#4CAF50'; // 緑
+                            } else if (mmrChange < 0) {
+                                // マイナスの場合は右側からゲージを減らす（CSSで調整可能だがJSでシンプルに幅制御）
+                                mmrGaugeFill.style.width = `${gaugePercentage}%`;
+                                mmrGaugeFill.style.backgroundColor = '#F44336'; // 赤
+                                // マイナスの場合はゲージの開始位置を右端に設定
+                                mmrGaugeFill.style.left = 'auto';
+                                mmrGaugeFill.style.right = '0';
+                            } else {
+                                // 0の場合はゲージなし（幅0）
+                                mmrGaugeFill.style.width = '0%';
+                                mmrGaugeFill.style.backgroundColor = '#F44336'; // 0は赤
+                                mmrGaugeFill.style.left = '0';
+                                mmrGaugeFill.style.right = 'auto';
+                            }
+
+                            // 元の背景色設定は不要になるか、ゲージの背景として利用
+                            // lastMatchSection.style.backgroundColor = mmrChange > 0 ? '#4CAF50' : '#F44336';
+                            lastMatchSection.style.display = 'flex'; // ゲージ表示のためflexに変更
                         } else {
                             lastMatchSection.style.display = 'none';
                         }
@@ -130,7 +155,7 @@
             }
 
             const currentURL = window.location.href.split('?')[0];
-            const newURL = `${currentURL}?name=${encodeURIComponent(playerName)}&tag=${encodeURIComponent(playerTag)}`;
+            const newURL = `${currentURL}?name=${encodeURIComponent(playerName)}&tag=${encodeURIComponent(playerTag)}&obs`;
             document.getElementById('generatedURL').value = newURL;
         }
 
@@ -146,15 +171,56 @@
             const urlParams = new URLSearchParams(window.location.search);
             const name = urlParams.get('name');
             const tag = urlParams.get('tag');
+            const isOBS = urlParams.has('obs'); // obsパラメータを確認
             
             if (name && tag) {
                 // URLパラメータがある場合は入力フォームを非表示
                 document.getElementById('inputSection').style.display = 'none';
-                // オーバーレイの位置を調整
-                document.querySelector('.overlay').style.top = '50%';
-                document.querySelector('.overlay').style.transform = 'translateY(-50%)';
+
+                if (isOBS) {
+                    // OBSモードの場合のスタイル調整
+                    document.body.style.backgroundColor = 'transparent'; // bodyの背景を透過
+                    document.body.style.overflow = 'hidden'; // スクロールバーを非表示
+                    // 背景アニメーション要素を非表示
+                    const backgroundElement = document.querySelector('.background');
+                    if (backgroundElement) {
+                        backgroundElement.style.display = 'none';
+                    }
+
+                    // オーバーレイのOBS向け位置調整（中央に配置）
+                    const overlayElement = document.querySelector('.overlay');
+                    if (overlayElement) {
+                        overlayElement.style.position = 'absolute'; // OBS内の要素として絶対配置
+                        overlayElement.style.top = '50%';
+                        overlayElement.style.left = '50%';
+                        overlayElement.style.right = 'auto'; // 右固定を解除
+                        overlayElement.style.transform = 'translate(-50%, -50%)'; // 中央寄せ
+                    }
+                } else {
+                    // 通常のブラウザ表示でのオーバーレイ位置調整
+                    document.querySelector('.overlay').style.top = '50%';
+                    document.querySelector('.overlay').style.transform = 'translateY(-50%)';
+                    // PCレイアウトでの右寄せはCSSで制御されるためここではLeft/Rightの変更は不要
+                }
+
                 // プレイヤー情報を更新
                 updatePlayerInfo(name, tag);
+            } else if (isOBS) {
+                 // name, tag パラメータがないが OBS モードの場合
+                document.getElementById('inputSection').style.display = 'none';
+                 const backgroundElement = document.querySelector('.background');
+                 if (backgroundElement) {
+                     backgroundElement.style.display = 'none';
+                 }
+                 // データがない旨を表示する、などの追加処理が必要であればここに記述
+                 // 例: オーバーレイに「プレイヤー情報が設定されていません」と表示
+                 document.getElementById('rankText').textContent = '情報なし';
+                 document.getElementById('rrText').textContent = '';
+                 document.getElementById('winLossText').textContent = '';
+                 document.getElementById('lastMatchSection').style.display = 'none';
+            } else {
+                // name, tag パラメータがない通常のブラウザ表示の場合
+                // 何もしない（入力フォームが表示されたままになる）
             }
         }
     </script>
