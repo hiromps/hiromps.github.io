@@ -358,9 +358,37 @@ body {
 
     .input-section {
         width: 100%;
-        max-width: 400px;
+        max-width: 550px;
         margin: 0;
         margin-bottom: 20px;
+    }
+
+    .input-form {
+        flex-wrap: wrap; /* 狭い場合は折り返す */
+    }
+
+    .input-form input {
+        flex: 1 1 200px; /* flex-grow, flex-shrink, flex-basis */
+        min-width: 0; /* 最小幅を解除して縮小可能にする */
+    }
+
+    .input-form button {
+        flex: 0 0 auto; /* 縮小・拡大せずコンテンツ幅を維持 */
+        white-space: nowrap;
+    }
+
+    .url-output {
+        flex-wrap: wrap; /* 狭い場合は折り返す */
+    }
+
+    .url-output input {
+        flex: 1 1 200px; /* flex-grow, flex-shrink, flex-basis */
+        min-width: 0; /* 最小幅を解除して縮小可能にする */
+    }
+
+    .url-output button {
+        flex: 0 0 auto; /* 縮小・拡大せずコンテンツ幅を維持 */
+        white-space: nowrap;
     }
 
     .overlay {
