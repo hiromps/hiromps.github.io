@@ -5,7 +5,7 @@
     --valorant-grey: #3a444e;
     --valorant-green: #4CAF50;
     --valorant-red-bg: #F44336;
-    --overlay-bg-color: rgba(15, 25, 35, 0.9); /* オーバーレイの背景色のデフォルト値 */
+    --overlay-bg-color: #F44336; /* オーバーレイの背景色のデフォルト値 */
     --rank-bg-color: var(--valorant-grey);
     --border-color: var(--border-color); /* ボーダー色のデフォルト値 */
     --text-color: var(--valorant-light);
