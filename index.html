@@ -61,7 +61,7 @@
         </div>
         <div class="last-match-section" id="lastMatchSection">
             <div class="mmr-gauge-fill"></div>
-            <span class="last-match-text" id="lastMatchText">Last Match +0pts</span>
+            <span class="last-match-text" id="lastMatchText">前回のマッチ +0pts</span>
         </div>
     </div>
 
@@ -448,33 +448,25 @@
                         const lastMatchText = document.getElementById('lastMatchText');
                         const mmrGaugeFill = lastMatchSection.querySelector('.mmr-gauge-fill');
 
-                        if (mmrChange !== undefined) {
-                            const sign = mmrChange >= 0 ? '+' : '';
-                            lastMatchText.textContent = `Last Match ${sign}${mmrChange}pts`;
-
-                            // ゲージの幅を計算 (例: ±100を最大/最小としてパーセンテージ化)
-                            let gaugePercentage = Math.min(100, Math.abs(mmrChange)); // 最大100%
-                            
-                            if (mmrChange > 0) {
-                                mmrGaugeFill.style.width = `${gaugePercentage}%`;
-                                mmrGaugeFill.style.backgroundColor = '#4CAF50'; // 緑
-                            } else if (mmrChange < 0) {
-                                // マイナスの場合は右側からゲージを減らす（CSSで調整可能だがJSでシンプルに幅制御）
-                                mmrGaugeFill.style.width = `${gaugePercentage}%`;
-                                mmrGaugeFill.style.backgroundColor = '#F44336'; // 赤
-                                // マイナスの場合はゲージの開始位置を右端に設定
-                                mmrGaugeFill.style.left = 'auto';
-                                mmrGaugeFill.style.right = '0';
+                        // 現在のRR値に基づいてゲージを表示
+                        if (rankingInTier !== undefined && rankingInTier !== null) {
+                            // 前回のマッチの結果のみ表示
+                            if (mmrChange !== undefined) {
+                                const sign = mmrChange >= 0 ? '+' : '';
+                                lastMatchText.textContent = `前回のマッチ ${sign}${mmrChange}pts`;
                             } else {
-                                // 0の場合はゲージなし（幅0）
-                                mmrGaugeFill.style.width = '0%';
-                                mmrGaugeFill.style.backgroundColor = '#F44336'; // 0は赤
-                                mmrGaugeFill.style.left = '0';
-                                mmrGaugeFill.style.right = 'auto';
+                                lastMatchText.textContent = '前回のマッチ';
                             }
 
-                            // 元の背景色設定は不要になるか、ゲージの背景として利用
-                            // lastMatchSection.style.backgroundColor = mmrChange > 0 ? '#4CAF50' : '#F44336';
+                            // ゲージの幅を計算（RR値 / 100 * 100 = パーセンテージ）
+                            const gaugePercentage = Math.min(100, Math.max(0, rankingInTier)); // 0-100の範囲に制限
+                            
+                            // 常に緑色のゲージ（現在のランクポイントを表すため）
+                            mmrGaugeFill.style.width = `${gaugePercentage}%`;
+                            mmrGaugeFill.style.backgroundColor = '#4CAF50'; // 緑
+                            mmrGaugeFill.style.left = '0';
+                            mmrGaugeFill.style.right = 'auto';
+
                             lastMatchSection.style.display = 'flex'; // ゲージ表示のためflexに変更
                         } else {
                             lastMatchSection.style.display = 'none';

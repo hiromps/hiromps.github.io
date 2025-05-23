@@ -507,6 +507,13 @@ body {
         order: 0; /* 1番目に表示 */
     }
 
+    .input-section h2 {
+        font-size: 1.3em; /* モバイルでは少し小さく */
+        white-space: nowrap; /* 改行を防ぐ */
+        overflow: hidden;
+        text-overflow: ellipsis; /* 必要に応じて省略記号 */
+    }
+
     .customize-button-container {
         width: 90%;
         margin: 10px auto; /* 上下にマージン、左右中央寄せ */
@@ -543,11 +550,11 @@ body {
         left: auto !important; /* 左固定も解除 */
         bottom: auto !important; /* 下固定も解除 */
         align-items: center; /* 中央寄せ */
-        order: 2; /* 3番目に表示 */
+        order: 3; /* カスタマイズボタンの後に表示 */
     }
 
     .ad-container {
-        order: 3; /* 4番目に表示 */
+        order: 4; /* 最後に表示 */
         margin: 10px auto; /* 上下にマージン、左右中央寄せ */
         width: 90%;
         max-width: 350px; /* 他の要素の幅に合わせる */
@@ -702,6 +709,11 @@ body:has(input[id="generatedURL"][value*="obs"]) .ad-container {
     border-radius: 8px;
     border: 1px solid var(--valorant-red);
     min-width: 300px;
+    max-width: 90vw;
+    max-height: 90vh;
+    overflow-y: auto;
+    margin: 20px;
+    box-sizing: border-box;
 }
 
 .color-picker-content h3 {
@@ -777,4 +789,40 @@ body:has(input[id="generatedURL"][value*="obs"]) .ad-container {
 /* OBSモードでのカラーピッカー非表示 */
 body.obs-mode .color-picker-modal {
     display: none !important;
+}
+
+/* モバイル対応のカラーピッカーモーダル */
+@media screen and (max-width: 768px) {
+    .color-picker-modal {
+        padding: 10px;
+        box-sizing: border-box;
+    }
+    
+    .color-picker-content {
+        max-width: 95vw;
+        max-height: 85vh;
+        min-width: 280px;
+        margin: 10px;
+        padding: 15px;
+    }
+    
+    .color-picker-section {
+        margin-bottom: 12px;
+    }
+    
+    .color-picker-buttons {
+        flex-direction: column;
+        gap: 8px;
+        position: sticky;
+        bottom: 0;
+        background-color: var(--valorant-dark);
+        padding-top: 10px;
+        margin-top: 15px;
+    }
+    
+    .color-picker-buttons button {
+        width: 100%;
+        min-height: 44px; /* タッチターゲットサイズ確保 */
+        margin: 0;
+    }
 } 
