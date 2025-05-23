@@ -5,7 +5,8 @@
     --valorant-grey: #3a444e;
     --valorant-green: #4CAF50;
     --valorant-red-bg: #F44336;
-    --overlay-bg-color: #F44336; /* オーバーレイの背景色のデフォルト値 */
+    /*--overlay-bg-color: #F44336; /* オーバーレイの背景色のデフォルト値 */
+    --last-match-bg-color: var(--valorant-red-bg); /* ラストマッチセクションの背景色 */
     --rank-bg-color: var(--valorant-grey);
     --border-color: var(--border-color); /* ボーダー色のデフォルト値 */
     --text-color: var(--valorant-light);
@@ -217,7 +218,7 @@ body {
     justify-content: center;
     position: relative; /* 子要素の絶対配置のために必要 */
     overflow: hidden; /* ゲージがはみ出さないように隠す */
-    background-color: var(--valorant-red-bg); /* デフォルトの背景色を赤に */
+    background-color: var(--last-match-bg-color); /* カスタマイズ可能な背景色 */
 }
 
 .mmr-gauge-fill {

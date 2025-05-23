@@ -76,10 +76,10 @@
                 <span id="rankBgOpacityValue">100%</span>
             </div>
             <div class="color-picker-section">
-                <label for="bgColorPicker">ラストマッチの背景色:</label>
-                <input type="color" id="bgColorPicker" value="#0f1923">
-                <input type="range" id="bgOpacitySlider" min="0" max="100" value="90">
-                <span id="bgOpacityValue">90%</span>
+                <label for="lastMatchBgColorPicker">前回のマッチ背景色:</label>
+                <input type="color" id="lastMatchBgColorPicker" value="#F44336">
+                <input type="range" id="lastMatchBgOpacitySlider" min="0" max="100" value="100">
+                <span id="lastMatchBgOpacityValue">100%</span>
             </div>
             <div class="color-picker-section">
                 <label for="textColorPicker">文字色:</label>
@@ -108,6 +108,12 @@
     <script src="config.js"></script>
     <script src="js/api.js"></script>
     <script>
+        // グローバル変数でプレイヤー情報と更新間隔を管理
+        let currentPlayerName = null;
+        let currentPlayerTag = null;
+        let updateInterval = null;
+        let isAutoUpdateEnabled = false;
+
         // カラーピッカーモーダルの表示/非表示
         function showColorPicker() {
             const modal = document.getElementById('colorPickerModal');
@@ -119,31 +125,86 @@
             modal.style.display = 'none';
         }
 
-        // 背景色の透明度スライダーの更新
-        document.getElementById('bgOpacitySlider').addEventListener('input', function(e) {
-            document.getElementById('bgOpacityValue').textContent = e.target.value + '%';
+        // 自動更新機能
+        function startAutoUpdate(intervalSeconds = 60) {
+            if (isAutoUpdateEnabled || !currentPlayerName || !currentPlayerTag) {
+                return;
+            }
+
+            isAutoUpdateEnabled = true;
+            console.log(`自動更新を開始しました（${intervalSeconds}秒間隔）`);
+
+            // 定期的にプレイヤー情報を更新
+            updateInterval = setInterval(() => {
+                if (currentPlayerName && currentPlayerTag) {
+                    console.log('プレイヤー情報を自動更新中...');
+                    updatePlayerInfo(currentPlayerName, currentPlayerTag);
+                }
+            }, intervalSeconds * 1000);
+        }
+
+        function stopAutoUpdate() {
+            if (!isAutoUpdateEnabled) {
+                return;
+            }
+
+            isAutoUpdateEnabled = false;
+            if (updateInterval) {
+                clearInterval(updateInterval);
+                updateInterval = null;
+                console.log('自動更新を停止しました');
+            }
+        }
+
+        // ページ非表示/表示時の自動更新制御
+        document.addEventListener('visibilitychange', function() {
+            if (!currentPlayerName || !currentPlayerTag) {
+                return;
+            }
+
+            if (document.hidden) {
+                // ページが非表示になったら更新を一時停止
+                if (isAutoUpdateEnabled) {
+                    stopAutoUpdate();
+                    console.log('ページが非表示になったため自動更新を一時停止');
+                }
+            } else {
+                // ページが表示されたら更新を再開（OBSモードの場合のみ）
+                const urlParams = new URLSearchParams(window.location.search);
+                const isOBS = urlParams.has('obs');
+                if (isOBS && !isAutoUpdateEnabled) {
+                    const updateFreq = parseInt(urlParams.get('updateInterval')) || 60;
+                    startAutoUpdate(updateFreq);
+                    console.log('ページが表示されたため自動更新を再開');
+                }
+            }
         });
 
+        // ページ離脱時のクリーンアップ
+        window.addEventListener('beforeunload', function() {
+            stopAutoUpdate();
+        });
+
+        // 背景色の透明度スライダーの更新
         document.getElementById('rankBgOpacitySlider').addEventListener('input', function(e) {
             document.getElementById('rankBgOpacityValue').textContent = e.target.value + '%';
         });
 
+        // 前回のマッチ背景色の透明度スライダーの更新
+        document.getElementById('lastMatchBgOpacitySlider').addEventListener('input', function(e) {
+            document.getElementById('lastMatchBgOpacityValue').textContent = e.target.value + '%';
+        });
+
         // カスタムカラーの適用
         function applyCustomColors() {
-            const bgColor = document.getElementById('bgColorPicker').value;
-            const bgOpacity = document.getElementById('bgOpacitySlider').value;
             const rankBgColor = document.getElementById('rankBgColorPicker').value;
             const rankBgOpacity = document.getElementById('rankBgOpacitySlider').value;
+            const lastMatchBgColor = document.getElementById('lastMatchBgColorPicker').value;
+            const lastMatchBgOpacity = document.getElementById('lastMatchBgOpacitySlider').value;
             const textColor = document.getElementById('textColorPicker').value;
             const rrColor = document.getElementById('rrColorPicker').value;
             const winLossTextColor = document.getElementById('winLossTextColorPicker').value;
             const borderColor = document.getElementById('borderColorPicker').value;
-
-            // 背景色をrgba形式に変換
-            const r = parseInt(bgColor.slice(1, 3), 16);
-            const g = parseInt(bgColor.slice(3, 5), 16);
-            const b = parseInt(bgColor.slice(5, 7), 16);
-            const rgbaBgColor = `rgba(${r}, ${g}, ${b}, ${bgOpacity / 100})`;
 
             // ランク背景色をrgba形式に変換
             const rankR = parseInt(rankBgColor.slice(1, 3), 16);
@@ -151,19 +212,25 @@
             const rankB = parseInt(rankBgColor.slice(5, 7), 16);
             const rgbaRankBgColor = `rgba(${rankR}, ${rankG}, ${rankB}, ${rankBgOpacity / 100})`;
 
+            // 前回のマッチ背景色をrgba形式に変換
+            const lastMatchR = parseInt(lastMatchBgColor.slice(1, 3), 16);
+            const lastMatchG = parseInt(lastMatchBgColor.slice(3, 5), 16);
+            const lastMatchB = parseInt(lastMatchBgColor.slice(5, 7), 16);
+            const rgbaLastMatchBgColor = `rgba(${lastMatchR}, ${lastMatchG}, ${lastMatchB}, ${lastMatchBgOpacity / 100})`;
+
             // CSS変数を更新
-            document.documentElement.style.setProperty('--overlay-bg-color', rgbaBgColor);
             document.documentElement.style.setProperty('--rank-bg-color', rgbaRankBgColor);
+            document.documentElement.style.setProperty('--last-match-bg-color', rgbaLastMatchBgColor);
             document.documentElement.style.setProperty('--text-color', textColor);
             document.documentElement.style.setProperty('--rr-color', rrColor);
             document.documentElement.style.setProperty('--win-loss-text-color', winLossTextColor);
             document.documentElement.style.setProperty('--border-color', borderColor);
 
             // 設定を保存
-            localStorage.setItem('customBgColor', bgColor);
-            localStorage.setItem('customBgOpacity', bgOpacity);
             localStorage.setItem('customRankBgColor', rankBgColor);
             localStorage.setItem('customRankBgOpacity', rankBgOpacity);
+            localStorage.setItem('customLastMatchBgColor', lastMatchBgColor);
+            localStorage.setItem('customLastMatchBgOpacity', lastMatchBgOpacity);
             localStorage.setItem('customTextColor', textColor);
             localStorage.setItem('customRrColor', rrColor);
             localStorage.setItem('customWinLossTextColor', winLossTextColor);
@@ -174,29 +241,31 @@
 
         // 保存された設定を読み込む
         function loadSavedSettings() {
-            const savedBgColor = localStorage.getItem('customBgColor');
-            const savedBgOpacity = localStorage.getItem('customBgOpacity');
             const savedRankBgColor = localStorage.getItem('customRankBgColor');
             const savedRankBgOpacity = localStorage.getItem('customRankBgOpacity');
+            const savedLastMatchBgColor = localStorage.getItem('customLastMatchBgColor');
+            const savedLastMatchBgOpacity = localStorage.getItem('customLastMatchBgOpacity');
             const savedTextColor = localStorage.getItem('customTextColor');
             const savedRrColor = localStorage.getItem('customRrColor');
             const savedWinLossTextColor = localStorage.getItem('customWinLossTextColor');
             const savedBorderColor = localStorage.getItem('customBorderColor');
 
-            if (savedBgColor && savedBgOpacity && savedTextColor) {
-                // オーバーレイ背景色の設定
-                const r = parseInt(savedBgColor.slice(1, 3), 16);
-                const g = parseInt(savedBgColor.slice(3, 5), 16);
-                const b = parseInt(savedBgColor.slice(5, 7), 16);
-                const rgbaBgColor = `rgba(${r}, ${g}, ${b}, ${savedBgOpacity / 100})`;
-
+            if (savedRankBgColor && savedRankBgOpacity && savedTextColor) {
                 // ランク背景色の設定
                 const rankR = parseInt(savedRankBgColor.slice(1, 3), 16);
                 const rankG = parseInt(savedRankBgColor.slice(3, 5), 16);
                 const rankB = parseInt(savedRankBgColor.slice(5, 7), 16);
                 const rgbaRankBgColor = `rgba(${rankR}, ${rankG}, ${rankB}, ${savedRankBgOpacity / 100})`;
 
-                document.documentElement.style.setProperty('--overlay-bg-color', rgbaBgColor);
+                // 前回のマッチ背景色の設定
+                if (savedLastMatchBgColor && savedLastMatchBgOpacity) {
+                    const lastMatchR = parseInt(savedLastMatchBgColor.slice(1, 3), 16);
+                    const lastMatchG = parseInt(savedLastMatchBgColor.slice(3, 5), 16);
+                    const lastMatchB = parseInt(savedLastMatchBgColor.slice(5, 7), 16);
+                    const rgbaLastMatchBgColor = `rgba(${lastMatchR}, ${lastMatchG}, ${lastMatchB}, ${savedLastMatchBgOpacity / 100})`;
+                    document.documentElement.style.setProperty('--last-match-bg-color', rgbaLastMatchBgColor);
+                }
+
                 document.documentElement.style.setProperty('--rank-bg-color', rgbaRankBgColor);
                 document.documentElement.style.setProperty('--text-color', savedTextColor);
                 if (savedRrColor) {
@@ -210,12 +279,14 @@
                 }
 
                 // カラーピッカーの値を更新
-                document.getElementById('bgColorPicker').value = savedBgColor;
-                document.getElementById('bgOpacitySlider').value = savedBgOpacity;
-                document.getElementById('bgOpacityValue').textContent = savedBgOpacity + '%';
                 document.getElementById('rankBgColorPicker').value = savedRankBgColor;
                 document.getElementById('rankBgOpacitySlider').value = savedRankBgOpacity;
                 document.getElementById('rankBgOpacityValue').textContent = savedRankBgOpacity + '%';
+                if (savedLastMatchBgColor && savedLastMatchBgOpacity) {
+                    document.getElementById('lastMatchBgColorPicker').value = savedLastMatchBgColor;
+                    document.getElementById('lastMatchBgOpacitySlider').value = savedLastMatchBgOpacity;
+                    document.getElementById('lastMatchBgOpacityValue').textContent = savedLastMatchBgOpacity + '%';
+                }
                 document.getElementById('textColorPicker').value = savedTextColor;
                 if (savedRrColor) {
                     document.getElementById('rrColorPicker').value = savedRrColor;
@@ -232,22 +303,22 @@
         // 設定をデフォルトに戻す
         function resetCustomColors() {
             // デフォルト値を定義
-            const defaultBgColor = '#F44336'; // ラストマッチのデフォルト背景色を赤に
-            const defaultBgOpacity = '90';
             const defaultRankBgColor = '#3a444e'; // VALORANT風のグレー
             const defaultRankBgOpacity = '100';
+            const defaultLastMatchBgColor = '#F44336'; // ラストマッチセクションのデフォルト背景色
+            const defaultLastMatchBgOpacity = '100';
             const defaultTextColor = '#ece8e1'; // VALORANT風のライトカラー
             const defaultRrColor = '#ff4655'; // VALORANT風のレッド
             const defaultWinLossTextColor = '#ece8e1'; // デフォルトは他のテキスト色と同じ
             const defaultBorderColor = '#ff4655'; // VALORANT風のレッド
 
             // カラーピッカーの値をデフォルトに戻す
-            document.getElementById('bgColorPicker').value = defaultBgColor;
-            document.getElementById('bgOpacitySlider').value = defaultBgOpacity;
-            document.getElementById('bgOpacityValue').textContent = defaultBgOpacity + '%';
             document.getElementById('rankBgColorPicker').value = defaultRankBgColor;
             document.getElementById('rankBgOpacitySlider').value = defaultRankBgOpacity;
             document.getElementById('rankBgOpacityValue').textContent = defaultRankBgOpacity + '%';
+            document.getElementById('lastMatchBgColorPicker').value = defaultLastMatchBgColor;
+            document.getElementById('lastMatchBgOpacitySlider').value = defaultLastMatchBgOpacity;
+            document.getElementById('lastMatchBgOpacityValue').textContent = defaultLastMatchBgOpacity + '%';
             document.getElementById('textColorPicker').value = defaultTextColor;
             document.getElementById('rrColorPicker').value = defaultRrColor;
             document.getElementById('winLossTextColorPicker').value = defaultWinLossTextColor;
@@ -257,10 +328,10 @@
             applyCustomColors();
 
             // localStorageから設定を削除
-            localStorage.removeItem('customBgColor');
-            localStorage.removeItem('customBgOpacity');
             localStorage.removeItem('customRankBgColor');
             localStorage.removeItem('customRankBgOpacity');
+            localStorage.removeItem('customLastMatchBgColor');
+            localStorage.removeItem('customLastMatchBgOpacity');
             localStorage.removeItem('customTextColor');
             localStorage.removeItem('customRrColor');
             localStorage.removeItem('customWinLossTextColor');
@@ -284,31 +355,38 @@
             const name = urlParams.get('name');
             const tag = urlParams.get('tag');
             const isOBS = urlParams.has('obs');
+            const updateFreq = parseInt(urlParams.get('updateInterval')) || 60; // デフォルト60秒
+
+            // プレイヤー情報をグローバル変数に保存
+            currentPlayerName = name;
+            currentPlayerTag = tag;
 
             // URLパラメータから色設定を読み込んで適用
-            const paramBgColor = urlParams.get('bgColor');
-            const paramBgOpacity = urlParams.get('bgOpacity');
             const paramRankBgColor = urlParams.get('rankBgColor');
             const paramRankBgOpacity = urlParams.get('rankBgOpacity');
+            const paramLastMatchBgColor = urlParams.get('lastMatchBgColor');
+            const paramLastMatchBgOpacity = urlParams.get('lastMatchBgOpacity');
             const paramTextColor = urlParams.get('textColor');
             const paramRrColor = urlParams.get('rrColor');
             const paramWinLossTextColor = urlParams.get('winLossTextColor');
             const paramBorderColor = urlParams.get('borderColor');
 
-            if (paramBgColor && paramBgOpacity && paramTextColor) {
-                // オーバーレイ背景色の設定
-                const r = parseInt(paramBgColor.slice(1, 3), 16);
-                const g = parseInt(paramBgColor.slice(3, 5), 16);
-                const b = parseInt(paramBgColor.slice(5, 7), 16);
-                const rgbaBgColor = `rgba(${r}, ${g}, ${b}, ${paramBgOpacity / 100})`;
-
+            if (paramRankBgColor && paramRankBgOpacity && paramTextColor) {
                 // ランク背景色の設定
                 const rankR = parseInt(paramRankBgColor.slice(1, 3), 16);
                 const rankG = parseInt(paramRankBgColor.slice(3, 5), 16);
                 const rankB = parseInt(paramRankBgColor.slice(5, 7), 16);
                 const rgbaRankBgColor = `rgba(${rankR}, ${rankG}, ${rankB}, ${paramRankBgOpacity / 100})`;
 
-                document.documentElement.style.setProperty('--overlay-bg-color', rgbaBgColor);
+                // 前回のマッチ背景色の設定
+                if (paramLastMatchBgColor && paramLastMatchBgOpacity) {
+                    const lastMatchR = parseInt(paramLastMatchBgColor.slice(1, 3), 16);
+                    const lastMatchG = parseInt(paramLastMatchBgColor.slice(3, 5), 16);
+                    const lastMatchB = parseInt(paramLastMatchBgColor.slice(5, 7), 16);
+                    const rgbaLastMatchBgColor = `rgba(${lastMatchR}, ${lastMatchG}, ${lastMatchB}, ${paramLastMatchBgOpacity / 100})`;
+                    document.documentElement.style.setProperty('--last-match-bg-color', rgbaLastMatchBgColor);
+                }
+
                 document.documentElement.style.setProperty('--rank-bg-color', rgbaRankBgColor);
                 document.documentElement.style.setProperty('--text-color', paramTextColor);
 
@@ -323,10 +401,10 @@
                 }
 
                 // localStorageにも保存して次回以降も反映されるようにする
-                localStorage.setItem('customBgColor', paramBgColor);
-                localStorage.setItem('customBgOpacity', paramBgOpacity);
                 localStorage.setItem('customRankBgColor', paramRankBgColor);
                 localStorage.setItem('customRankBgOpacity', paramRankBgOpacity);
+                if (paramLastMatchBgColor) localStorage.setItem('customLastMatchBgColor', paramLastMatchBgColor);
+                if (paramLastMatchBgOpacity) localStorage.setItem('customLastMatchBgOpacity', paramLastMatchBgOpacity);
                 localStorage.setItem('customTextColor', paramTextColor);
                 if (paramRrColor) localStorage.setItem('customRrColor', paramRrColor);
                 if (paramWinLossTextColor) localStorage.setItem('customWinLossTextColor', paramWinLossTextColor);
@@ -334,12 +412,14 @@
 
                 // カラーピッカーの値を更新（モーダルを開いた時に反映されるように）
                 // loadSavedSettings() が DOMContentLoaded で呼ばれるため不要だが念のため
-                document.getElementById('bgColorPicker').value = paramBgColor;
-                document.getElementById('bgOpacitySlider').value = paramBgOpacity;
-                document.getElementById('bgOpacityValue').textContent = paramBgOpacity + '%';
                 document.getElementById('rankBgColorPicker').value = paramRankBgColor;
                 document.getElementById('rankBgOpacitySlider').value = paramRankBgOpacity;
                 document.getElementById('rankBgOpacityValue').textContent = paramRankBgOpacity + '%';
+                if (paramLastMatchBgColor && paramLastMatchBgOpacity) {
+                    document.getElementById('lastMatchBgColorPicker').value = paramLastMatchBgColor;
+                    document.getElementById('lastMatchBgOpacitySlider').value = paramLastMatchBgOpacity;
+                    document.getElementById('lastMatchBgOpacityValue').textContent = paramLastMatchBgOpacity + '%';
+                }
                 document.getElementById('textColorPicker').value = paramTextColor;
                 if (paramRrColor) document.getElementById('rrColorPicker').value = paramRrColor;
                 if (paramWinLossTextColor) document.getElementById('winLossTextColorPicker').value = paramWinLossTextColor;
@@ -391,14 +471,22 @@
                         authorSectionElement.style.display = 'none';
                     }
 
+                    // OBSモードでは自動更新を開始
+                    console.log(`OBSモードで自動更新を有効化（${updateFreq}秒間隔）`);
+
                 } else {
                     // 通常のブラウザ表示でのオーバーレイ位置調整
                     document.querySelector('.overlay').style.top = '50%';
                     document.querySelector('.overlay').style.transform = 'translateY(-50%)';
                 }
 
-                // プレイヤー情報を更新
-                updatePlayerInfo(name, tag);
+                // プレイヤー情報を更新（初回）
+                updatePlayerInfo(name, tag).then(() => {
+                    // 初回更新完了後、OBSモードの場合は自動更新を開始
+                    if (isOBS) {
+                        startAutoUpdate(updateFreq);
+                    }
+                });
             } else if (isOBS) {
                 // name, tag パラメータがないが OBS モードの場合
                 document.getElementById('inputSection').style.display = 'none';
@@ -525,21 +613,22 @@
             urlParams.append('name', playerName);
             urlParams.append('tag', playerTag);
             urlParams.append('obs', ''); // OBSモードパラメータをデフォルトで追加
+            urlParams.append('updateInterval', '60'); // 自動更新間隔（60秒）をデフォルトで追加
 
             // カスタマイズ設定をURLパラメータとして追加
-            const savedBgColor = localStorage.getItem('customBgColor');
-            const savedBgOpacity = localStorage.getItem('customBgOpacity');
             const savedRankBgColor = localStorage.getItem('customRankBgColor');
             const savedRankBgOpacity = localStorage.getItem('customRankBgOpacity');
+            const savedLastMatchBgColor = localStorage.getItem('customLastMatchBgColor');
+            const savedLastMatchBgOpacity = localStorage.getItem('customLastMatchBgOpacity');
             const savedTextColor = localStorage.getItem('customTextColor');
             const savedRrColor = localStorage.getItem('customRrColor');
             const savedWinLossTextColor = localStorage.getItem('customWinLossTextColor');
             const savedBorderColor = localStorage.getItem('customBorderColor');
 
-            if (savedBgColor) urlParams.append('bgColor', savedBgColor);
-            if (savedBgOpacity) urlParams.append('bgOpacity', savedBgOpacity);
             if (savedRankBgColor) urlParams.append('rankBgColor', savedRankBgColor);
             if (savedRankBgOpacity) urlParams.append('rankBgOpacity', savedRankBgOpacity);
+            if (savedLastMatchBgColor) urlParams.append('lastMatchBgColor', savedLastMatchBgColor);
+            if (savedLastMatchBgOpacity) urlParams.append('lastMatchBgOpacity', savedLastMatchBgOpacity);
             if (savedTextColor) urlParams.append('textColor', savedTextColor);
             if (savedRrColor) urlParams.append('rrColor', savedRrColor);
             if (savedWinLossTextColor) urlParams.append('winLossTextColor', savedWinLossTextColor);
