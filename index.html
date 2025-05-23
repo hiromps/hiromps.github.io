@@ -56,7 +56,7 @@
                 <div class="rank-name-line">
                     <span class="rank-name" id="rankText">ランクなし</span> <span class="rr" id="rrText">0RR</span>
                 </div>
-                <span class="win-loss" id="winLossText">0 Win / 0 Loss</span>
+                <!-- <span class="win-loss" id="winLossText">0 Win / 0 Loss</span> -->
             </div>
         </div>
         <div class="last-match-section" id="lastMatchSection">
@@ -95,10 +95,10 @@
                 <label for="rrColorPicker">RRテキスト色:</label>
                 <input type="color" id="rrColorPicker" value="#ff4655">
             </div>
-            <div class="color-picker-section">
+            <!-- <div class="color-picker-section">
                 <label for="winLossTextColorPicker">Win/Loss テキスト色:</label>
                 <input type="color" id="winLossTextColorPicker" value="#ece8e1">
-            </div>
+            </div> -->
             <div class="color-picker-section">
                 <label for="borderColorPicker">境界線色:</label>
                 <input type="color" id="borderColorPicker" value="#ff4655">
@@ -269,7 +269,8 @@
             const lastMatchBgOpacity = document.getElementById('lastMatchBgOpacitySlider').value;
             const textColor = document.getElementById('textColorPicker').value;
             const rrColor = document.getElementById('rrColorPicker').value;
-            const winLossTextColor = document.getElementById('winLossTextColorPicker').value;
+            const winLossTextColorElement = document.getElementById('winLossTextColorPicker');
+            const winLossTextColor = winLossTextColorElement ? winLossTextColorElement.value : '#ece8e1';
             const borderColor = document.getElementById('borderColorPicker').value;
 
             // ランク背景色をrgba形式に変換
@@ -299,7 +300,9 @@
             localStorage.setItem('customLastMatchBgOpacity', lastMatchBgOpacity);
             localStorage.setItem('customTextColor', textColor);
             localStorage.setItem('customRrColor', rrColor);
-            localStorage.setItem('customWinLossTextColor', winLossTextColor);
+            if (winLossTextColorElement) {
+                localStorage.setItem('customWinLossTextColor', winLossTextColor);
+            }
             localStorage.setItem('customBorderColor', borderColor);
 
             closeColorPicker();
@@ -357,8 +360,9 @@
                 if (savedRrColor) {
                     document.getElementById('rrColorPicker').value = savedRrColor;
                 }
-                if (savedWinLossTextColor) {
-                    document.getElementById('winLossTextColorPicker').value = savedWinLossTextColor;
+                const winLossTextColorElement = document.getElementById('winLossTextColorPicker');
+                if (savedWinLossTextColor && winLossTextColorElement) {
+                    winLossTextColorElement.value = savedWinLossTextColor;
                 }
                 if (savedBorderColor) {
                     document.getElementById('borderColorPicker').value = savedBorderColor;
@@ -387,7 +391,10 @@
             document.getElementById('lastMatchBgOpacityValue').textContent = defaultLastMatchBgOpacity + '%';
             document.getElementById('textColorPicker').value = defaultTextColor;
             document.getElementById('rrColorPicker').value = defaultRrColor;
-            document.getElementById('winLossTextColorPicker').value = defaultWinLossTextColor;
+            const winLossTextColorElement = document.getElementById('winLossTextColorPicker');
+            if (winLossTextColorElement) {
+                winLossTextColorElement.value = defaultWinLossTextColor;
+            }
             document.getElementById('borderColorPicker').value = defaultBorderColor;
 
             // デフォルト値を適用
@@ -488,7 +495,10 @@
                 }
                 document.getElementById('textColorPicker').value = paramTextColor;
                 if (paramRrColor) document.getElementById('rrColorPicker').value = paramRrColor;
-                if (paramWinLossTextColor) document.getElementById('winLossTextColorPicker').value = paramWinLossTextColor;
+                const winLossTextColorElement = document.getElementById('winLossTextColorPicker');
+                if (paramWinLossTextColor && winLossTextColorElement) {
+                    winLossTextColorElement.value = paramWinLossTextColor;
+                }
                 if (paramBorderColor) document.getElementById('borderColorPicker').value = paramBorderColor;
 
             } else {
@@ -588,7 +598,7 @@
                 // データがない旨を表示
                 document.getElementById('rankText').textContent = '情報なし';
                 document.getElementById('rrText').textContent = '';
-                document.getElementById('winLossText').textContent = '';
+                // document.getElementById('winLossText').textContent = '';
                 document.getElementById('lastMatchSection').style.display = 'none';
             }
         }
@@ -622,7 +632,7 @@
                         document.getElementById('rrText').textContent = `${rankingInTier || 0}RR`;
 
                         // 勝敗情報はMMRデータに含まれていないため表示しない（必要であればプロフィールAPIから取得）
-                        document.getElementById('winLossText').textContent = '';
+                        // document.getElementById('winLossText').textContent = '';
 
                         // 直近のマッチ結果（MMR変動値）を更新
                         const lastMatchSection = document.getElementById('lastMatchSection');
@@ -659,7 +669,7 @@
                         document.getElementById('rankIcon').src = 'assets/images/ranks/ランクなし.png';
                         document.getElementById('rankText').textContent = 'ランクなし';
                         document.getElementById('rrText').textContent = '';
-                        document.getElementById('winLossText').textContent = '';
+                        // document.getElementById('winLossText').textContent = '';
                         document.getElementById('lastMatchSection').style.display = 'none';
                         console.log(`[${new Date().toLocaleTimeString()}] ランク情報なし`);
                     }
@@ -680,7 +690,7 @@
                     document.getElementById('rankIcon').src = 'assets/images/ranks/ランクなし.png';
                     document.getElementById('rankText').textContent = 'データなし';
                     document.getElementById('rrText').textContent = '';
-                    document.getElementById('winLossText').textContent = '';
+                    // document.getElementById('winLossText').textContent = '';
                     document.getElementById('lastMatchSection').style.display = 'none';
                     console.log(`[${new Date().toLocaleTimeString()}] API応答にデータが含まれていません`);
                 }
@@ -694,7 +704,7 @@
                 document.getElementById('rankIcon').src = 'assets/images/ranks/ランクなし.png';
                 document.getElementById('rankText').textContent = 'エラー';
                 document.getElementById('rrText').textContent = '';
-                document.getElementById('winLossText').textContent = '';
+                // document.getElementById('winLossText').textContent = '';
                 document.getElementById('lastMatchSection').style.display = 'none';
                 
                 // エラー時も最終更新時刻を更新
@@ -717,7 +727,6 @@
             urlParams.append('tag', playerTag);
             urlParams.append('obs', ''); // OBSモードパラメータをデフォルトで追加
             urlParams.append('updateInterval', '30'); // 自動更新間隔（30秒）に短縮
-            urlParams.append('debug', 'true'); // デバッグ情報を表示
 
             // カスタマイズ設定をURLパラメータとして追加
             const savedRankBgColor = localStorage.getItem('customRankBgColor');
