@@ -63,6 +63,12 @@
             <div class="mmr-gauge-fill"></div>
             <span class="last-match-text" id="lastMatchText">前回のマッチ +0pts</span>
         </div>
+        <!-- OBS用デバッグ情報 -->
+        <div id="obsDebugInfo" style="display: none; font-size: 12px; color: #888; margin-top: 10px;">
+            <div>自動更新: <span id="autoUpdateStatus">無効</span></div>
+            <div>最終更新: <span id="lastUpdateTime">-</span></div>
+            <button onclick="manualUpdate()" style="margin-top: 5px; padding: 2px 8px; font-size: 10px;">手動更新</button>
+        </div>
     </div>
 
     <!-- カラーピッカーモーダル -->
@@ -125,7 +131,7 @@
             modal.style.display = 'none';
         }
 
-        // 自動更新機能
+        // 自動更新機能（改善版）
         function startAutoUpdate(intervalSeconds = 60) {
             if (isAutoUpdateEnabled || !currentPlayerName || !currentPlayerTag) {
                 return;
@@ -138,7 +144,10 @@
             updateInterval = setInterval(() => {
                 if (currentPlayerName && currentPlayerTag) {
                     console.log('プレイヤー情報を自動更新中...');
-                    updatePlayerInfo(currentPlayerName, currentPlayerTag);
+                    updatePlayerInfo(currentPlayerName, currentPlayerTag).catch(error => {
+                        console.error('自動更新中にエラーが発生しました:', error);
+                        // エラーが発生しても自動更新は継続
+                    });
                 }
             }, intervalSeconds * 1000);
         }
@@ -156,23 +165,80 @@
             }
         }
 
-        // ページ非表示/表示時の自動更新制御
+        // OBS専用の自動更新機能（より堅牢）
+        function startOBSAutoUpdate(intervalSeconds = 60) {
+            // 既に開始されている場合は停止してから再開始
+            if (updateInterval) {
+                clearInterval(updateInterval);
+            }
+            
+            isAutoUpdateEnabled = true;
+            console.log(`OBS専用自動更新を開始しました（${intervalSeconds}秒間隔）`);
+            
+            // ステータス更新
+            updateAutoUpdateStatus();
+
+            // 即座に一回実行してから定期実行を開始
+            if (currentPlayerName && currentPlayerTag) {
+                updatePlayerInfo(currentPlayerName, currentPlayerTag).catch(error => {
+                    console.error('初回更新中にエラーが発生しました:', error);
+                });
+            }
+
+            // 定期実行
+            updateInterval = setInterval(() => {
+                if (currentPlayerName && currentPlayerTag) {
+                    console.log(`[${new Date().toLocaleTimeString()}] プレイヤー情報を自動更新中...`);
+                    updatePlayerInfo(currentPlayerName, currentPlayerTag).catch(error => {
+                        console.error('自動更新中にエラーが発生しました:', error);
+                        // エラーが発生しても自動更新は継続
+                    });
+                } else {
+                    console.warn('プレイヤー情報が設定されていません。自動更新を停止します。');
+                    stopAutoUpdate();
+                }
+            }, intervalSeconds * 1000);
+        }
+
+        // 自動更新ステータスを画面に反映
+        function updateAutoUpdateStatus() {
+            const statusElement = document.getElementById('autoUpdateStatus');
+            const timeElement = document.getElementById('lastUpdateTime');
+            
+            if (statusElement) {
+                statusElement.textContent = isAutoUpdateEnabled ? '有効' : '無効';
+                statusElement.style.color = isAutoUpdateEnabled ? '#4CAF50' : '#f44336';
+            }
+            
+            if (timeElement) {
+                timeElement.textContent = new Date().toLocaleTimeString();
+            }
+        }
+
+        // ページ非表示/表示時の自動更新制御（OBS用に調整）
         document.addEventListener('visibilitychange', function() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const isOBS = urlParams.has('obs');
+            
+            // OBSモードの場合は可視性に関係なく自動更新を継続
+            if (isOBS) {
+                console.log(`可視性変更: ${document.hidden ? '非表示' : '表示'} - OBSモードのため自動更新継続`);
+                return;
+            }
+            
             if (!currentPlayerName || !currentPlayerTag) {
                 return;
             }
 
             if (document.hidden) {
-                // ページが非表示になったら更新を一時停止
+                // 通常モードでページが非表示になったら更新を一時停止
                 if (isAutoUpdateEnabled) {
                     stopAutoUpdate();
                     console.log('ページが非表示になったため自動更新を一時停止');
                 }
             } else {
-                // ページが表示されたら更新を再開（OBSモードの場合のみ）
-                const urlParams = new URLSearchParams(window.location.search);
-                const isOBS = urlParams.has('obs');
-                if (isOBS && !isAutoUpdateEnabled) {
+                // 通常モードでページが表示されたら更新を再開
+                if (!isAutoUpdateEnabled) {
                     const updateFreq = parseInt(urlParams.get('updateInterval')) || 60;
                     startAutoUpdate(updateFreq);
                     console.log('ページが表示されたため自動更新を再開');
@@ -470,6 +536,13 @@
                     if (authorSectionElement) {
                         authorSectionElement.style.display = 'none';
                     }
+                    
+                    // デバッグ情報の表示（URLパラメータでdebug=trueがある場合のみ）
+                    const showDebug = urlParams.get('debug') === 'true';
+                    const debugElement = document.getElementById('obsDebugInfo');
+                    if (debugElement && showDebug) {
+                        debugElement.style.display = 'block';
+                    }
 
                     // OBSモードでは自動更新を開始
                     console.log(`OBSモードで自動更新を有効化（${updateFreq}秒間隔）`);
@@ -486,7 +559,25 @@
                     if (isOBS) {
                         startAutoUpdate(updateFreq);
                     }
+                }).catch(error => {
+                    console.error('初回データ取得エラー:', error);
+                    // エラーが発生してもOBSモードなら自動更新を開始
+                    if (isOBS) {
+                        console.log('初回取得に失敗しましたが、OBSモードのため自動更新を開始します');
+                        startOBSAutoUpdate(updateFreq);
+                    }
                 });
+                
+                // OBSモードの場合、初回更新と並行して自動更新も開始（フォールバック）
+                if (isOBS) {
+                    // 少し遅延させてから自動更新を確実に開始
+                    setTimeout(() => {
+                        if (!isAutoUpdateEnabled) {
+                            console.log('フォールバック: OBS自動更新を強制開始');
+                            startOBSAutoUpdate(updateFreq);
+                        }
+                    }, 2000);
+                }
             } else if (isOBS) {
                 // name, tag パラメータがないが OBS モードの場合
                 document.getElementById('inputSection').style.display = 'none';
@@ -504,12 +595,14 @@
 
         async function updatePlayerInfo(name, tag) {
             try {
+                console.log(`[${new Date().toLocaleTimeString()}] プレイヤー情報を取得中: ${name}#${tag}`);
                 const stats = await fetchPlayerStats(name, tag);
 
                 console.log('Stats:', stats);
 
                 if (stats && stats.data) {
                     const playerData = stats.data; // stats.data の内容を直接使用
+                    console.log(`[${new Date().toLocaleTimeString()}] データ取得成功`);
 
                     // ランク情報を更新
                     const currentRank = playerData.currenttierpatched;
@@ -560,12 +653,15 @@
                             lastMatchSection.style.display = 'none';
                         }
 
+                        console.log(`[${new Date().toLocaleTimeString()}] ランク情報更新: ${currentRank} ${rankingInTier}RR`);
+
                     } else { // currentRank がない場合 (例: ランクなし)
                         document.getElementById('rankIcon').src = 'assets/images/ranks/ランクなし.png';
                         document.getElementById('rankText').textContent = 'ランクなし';
                         document.getElementById('rrText').textContent = '';
                         document.getElementById('winLossText').textContent = '';
                         document.getElementById('lastMatchSection').style.display = 'none';
+                        console.log(`[${new Date().toLocaleTimeString()}] ランク情報なし`);
                     }
 
                     // プロフィールAPIからのデータ（エージェントアイコン、KDA等）は使用しないため関連コードはコメントアウトのまま
@@ -586,16 +682,23 @@
                     document.getElementById('rrText').textContent = '';
                     document.getElementById('winLossText').textContent = '';
                     document.getElementById('lastMatchSection').style.display = 'none';
+                    console.log(`[${new Date().toLocaleTimeString()}] API応答にデータが含まれていません`);
                 }
+                
+                // 最終更新時刻を更新
+                updateAutoUpdateStatus();
 
             } catch (error) {
-                console.error('Error updating player info:', error);
+                console.error(`[${new Date().toLocaleTimeString()}] Error updating player info:`, error);
                 // エラー発生時も表示をリセット
                 document.getElementById('rankIcon').src = 'assets/images/ranks/ランクなし.png';
                 document.getElementById('rankText').textContent = 'エラー';
                 document.getElementById('rrText').textContent = '';
                 document.getElementById('winLossText').textContent = '';
                 document.getElementById('lastMatchSection').style.display = 'none';
+                
+                // エラー時も最終更新時刻を更新
+                updateAutoUpdateStatus();
             }
         }
 
@@ -613,7 +716,8 @@
             urlParams.append('name', playerName);
             urlParams.append('tag', playerTag);
             urlParams.append('obs', ''); // OBSモードパラメータをデフォルトで追加
-            urlParams.append('updateInterval', '60'); // 自動更新間隔（60秒）をデフォルトで追加
+            urlParams.append('updateInterval', '30'); // 自動更新間隔（30秒）に短縮
+            urlParams.append('debug', 'true'); // デバッグ情報を表示
 
             // カスタマイズ設定をURLパラメータとして追加
             const savedRankBgColor = localStorage.getItem('customRankBgColor');
@@ -643,6 +747,15 @@
             urlInput.select();
             document.execCommand('copy');
             alert('URLをコピーしました！');
+        }
+
+        function manualUpdate() {
+            console.log('手動更新が呼び出されました');
+            updatePlayerInfo(currentPlayerName, currentPlayerTag).then(() => {
+                console.log('手動更新が成功しました');
+            }).catch(error => {
+                console.error('手動更新中にエラーが発生しました:', error);
+            });
         }
     </script>
 </body>
