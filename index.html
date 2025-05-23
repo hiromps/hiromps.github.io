@@ -548,11 +548,11 @@
                     }
                     
                     // デバッグ情報の表示（URLパラメータでdebug=trueがある場合のみ）
-                    const showDebug = urlParams.get('debug') === 'true';
-                    const debugElement = document.getElementById('obsDebugInfo');
-                    if (debugElement && showDebug) {
-                        debugElement.style.display = 'block';
-                    }
+                    // const showDebug = urlParams.get('debug') === 'true';
+                    // const debugElement = document.getElementById('obsDebugInfo');
+                    // if (debugElement && showDebug) {
+                    //     debugElement.style.display = 'block';
+                    // }
 
                     // OBSモードでは自動更新を開始
                     console.log(`OBSモードで自動更新を有効化（${updateFreq}秒間隔）`);
