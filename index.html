@@ -8,8 +8,45 @@
     <!-- Google AdSense script -->
     <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6090439809602995"
      crossorigin="anonymous"></script>
+    <style>
+        /* 基本的なヘッダースタイル */
+        .app-header {
+            background-color: #1a202c; /* ダークグレー */
+            padding: 1rem;
+            text-align: center;
+            border-bottom: 2px solid #ff4655; /* VALORANT風レッド */
+        }
+        .app-header button {
+            background-color: #ff4655;
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            margin: 0 0.5rem;
+            font-size: 1rem;
+            cursor: pointer;
+            border-radius: 5px;
+            transition: background-color 0.3s;
+        }
+        .app-header button:hover {
+            background-color: #e0303f;
+        }
+        .app-header button.active {
+            background-color: #22c55e; /* 緑などでアクティブ状態を示す */
+            box-shadow: 0 0 5px #22c55e;
+        }
+        .mode-container {
+            /* display: none; */ /* 初期状態はJSで制御 */
+        }
+        .hidden {
+            display: none !important;
+        }
+    </style>
 </head>
 <body>
+    <header class="app-header">
+        <button id="showOverlayMode">OBSオーバーレイ</button>
+        <button id="showTrackerMode">戦績トラッカー</button>
+    </header>
     <div class="background"></div>
     
     <!-- 製作者紹介セクション -->
