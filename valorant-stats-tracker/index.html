@@ -32,7 +32,8 @@
         <!-- Search Form -->
         <div class="mb-8 p-6 bg-gray-800 rounded-xl shadow-lg">
             <div class="flex flex-col sm:flex-row gap-4">
-                <input type="text" id="riotIdInput" class="flex-grow bg-gray-700 text-white placeholder-gray-400 border-2 border-gray-600 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500" placeholder="Riot ID (例: TenZ#1234)">
+                <input type="text" id="gameNameInput" class="flex-grow bg-gray-700 text-white placeholder-gray-400 border-2 border-gray-600 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500" placeholder="ゲーム名 (例: TenZ)">
+                <input type="text" id="tagLineInput" class="flex-grow bg-gray-700 text-white placeholder-gray-400 border-2 border-gray-600 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500" placeholder="タグライン (例: 1234)">
                 <button id="searchButton" class="bg-red-600 hover:bg-red-700 text-white font-bold py-3 px-6 rounded-lg transition-colors duration-300 flex items-center justify-center">
                     <svg id="searchIcon" class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
                     <svg id="loadingIcon" class="animate-spin -ml-1 mr-3 h-5 w-5 text-white hidden" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
@@ -168,7 +169,8 @@
         // const MATCH_COUNT = 5; // 表示する試合数はシーズンフィルタリング後に決定されるため、この定数は直接使わなくなる
 
         // --- DOM ELEMENTS ---
-        const riotIdInput = document.getElementById('riotIdInput');
+        const gameNameInput = document.getElementById('gameNameInput');
+        const tagLineInput = document.getElementById('tagLineInput');
         const searchButton = document.getElementById('searchButton');
         const searchIcon = document.getElementById('searchIcon');
         const loadingIcon = document.getElementById('loadingIcon');
@@ -184,7 +186,12 @@
 
         // --- EVENT LISTENERS ---
         searchButton.addEventListener('click', handleSearch);
-        riotIdInput.addEventListener('keypress', (e) => {
+        gameNameInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                handleSearch();
+            }
+        });
+        tagLineInput.addEventListener('keypress', (e) => {
             if (e.key === 'Enter') {
                 handleSearch();
             }
@@ -222,9 +229,10 @@
                 showError('APIキーが設定されていません。config.js ファイルに有効な Riot API キーを記述し、コメントの指示に従って更新してください。');
                 return;
             }
-            const riotId = riotIdInput.value.trim();
-            if (!riotId.includes('#')) {
-                showError('Riot IDの形式が正しくありません。(例: Name#Tag)');
+            const gameName = gameNameInput.value.trim();
+            const tagLine = tagLineInput.value.trim();
+            if (!gameName || !tagLine) {
+                showError('ゲーム名とタグラインの両方を入力してください。(#は不要です)');
                 return;
             }
 
@@ -232,7 +240,7 @@
             resultsSection.classList.add('hidden');
 
             try {
-                const [gameName, tagLine] = riotId.split('#');
+                // const [gameName, tagLine] = riotId.split('#'); // この行を削除 (gameName, tagLine は既に入力フィールドから取得済み)
                 
                 // 1. Get Account Data (PUUID and Region) from Riot ID
                 const accountData = await getPuuid(gameName, tagLine);
@@ -454,6 +462,9 @@
                  // ★★★ KAST, DDΔ調査用ログを追加 ★★★
                 // console.log(`Player stats for match ${match.metadata.match_id}:`, JSON.stringify(player.stats, null, 2)); // 確認したのでコメントアウト
 
+                // ★ デバッグログ: player.tier の内容を確認
+                console.log(`[Debug] Match ${match.metadata.match_id} - Raw player.tier from match details:`, player.tier);
+
                 const playerTeamData = match.teams.find(t => t.team_id.toLowerCase() === player.team_id.toLowerCase());
                 console.log("Found playerTeamData:", JSON.stringify(playerTeamData, null, 2)); 
 
@@ -516,15 +527,22 @@
                     "Unranked": "ランクなし"
                 };
 
-                let rankIconUrl = 'https://placehold.co/48x48/1f2937/7f1d1d?text=R'; 
-                let apiRankName = player.tier && player.tier.name ? player.tier.name : "Unranked"; 
-                let displayRankName = apiRankName; 
+                let rankIconUrl = 'https://placehold.co/48x48/1f2937/7f1d1d?text=R';
+                let apiRankName = player.tier && player.tier.name ? player.tier.name : "Unranked";
+                let displayRankName = apiRankName; // This will be the name shown alongside the icon in the match row
+
+                // ★ デバッグログ: 解決されたランク名と、マッピング試行前のアイコンURL
+                console.log(`[Debug] Match ${match.metadata.match_id} - Resolved apiRankName for icon: ${apiRankName}`);
+                console.log(`[Debug] Match ${match.metadata.match_id} - Initial rankIconUrl for player ${player.game_name}: ${rankIconUrl}`);
 
                 if (rankNameMapping[apiRankName]) {
                     const japaneseFileName = rankNameMapping[apiRankName];
                     rankIconUrl = `assets/images/ranks/${japaneseFileName}.png`;
-                } else if (apiRankName !== "Unranked") { 
-                    console.warn(`Rank name "${apiRankName}" not found in mapping. Attempting to use default placeholder.`);
+                    // ★ デバッグログ: マッピング成功時のアイコンURL
+                    console.log(`[Debug] Match ${match.metadata.match_id} - Rank Mapped for player ${player.game_name}. New rankIconUrl: ${rankIconUrl}`);
+                } else {
+                    // マッピングに失敗した場合
+                    console.warn(`[Debug] Match ${match.metadata.match_id} - Rank name "${apiRankName}" for player ${player.game_name} not found in rankNameMapping or "Unranked" mapping issue. Using placeholder. Final rankIconUrl: ${rankIconUrl}`);
                 }
 
                 const rankPoints = "-- RR"; // これは renderResults で MMR 履歴とマージして上書きされる
