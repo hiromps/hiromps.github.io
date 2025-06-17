@@ -1,0 +1,982 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VALORANT 戦績トラッカー</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', 'Noto Sans JP', sans-serif;
+        }
+        .tier-s { background-color: #3B82F6; color: white; } /* 青 (blue-500) */
+        .tier-a { background-color: #22C55E; color: white; } /* 緑 (green-500) */
+        .tier-b { background-color: #FACC15; color: #1F2937; } /* 黄 (yellow-400), 文字色: gray-800 */
+        .tier-c { background-color: #6B7280; color: white; } /* グレー (gray-500) */
+        .tier-d { background-color: #EF4444; color: white; } /* 赤 (red-500) */
+    </style>
+</head>
+<body class="bg-gray-900 text-white min-h-screen p-4 sm:p-6 md:p-8">
+
+    <div class="max-w-5xl mx-auto">
+        <!-- Header -->
+        <header class="text-center mb-8">
+            <h1 class="text-4xl md:text-5xl font-bold text-red-500 tracking-wider">VALORANT Tracker</h1>
+            <p class="text-gray-400 mt-2">今シーズンのコンペティティブ戦績を分析します</p>
+        </header>
+
+        <!-- Search Form -->
+        <div class="mb-8 p-6 bg-gray-800 rounded-xl shadow-lg">
+            <div class="flex flex-col sm:flex-row gap-4">
+                <input type="text" id="riotIdInput" class="flex-grow bg-gray-700 text-white placeholder-gray-400 border-2 border-gray-600 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500" placeholder="Riot ID (例: TenZ#1234)">
+                <button id="searchButton" class="bg-red-600 hover:bg-red-700 text-white font-bold py-3 px-6 rounded-lg transition-colors duration-300 flex items-center justify-center">
+                    <svg id="searchIcon" class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                    <svg id="loadingIcon" class="animate-spin -ml-1 mr-3 h-5 w-5 text-white hidden" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                    <span id="buttonText">検索</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Results Section -->
+        <div id="resultsSection" class="hidden space-y-8">
+            <!-- Player Info and Score -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <div class="md:col-span-1 bg-gray-800 p-6 rounded-xl shadow-lg flex flex-col items-center justify-center text-center">
+                    <h2 id="playerName" class="text-2xl font-bold"></h2>
+                    <p id="playerTag" class="text-gray-400"></p>
+                    <div id="playerRankSection" class="mt-4"></div> <!-- Player Rank Display Area, mt-2からmt-4へ変更 -->
+                </div>
+                <div class="md:col-span-2 bg-gray-800 p-6 rounded-xl shadow-lg">
+                    <div class="flex flex-col lg:flex-row gap-6 items-center lg:items-start w-full">
+                        <!-- 左側: Tracker Score と Tier -->
+                        <div class="flex flex-col items-center text-center p-2 lg:w-1/3 w-full">
+                            <h3 class="text-xl font-semibold text-gray-300 mb-1">Tracker Score</h3>
+                            <p id="trackerScore" class="text-7xl font-bold text-red-500 leading-tight">---</p>
+                            <div id="trackerTier" class="mt-3 text-2xl font-bold px-8 py-2 rounded-full shadow-md">--</div>
+                        </div>
+
+                        <!-- 右側: 詳細統計カード群 -->
+                        <div id="additionalStatsContainer" class="grid grid-cols-2 gap-3 md:gap-4 lg:w-2/3 w-full mt-4 lg:mt-0">
+                            <!-- 平均ACSカード -->
+                            <div id="statCardAvgAcs" class="p-3 rounded-lg shadow-md flex flex-col items-center justify-center">
+                                <span class="block text-xs font-medium mb-1">平均ACS</span>
+                                <span id="statAvgAcs" class="block font-semibold text-xl">N/A</span>
+                                <span id="statTierAvgAcs" class="block text-sm font-bold mt-1">--</span>
+                            </div>
+                            <!-- 平均K/Dカード -->
+                            <div id="statCardAvgKd" class="p-3 rounded-lg shadow-md flex flex-col items-center justify-center">
+                                <span class="block text-xs font-medium mb-1">平均K/D</span>
+                                <span id="statAvgKd" class="block font-semibold text-xl">N/A</span>
+                                <span id="statTierAvgKd" class="block text-sm font-bold mt-1">--</span>
+                            </div>
+                            <!-- 勝率カード -->
+                            <div id="statCardWinRate" class="p-3 rounded-lg shadow-md flex flex-col items-center justify-center">
+                                <span class="block text-xs font-medium mb-1">勝率</span>
+                                <span id="statWinRate" class="block font-semibold text-xl">N/A</span>
+                                <span id="statTierWinRate" class="block text-sm font-bold mt-1">--</span>
+                            </div>
+                            <!-- 平均DDΔカード -->
+                            <div id="statCardAvgDdDelta" class="p-3 rounded-lg shadow-md flex flex-col items-center justify-center">
+                                <span class="block text-xs font-medium mb-1">平均DDΔ</span>
+                                <span id="statAvgDdDelta" class="block font-semibold text-xl">N/A</span>
+                                <span id="statTierAvgDdDelta" class="block text-sm font-bold mt-1">--</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ACS Chart -->
+            <div class="bg-gray-800 p-6 rounded-xl shadow-lg">
+                <div class="flex justify-between items-center mb-4">
+                    <h3 id="chartTitle" class="text-xl font-bold">ACS (Average Combat Score) 推移</h3>
+                    <div id="chartTypeSelector" class="flex space-x-2">
+                        <button data-type="acs" class="chart-type-button bg-red-500 text-white px-3 py-1 rounded-md text-sm">ACS</button>
+                        <button data-type="kd" class="chart-type-button bg-gray-600 hover:bg-gray-500 text-white px-3 py-1 rounded-md text-sm">K/D</button>
+                        <button data-type="ddDelta" class="chart-type-button bg-gray-600 hover:bg-gray-500 text-white px-3 py-1 rounded-md text-sm">DDΔ</button>
+                        <button data-type="hs" class="chart-type-button bg-gray-600 hover:bg-gray-500 text-white px-3 py-1 rounded-md text-sm">HS%</button>
+                    </div>
+                </div>
+                <canvas id="statsChart"></canvas>
+            </div>
+
+            <!-- Match History -->
+            <div class="bg-gray-800 rounded-xl shadow-lg overflow-hidden">
+                <h3 class="text-xl font-bold p-6">今シーズンの戦績 (コンペティティブ)</h3>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left">
+                        <thead class="bg-gray-700 text-gray-300 uppercase text-sm">
+                            <tr>
+                                <th class="p-4">マップ</th>
+                                <th class="p-4">エージェント</th>
+                                <th class="p-4">ランク</th>
+                                <th class="p-4">結果</th>
+                                <th class="p-4">KDA</th>
+                                <th class="p-4">K/D</th>
+                                <th class="p-4">HS%</th>
+                                <th class="p-4">ACS</th>
+                            </tr>
+                        </thead>
+                        <tbody id="matchHistoryBody" class="divide-y divide-gray-700">
+                            <!-- Match data will be inserted here -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Error Modal -->
+    <div id="errorModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-gray-800 rounded-lg shadow-xl p-6 max-w-sm w-full text-center">
+            <div class="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-red-200 mb-4">
+                <svg class="h-6 w-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+            </div>
+            <h3 class="text-lg font-medium text-white">エラーが発生しました</h3>
+            <div class="mt-2 text-sm text-gray-400">
+                <p id="errorMessage"></p>
+            </div>
+            <div class="mt-4">
+                <button id="closeModalButton" class="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded-lg transition-colors">
+                    閉じる
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script src="config.js"></script>
+    <script type="module">
+        // --- ★★★ 重要 ★★★ ---
+        // Riot Developer Portal (https://developer.riotgames.com/) から
+        // 新しい開発用APIキーを取得してください。
+        // プロジェクトルートに config.js ファイルを作成し、
+        // const RIOT_API_KEY = "YOUR_RIOT_API_KEY_HERE"; の形式でキーを記述してください。
+        // このキーは24時間で有効期限が切れるため、定期的な更新が必要です。
+        // 重要: config.js ファイルは .gitignore に追加して、リポジトリに含めないようにしてください。
+        const API_KEY = RIOT_API_KEY; 
+        console.log("API Key loaded:", API_KEY ? `Yes, length: ${API_KEY.length}` : "No, API_KEY is not set or empty");
+        
+        // --- CONFIGURATION ---
+        const RAW_MATCH_COUNT_TO_FETCH = 30; // シーズン判定のために取得する試合数 (APIのsize上限も考慮)
+        // const MATCH_COUNT = 5; // 表示する試合数はシーズンフィルタリング後に決定されるため、この定数は直接使わなくなる
+
+        // --- DOM ELEMENTS ---
+        const riotIdInput = document.getElementById('riotIdInput');
+        const searchButton = document.getElementById('searchButton');
+        const searchIcon = document.getElementById('searchIcon');
+        const loadingIcon = document.getElementById('loadingIcon');
+        const buttonText = document.getElementById('buttonText');
+        const resultsSection = document.getElementById('resultsSection');
+        const errorModal = document.getElementById('errorModal');
+        const errorMessage = document.getElementById('errorMessage');
+        const closeModalButton = document.getElementById('closeModalButton');
+        
+        let statsChartInstance = null;
+        let currentChartType = 'acs';
+        let lastProcessedMatchHistory = [];
+
+        // --- EVENT LISTENERS ---
+        searchButton.addEventListener('click', handleSearch);
+        riotIdInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                handleSearch();
+            }
+        });
+        closeModalButton.addEventListener('click', () => {
+            errorModal.classList.add('hidden');
+        });
+
+        // グラフタイプ選択ボタンのイベントリスナー設定
+        document.addEventListener('DOMContentLoaded', () => {
+            const chartTypeButtons = document.querySelectorAll('.chart-type-button');
+            chartTypeButtons.forEach(button => {
+                button.addEventListener('click', () => {
+                    const type = button.dataset.type;
+                    if (type === currentChartType && statsChartInstance) return; // 同じタイプで既にグラフ表示中なら何もしない
+
+                    currentChartType = type;
+                    updateStatsChart();
+
+                    // ボタンのスタイル更新
+                    chartTypeButtons.forEach(btn => {
+                        btn.classList.remove('bg-red-500');
+                        btn.classList.add('bg-gray-600', 'hover:bg-gray-500');
+                    });
+                    button.classList.add('bg-red-500');
+                    button.classList.remove('bg-gray-600', 'hover:bg-gray-500');
+                });
+            });
+        });
+
+        // --- MAIN FUNCTION ---
+        async function handleSearch() {
+            // APIキーが設定されているかチェックします。
+            if (!API_KEY || API_KEY === "YOUR_RIOT_API_KEY_HERE") {
+                showError('APIキーが設定されていません。config.js ファイルに有効な Riot API キーを記述し、コメントの指示に従って更新してください。');
+                return;
+            }
+            const riotId = riotIdInput.value.trim();
+            if (!riotId.includes('#')) {
+                showError('Riot IDの形式が正しくありません。(例: Name#Tag)');
+                return;
+            }
+
+            setLoadingState(true);
+            resultsSection.classList.add('hidden');
+
+            try {
+                const [gameName, tagLine] = riotId.split('#');
+                
+                // 1. Get Account Data (PUUID and Region) from Riot ID
+                const accountData = await getPuuid(gameName, tagLine);
+                if (!accountData || !accountData.puuid || !accountData.region) {
+                    throw new Error('アカウント情報の取得に失敗しました。PUUIDまたはリージョンが見つかりません。');
+                }
+                const puuid = accountData.puuid;
+                const userRegion = accountData.region;
+
+                // ★ 追加: Get MMR Data
+                const mmrData = await getMmrData(userRegion, gameName, tagLine);
+                
+                // ★ 追加: Get MMR History Data
+                const mmrHistory = await getMmrHistory(userRegion, puuid);
+
+                // 2. Get recent competitive match IDs
+                const matchIds = await getMatchIds(gameName, tagLine, userRegion);
+                if (matchIds.length === 0) {
+                    showError('直近のコンペティティブのマッチデータが見つかりませんでした。');
+                    setLoadingState(false);
+                    return;
+                }
+
+                // 3. Get details for each match
+                const matchDetails = await getMatchDetails(matchIds, userRegion);
+
+                // 4. Process and render data
+                const processedMatchHistory = processMatchData(matchDetails, puuid); 
+                renderResults(processedMatchHistory, gameName, tagLine, accountData, mmrData, mmrHistory); 
+                
+                resultsSection.classList.remove('hidden');
+
+            } catch (error) {
+                console.error("Error fetching data:", error);
+                showError(error.message || 'データの取得中に不明なエラーが発生しました。');
+            } finally {
+                setLoadingState(false);
+            }
+        }
+
+        // --- API CALLS ---
+        async function apiFetch(url, isHenrikDev = true) {
+            let requestUrl = url;
+            if (isHenrikDev && API_KEY) {
+                // URLに既にクエリパラメータがあるか確認
+                requestUrl += (url.includes('?') ? '&' : '?') + `api_key=${API_KEY}`;
+            }
+
+            const headers = {};
+            // HenrikDev APIの場合、Authorizationヘッダーは不要にし、クエリパラメータでキーを渡す
+            // if (isHenrikDev) {
+            //     headers["Authorization"] = `Bearer ${API_KEY}`; 
+            // }
+
+            const response = await fetch(requestUrl, {
+                headers: headers
+            });
+
+            if (!response.ok) {
+                const errorData = await response.json().catch(() => ({ message: "Unknown error structure" }));
+                const errorMessageDetail = errorData.errors && errorData.errors[0] && errorData.errors[0].message 
+                                        ? errorData.errors[0].message 
+                                        : (errorData.message || `API Error ${response.status}`);
+
+                if (response.status === 401) throw new Error(`APIキーが無効のようです (HenrikDev API)。 Error: ${errorMessageDetail}`);
+                if (response.status === 403) throw new Error(`アクセスが禁止されています (HenrikDev API)。 Error: ${errorMessageDetail}`);
+                if (response.status === 404) throw new Error(`リソースが見つかりませんでした (HenrikDev API)。 Error: ${errorMessageDetail}`);
+                if (response.status === 429) throw new Error(`レート制限を超過しました (HenrikDev API)。 Error: ${errorMessageDetail}`);
+                throw new Error(`HenrikDev APIエラー: ${response.status} - ${errorMessageDetail}`);
+            }
+            return response.json();
+        }
+
+        async function getPuuid(gameName, tagLine) {
+            const baseUrl = `https://api.henrikdev.xyz/valorant/v2/account/${encodeURIComponent(gameName)}/${encodeURIComponent(tagLine)}`;
+            const data = await apiFetch(baseUrl); 
+            if (!data.status || data.status !== 200 || !data.data || !data.data.puuid || !data.data.region) {
+                throw new Error('PUUIDまたはリージョンの取得に失敗しました (HenrikDev API)。レスポンス: ' + JSON.stringify(data));
+            }
+
+            // ★★★ デバッグ用ログを削除 ★★★
+            // console.log("API response for card data:", JSON.stringify(data.data.card, null, 2));
+
+            // アイコン設定ロジックを削除
+            // let iconUrl = 'https://placehold.co/96x96/1f2937/7f1d1d?text=?'; // デフォルト
+            // if (data.data.card) {
+            //     if (data.data.card.wide) {
+            //         iconUrl = data.data.card.wide;
+            //     } else if (data.data.card.large) {
+            //         iconUrl = data.data.card.large;
+            //     } else if (data.data.card.small) {
+            //         iconUrl = data.data.card.small;
+            //     }
+            // }
+            // document.getElementById('playerIcon').src = iconUrl;
+            return data.data; // PUUIDだけでなく、リージョン情報も含むdata.data全体を返す
+        }
+
+        async function getMatchIds(gameName, tagLine, region) {
+            // platform 'pc' をハードコード。REGION_MATCHの代わりに引数で受け取ったregionを使用
+            const baseUrl = `https://api.henrikdev.xyz/valorant/v4/matches/${region}/pc/${encodeURIComponent(gameName)}/${encodeURIComponent(tagLine)}`;
+            // filter=competitive を mode=competitive に修正
+            // size を RAW_MATCH_COUNT_TO_FETCH に変更
+            const urlWithParams = `${baseUrl}?mode=competitive&size=${RAW_MATCH_COUNT_TO_FETCH}`;
+            const data = await apiFetch(urlWithParams);
+            if (!data.status || data.status !== 200 || !data.data) {
+                throw new Error('マッチIDの取得に失敗しました (HenrikDev API)。レスポンス: ' + JSON.stringify(data));
+            }
+            return data.data.map(match => match.metadata.match_id);
+        }
+
+        async function getMatchDetails(matchIds, region) {
+            const matchDetailsArray = [];
+            for (const matchId of matchIds) {
+                // v2からv4に変更し、regionをパスパラメータに追加
+                const url = `https://api.henrikdev.xyz/valorant/v4/match/${region}/${matchId}`;
+                try {
+            const data = await apiFetch(url);
+                    if (!data.status || data.status !== 200 || !data.data) {
+                        console.warn(`マッチ詳細の取得に失敗 (ID: ${matchId}): `, data);
+                        continue; // エラーがあっても処理を続行し、取得できたマッチのみを処理
+                    }
+                    matchDetailsArray.push(data.data);
+                } catch (error) {
+                    console.warn(`マッチ詳細の取得中にエラー (ID: ${matchId}): `, error);
+                    // エラーモーダルはhandleSearchのcatchでまとめて表示するため、ここでは個別のエラー表示はしない
+                }
+            }
+            if (matchDetailsArray.length === 0 && matchIds.length > 0) {
+                 throw new Error('すべてのマッチ詳細データの取得に失敗しました。');
+            }
+            return matchDetailsArray;
+        }
+
+        async function getMmrData(region, gameName, tagLine) {
+            const baseUrl = `https://api.henrikdev.xyz/valorant/v2/mmr/${region}/${encodeURIComponent(gameName)}/${encodeURIComponent(tagLine)}`;
+            // PUUIDベースのエンドポイントも利用可能:
+            // const baseUrl = `https://api.henrikdev.xyz/valorant/v2/by-puuid/mmr/${region}/${puuid}`;
+            const data = await apiFetch(baseUrl);
+            // デバッグ用ログはコメントアウトまたは削除
+            // console.log("getMmrData API response:", JSON.stringify(data, null, 2)); 
+            if (!data.status || data.status !== 200 || !data.data) {
+                console.warn('MMRデータの取得に失敗しました (HenrikDev API)。レスポンス: ' + JSON.stringify(data));
+                return null; // エラーの場合はnullを返すなどして後続処理で対応
+            }
+            // console.log("MMR Data fetched (data.data part only):", JSON.stringify(data.data, null, 2)); 
+            return data.data;
+        }
+
+        async function getMmrHistory(region, puuid) {
+            const baseUrl = `https://api.henrikdev.xyz/valorant/v1/by-puuid/mmr-history/${region}/${puuid}`;
+            try {
+                const data = await apiFetch(baseUrl);
+                if (!data.status || data.status !== 200 || !data.data) {
+                    console.warn('MMR履歴の取得に失敗しました (HenrikDev API)。レスポンス: ' + JSON.stringify(data));
+                    return []; // エラーの場合は空配列を返す
+                }
+                console.log("MMR History fetched:", JSON.stringify(data.data, null, 2));
+                return data.data; // MMR履歴データの配列
+            } catch (error) {
+                console.error("Error fetching MMR history:", error);
+                showError('MMR履歴データの取得中にエラーが発生しました。詳細はコンソールを確認してください。');
+                return []; // エラーの場合は空配列を返す
+            }
+        }
+
+        // --- DATA PROCESSING ---
+        function processMatchData(matches, puuid) {
+            console.log("processMatchData received matches (before season filter):", JSON.stringify(matches, null, 2));
+            console.log("processMatchData received puuid:", puuid);
+
+            if (!matches || matches.length === 0) {
+                return [];
+            }
+
+            // 最新の試合から現在のシーズンIDを特定
+            let currentSeasonId = null;
+            for (const match of matches) { // まず有効なシーズンIDを持つ最初のマッチを探す
+                if (match && match.metadata && match.metadata.season && match.metadata.season.id) {
+                    currentSeasonId = match.metadata.season.id;
+                    break;
+                }
+            }
+
+            if (!currentSeasonId) {
+                console.warn("Could not determine current season ID from fetched matches. Displaying all fetched competitive matches.");
+                // シーズンIDが特定できない場合は、取得した全コンペ試合をそのまま処理 (従来通りのフォールバック)
+            } else {
+                console.log("Determined current season ID:", currentSeasonId);
+            }
+
+            const processedMatches = matches.map(match => {
+                console.log("Processing match:", JSON.stringify(match, null, 2)); 
+
+                if (!match || !match.metadata || !match.players || !match.teams || !match.rounds) {
+                    console.warn("Skipping match due to missing fundamental data structure (metadata, players, teams, or rounds):", match);
+                    return null;
+                }
+
+                // ★ 変更: シーズンIDによるフィルタリング (currentSeasonIdが特定できた場合のみ)
+                if (currentSeasonId && (!match.metadata.season || match.metadata.season.id !== currentSeasonId)) {
+                    console.log(`Skipping match from different season: match season_id=${match.metadata.season ? match.metadata.season.id : 'N/A'}, current_season_id=${currentSeasonId}`);
+                    return null;
+                }
+                
+                // ★ 追加: ゲームモードがコンペティティブであるかを確認 (これは残す)
+                if (!match.metadata.queue || (match.metadata.queue.id !== 'competitive' && match.metadata.queue.name !== 'Competitive')) {
+                    console.log(`Skipping non-competitive match: queue.id=${match.metadata.queue.id}, queue.name=${match.metadata.queue.name}`);
+                    return null;
+                }
+
+                const player = match.players.find(p => p.puuid === puuid);
+                // console.log("Found player in match:", JSON.stringify(player, null, 2)); 
+
+                if (!player || !player.stats || !player.agent) { 
+                    console.warn("Player not found, or player missing stats/agent in match:", match, "for puuid:", puuid);
+                    return null;
+                }
+                 // ★★★ KAST, DDΔ調査用ログを追加 ★★★
+                // console.log(`Player stats for match ${match.metadata.match_id}:`, JSON.stringify(player.stats, null, 2)); // 確認したのでコメントアウト
+
+                const playerTeamData = match.teams.find(t => t.team_id.toLowerCase() === player.team_id.toLowerCase());
+                console.log("Found playerTeamData:", JSON.stringify(playerTeamData, null, 2)); 
+
+                if (!playerTeamData || typeof playerTeamData.won !== 'boolean' || !playerTeamData.rounds) {
+                     console.warn("Player team data not found or incomplete:", match, "for team_id:", player.team_id);
+                    return null;
+                }
+                const won = playerTeamData.won;
+                const roundsWon = playerTeamData.rounds.won;
+                const roundsLost = playerTeamData.rounds.lost;
+
+                const totalShots = (player.stats.headshots || 0) + (player.stats.bodyshots || 0) + (player.stats.legshots || 0);
+                const hsPercentage = totalShots > 0
+                    ? (((player.stats.headshots || 0) / totalShots) * 100).toFixed(1)
+                    : "0.0";
+                
+                const roundsPlayed = match.rounds.length;
+                const acs = (roundsPlayed > 0 && player.stats && player.stats.score !== undefined)
+                    ? Math.round(player.stats.score / roundsPlayed)
+                    : 0;
+                // console.log(`ACS calculation: score=${player.stats.score}, roundsPlayed=${roundsPlayed}, acs=${acs}`); 
+                
+                // KAST, Damage Dealt, Damage Received の取得試行
+                const damageDealtValue = (player.stats.damage && typeof player.stats.damage.dealt === 'number') ? player.stats.damage.dealt : 0;
+                const damageReceivedValue = (player.stats.damage && typeof player.stats.damage.received === 'number') ? player.stats.damage.received : 0;
+
+                let agentIconUrl = 'https://placehold.co/32x32/1f2937/7f1d1d?text=?'; 
+                if (player.agent && player.agent.name) {
+                    const rawAgentName = player.agent.name;
+                    const formattedAgentName = rawAgentName.toLowerCase().replace(/[^a-z0-9]/gi, '');
+                    agentIconUrl = `assets/images/agents/${formattedAgentName}.png`;
+                }
+
+                const rankNameMapping = {
+                    "Iron 1": "アイアン1",
+                    "Iron 2": "アイアン2",
+                    "Iron 3": "アイアン3",
+                    "Bronze 1": "ブロンズ1",
+                    "Bronze 2": "ブロンズ2",
+                    "Bronze 3": "ブロンズ3",
+                    "Silver 1": "シルバー1",
+                    "Silver 2": "シルバー2",
+                    "Silver 3": "シルバー3",
+                    "Gold 1": "ゴールド1",
+                    "Gold 2": "ゴールド2",
+                    "Gold 3": "ゴールド3",
+                    "Platinum 1": "プラチナ1",
+                    "Platinum 2": "プラチナ2",
+                    "Platinum 3": "プラチナ3",
+                    "Diamond 1": "ダイヤ1",
+                    "Diamond 2": "ダイヤ2",
+                    "Diamond 3": "ダイヤ3",
+                    "Ascendant 1": "アセンダント1",
+                    "Ascendant 2": "アセンダント2",
+                    "Ascendant 3": "アセンダント3",
+                    "Immortal 1": "イモータル1",
+                    "Immortal 2": "イモータル2",
+                    "Immortal 3": "イモータル3",
+                    "Radiant": "レディアント",
+                    "Unranked": "ランクなし"
+                };
+
+                let rankIconUrl = 'https://placehold.co/48x48/1f2937/7f1d1d?text=R'; 
+                let apiRankName = player.tier && player.tier.name ? player.tier.name : "Unranked"; 
+                let displayRankName = apiRankName; 
+
+                if (rankNameMapping[apiRankName]) {
+                    const japaneseFileName = rankNameMapping[apiRankName];
+                    rankIconUrl = `assets/images/ranks/${japaneseFileName}.png`;
+                } else if (apiRankName !== "Unranked") { 
+                    console.warn(`Rank name "${apiRankName}" not found in mapping. Attempting to use default placeholder.`);
+                }
+
+                const rankPoints = "-- RR"; // これは renderResults で MMR 履歴とマージして上書きされる
+
+                return {
+                    matchId: match.metadata.match_id, // ★ renderResults で MMR 履歴と紐付けるために match_id を追加
+                    map: match.metadata.map ? match.metadata.map.name : '不明なマップ',
+                    agentName: player.agent.name || '不明なエージェント',
+                    agentIcon: agentIconUrl,
+                    result: won ? '勝利' : '敗北',
+                    resultBoolean: won, // 勝率計算用にbooleanも保持
+                    resultColor: won ? 'text-green-400' : 'text-red-400',
+                    score: `${roundsWon} - ${roundsLost}`,
+                    kills: player.stats.kills || 0, // K/D計算用に保持
+                    deaths: player.stats.deaths || 0, // K/D計算用に保持
+                    kda: `${player.stats.kills || 0} / ${player.stats.deaths || 0} / ${player.stats.assists || 0}`,
+                    kd: (player.stats.deaths === 0 ? (player.stats.kills || 0) : ((player.stats.kills || 0) / player.stats.deaths)).toFixed(2),
+                    hs: hsPercentage,
+                    acs: acs,
+                    rankName: displayRankName, 
+                    rankIcon: rankIconUrl,
+                    rankPoints: rankPoints, // 初期値は "-- RR"
+                    seasonId: match.metadata.season ? match.metadata.season.id : null, 
+                    damageDealt: damageDealtValue, // 与ダメージ
+                    damageReceived: damageReceivedValue, // 被ダメージ
+                    roundsPlayed: roundsPlayed // ラウンド数
+                };
+            }).filter(Boolean); 
+
+            console.log("processMatchData returning (after season filter):", JSON.stringify(processedMatches, null, 2));
+            return processedMatches;
+        }
+
+        // --- RENDERING ---
+        function renderResults(processedMatchHistory, name, tag, accountData, mmrData, mmrHistory) {
+            // Player Info
+            document.getElementById('playerName').textContent = name;
+            document.getElementById('playerTag').textContent = `#${tag}`;
+            
+            lastProcessedMatchHistory = processedMatchHistory;
+
+            // デバッグ用ログはコメントアウトまたは削除
+            // console.log("renderResults received mmrData:", JSON.stringify(mmrData, null, 2));
+            // if (mmrData) {
+            //     console.log("mmrData.current_data.currenttierpatched in renderResults:", mmrData.current_data ? mmrData.current_data.currenttierpatched : 'N/A');
+            //     console.log("mmrData.current_data.images in renderResults:", mmrData.current_data ? mmrData.current_data.images : 'N/A');
+            //     console.log("mmrData.current_data.ranking_in_tier in renderResults:", mmrData.current_data ? mmrData.current_data.ranking_in_tier : 'N/A');
+            //     console.log("mmrData.current_data.mmr_change_to_last_game in renderResults:", mmrData.current_data ? mmrData.current_data.mmr_change_to_last_game : 'N/A');
+            // }
+
+            const playerRankSection = document.getElementById('playerRankSection');
+            playerRankSection.innerHTML = ''; // 初期化
+
+            // mmrData と mmrData.current_data の存在をチェックし、さらに currenttierpatched もチェック
+            if (playerRankSection && mmrData && mmrData.current_data && mmrData.current_data.currenttierpatched) {
+                const currentRankName = mmrData.current_data.currenttierpatched;
+                const currentRR = mmrData.current_data.ranking_in_tier || 0;
+                const mmrChange = mmrData.current_data.mmr_change_to_last_game;
+                let rankIconFromMmr = 'https://placehold.co/80x80/1f2937/7f1d1d?text=R'; // デフォルト
+
+                if (mmrData.current_data.images && mmrData.current_data.images.large) {
+                    rankIconFromMmr = mmrData.current_data.images.large;
+                } else {
+                     // images.largeがない場合でも、rankNameMapping を使ってローカルアセットを参照する試みは残す
+                     if (rankNameMapping[currentRankName]) {
+                         const japaneseFileName = rankNameMapping[currentRankName];
+                         rankIconFromMmr = `assets/images/ranks/${japaneseFileName}.png`;
+                     }
+                }
+                
+                let lastMatchRRChangeString = "";
+                if (mmrChange !== undefined && mmrChange !== null) {
+                    const sign = mmrChange >= 0 ? '+' : '';
+                    lastMatchRRChangeString = `<span class="text-sm ${mmrChange >= 0 ? 'text-green-400' : 'text-red-400'} font-semibold">前回のマッチ: ${sign}${mmrChange} RR</span>`;
+                }
+
+                playerRankSection.innerHTML = `
+                    <div class="flex flex-col items-center justify-center mt-1">
+                        <img src="${rankIconFromMmr}" alt="${currentRankName}" class="w-20 h-20 object-contain mb-2" onerror="this.onerror=null; this.src='https://placehold.co/80x80/1f2937/7f1d1d?text=R';">
+                        <div class="flex flex-col items-center text-center"> 
+                            <span class="text-xl font-bold">${currentRankName}</span>
+                            <span class="text-2xl text-red-400 font-bold">${currentRR} RR</span>
+                            ${lastMatchRRChangeString}
+                        </div>
+                    </div>
+                `;
+            } else if (playerRankSection) { // mmrDataがないか、ランク情報がない場合
+                 playerRankSection.innerHTML = `
+                    <div class="flex flex-col items-center justify-center mt-1">
+                        <img src="https://placehold.co/80x80/1f2937/7f1d1d?text=R" alt="Unranked" class="w-20 h-20 object-contain mb-2">
+                        <div class="flex flex-col items-center text-center">
+                            <span class="text-xl font-bold">ランク情報なし</span>
+                            <span class="text-lg text-gray-400">-- RR</span>
+                        </div>
+                    </div>
+                `;
+            }
+            
+            // Calculate and render Tracker Score (これは processedMatchHistory を使う)
+            renderPlayerOverallStats(processedMatchHistory);
+
+            // Render Match History (これも processedMatchHistory を使う)
+            const matchHistoryBody = document.getElementById('matchHistoryBody');
+            matchHistoryBody.innerHTML = ''; 
+            processedMatchHistory.forEach(match => {
+                let matchRankPoints = "-- RR"; // デフォルト
+                const historyEntry = mmrHistory.find(h => h.match_id === match.matchId); 
+
+                if (historyEntry) {
+                    const rrChange = historyEntry.mmr_change_to_last_game;
+                    const currentRRInTier = historyEntry.ranking_in_tier; // 名前を明確化
+                    const sign = rrChange >= 0 ? '+' : '';
+                    matchRankPoints = `${sign}${rrChange} RR (${currentRRInTier} RR)`;
+                    
+                    // MMR履歴からランク名とアイコンを更新 (もしあれば)
+                    if (historyEntry.currenttier_patched) {
+                        match.rankName = historyEntry.currenttier_patched;
+                        if (rankNameMapping[match.rankName]) {
+                            const japaneseFileName = rankNameMapping[match.rankName];
+                            match.rankIcon = `assets/images/ranks/${japaneseFileName}.png`;
+                        } else {
+                             match.rankIcon = 'https://placehold.co/48x48/1f2937/7f1d1d?text=R';
+                        }
+                    }
+                }
+
+
+                const row = `
+                    <tr class="hover:bg-gray-700/50 transition-colors">
+                        <td class="p-4 font-semibold">${match.map}</td>
+                        <td class="p-4">
+                            <div class="flex items-center gap-3">
+                                <img src="${match.agentIcon}" alt="${match.agentName}" class="w-8 h-8 rounded-full object-contain" onerror="this.onerror=null; this.src='https://placehold.co/32x32/1f2937/7f1d1d?text=?';">
+                                <span>${match.agentName}</span>
+                            </div>
+                        </td>
+                        <td class="p-2"> 
+                            <div class="flex items-center"> 
+                                <img src="${match.rankIcon}" alt="${match.rankName}" class="w-16 h-16 object-contain" onerror="this.onerror=null; this.src='https://placehold.co/64x64/1f2937/7f1d1d?text=R';">
+                                <div class="flex flex-col ml-1 text-xs"> 
+                                    <span>${match.rankName}</span> 
+                                    <span class="text-gray-400">${matchRankPoints}</span>
+                                </div>
+                            </div>
+                        </td>
+                        <td class="p-4 font-bold ${match.resultColor}">${match.result} (${match.score})</td>
+                        <td class="p-4">${match.kda}</td>
+                        <td class="p-4">${match.kd}</td>
+                        <td class="p-4">${match.hs}%</td>
+                        <td class="p-4 font-bold text-red-400">${match.acs}</td>
+                    </tr>
+                `;
+                matchHistoryBody.innerHTML += row;
+            });
+
+            // Render ACS Chart (これも processedMatchHistory を使う)
+            updateStatsChart();
+        }
+
+        function renderPlayerOverallStats(playerData) {
+            const trackerScoreEl = document.getElementById('trackerScore');
+            const trackerTierEl = document.getElementById('trackerTier');
+            const statAvgAcsEl = document.getElementById('statAvgAcs');
+            const statAvgKdEl = document.getElementById('statAvgKd');
+            const statWinRateEl = document.getElementById('statWinRate');
+            const statAvgDdDeltaEl = document.getElementById('statAvgDdDelta');
+
+            // --- ティアとそれに対応するスタイルクラスの定義 (関数の早い段階で定義) ---
+            const tierStylesDefinition = {
+                s: { bgClass: 'tier-s', labelTextClass: 'text-blue-100', valueTextClass: 'text-white' },
+                a: { bgClass: 'tier-a', labelTextClass: 'text-green-100', valueTextClass: 'text-white' },
+                b: { bgClass: 'tier-b', labelTextClass: 'text-yellow-700', valueTextClass: 'text-gray-800' },
+                c: { bgClass: 'tier-c', labelTextClass: 'text-gray-200', valueTextClass: 'text-white' },
+                d: { bgClass: 'tier-d', labelTextClass: 'text-red-100', valueTextClass: 'text-white' },
+                default: { bgClass: 'bg-gray-700', labelTextClass: 'text-gray-300', valueTextClass: 'text-white' }
+            };
+
+            // スタイルクラスのリスト (これも早期に定義)
+            const allBgStyleClasses = Object.values(tierStylesDefinition).map(s => s.bgClass).filter(Boolean);
+            const allLabelTextStyleClasses = Object.values(tierStylesDefinition).map(s => s.labelTextClass).filter(Boolean);
+            const allValueTextStyleClasses = Object.values(tierStylesDefinition).map(s => s.valueTextClass).filter(Boolean);
+
+            // playerData が空の場合の早期リターンとスタイル設定
+            if (playerData.length === 0) {
+                trackerScoreEl.textContent = "---";
+                trackerTierEl.textContent = "--";
+                trackerTierEl.className = 'mt-3 text-2xl font-bold px-8 py-2 rounded-full shadow-md bg-gray-700'; // Default tier display
+
+                const defaultStyle = tierStylesDefinition.default;
+                const elementsToReset = {
+                    avgAcs: { card: document.getElementById('statCardAvgAcs'), valueEl: statAvgAcsEl, tierEl: document.getElementById('statTierAvgAcs') },
+                    avgKd: { card: document.getElementById('statCardAvgKd'), valueEl: statAvgKdEl, tierEl: document.getElementById('statTierAvgKd') },
+                    winRate: { card: document.getElementById('statCardWinRate'), valueEl: statWinRateEl, tierEl: document.getElementById('statTierWinRate') },
+                    avgDdDelta: { card: document.getElementById('statCardAvgDdDelta'), valueEl: statAvgDdDeltaEl, tierEl: document.getElementById('statTierAvgDdDelta') }
+                };
+
+                for (const key in elementsToReset) {
+                    const el = elementsToReset[key];
+                    if (!el.card || !el.valueEl || !el.tierEl) continue;
+
+                    el.card.classList.remove(...allBgStyleClasses);
+                    el.card.classList.add(defaultStyle.bgClass);
+
+                    const labelSpan = el.card.children[0];
+                    if (labelSpan) {
+                        labelSpan.classList.remove(...allLabelTextStyleClasses);
+                        labelSpan.classList.add(defaultStyle.labelTextClass);
+                    }
+                    el.valueEl.textContent = "N/A";
+                    el.valueEl.classList.remove(...allValueTextStyleClasses);
+                    el.valueEl.classList.add(defaultStyle.valueTextClass);
+                    
+                    el.tierEl.textContent = "--";
+                    el.tierEl.classList.remove(...allValueTextStyleClasses);
+                    el.tierEl.classList.add(defaultStyle.valueTextClass);
+                }
+                return; // 早期リターン
+            }
+
+            // --- メインの統計計算と表示ロジック (playerData が空でない場合) ---
+            const avgAcs = playerData.reduce((sum, d) => sum + d.acs, 0) / playerData.length;
+            const totalKills = playerData.reduce((sum, d) => sum + d.kills, 0);
+            const totalDeaths = playerData.reduce((sum, d) => sum + d.deaths, 0);
+            const avgKd = totalDeaths === 0 ? totalKills : totalKills / totalDeaths;
+            const avgHs = playerData.reduce((sum, d) => sum + parseFloat(d.hs), 0) / playerData.length;
+
+            const wins = playerData.filter(d => d.resultBoolean).length;
+            const totalGames = playerData.length;
+            const winRate = totalGames > 0 ? (wins / totalGames) * 100 : 0;
+
+            let totalRoundAvgDdDelta = 0;
+            let validDdDeltaGamesCount = 0;
+            playerData.forEach(d => {
+                if (d.roundsPlayed > 0 && typeof d.damageDealt === 'number' && typeof d.damageReceived === 'number') {
+                    const roundDdDelta = (d.damageDealt - d.damageReceived) / d.roundsPlayed;
+                    if (!isNaN(roundDdDelta) && isFinite(roundDdDelta)) {
+                        totalRoundAvgDdDelta += roundDdDelta;
+                        validDdDeltaGamesCount++;
+                    }
+                }
+            });
+            const calculatedAvgDdDelta = validDdDeltaGamesCount > 0 ? Math.round(totalRoundAvgDdDelta / validDdDeltaGamesCount) : null;
+
+            // Tracker Score 計算 (これは全体のトラッカースコア用)
+            const rawScore = (avgAcs * 0.9) + (avgKd * 40) + (avgHs * 1.2);
+            const scalingFactor = 2.25;
+            let finalScore = Math.round(rawScore * scalingFactor);
+            finalScore = Math.min(finalScore, 999);
+            finalScore = Math.max(finalScore, 0);
+            trackerScoreEl.textContent = finalScore;
+
+            let overallTier = '';
+            let overallTierClass = ''; // Tracker Score 全体のティア表示用クラス名
+            if (finalScore >= 800) { overallTier = 'S'; overallTierClass = 'tier-s'; }
+            else if (finalScore >= 600) { overallTier = 'A'; overallTierClass = 'tier-a'; }
+            else if (finalScore >= 400) { overallTier = 'B'; overallTierClass = 'tier-b'; }
+            else if (finalScore >= 200) { overallTier = 'C'; overallTierClass = 'tier-c'; }
+            else { overallTier = 'D'; overallTierClass = 'tier-d'; }
+            trackerTierEl.textContent = overallTier;
+            trackerTierEl.className = 'mt-3 text-2xl font-bold px-8 py-2 rounded-full shadow-md ' + overallTierClass;
+
+            // 各統計項目の要素と値のマッピング
+            const statElements = {
+                avgAcs:   { card: document.getElementById('statCardAvgAcs'),   valueEl: statAvgAcsEl,   tierEl: document.getElementById('statTierAvgAcs'),   type: 'acs',     val: Math.round(avgAcs) },
+                avgKd:    { card: document.getElementById('statCardAvgKd'),    valueEl: statAvgKdEl,    tierEl: document.getElementById('statTierAvgKd'),    type: 'kd',      val: parseFloat(avgKd.toFixed(2)) },
+                winRate:  { card: document.getElementById('statCardWinRate'),  valueEl: statWinRateEl,  tierEl: document.getElementById('statTierWinRate'),  type: 'winRate', val: parseFloat(winRate.toFixed(1)) },
+                avgDdDelta: { card: document.getElementById('statCardAvgDdDelta'), valueEl: statAvgDdDeltaEl, tierEl: document.getElementById('statTierAvgDdDelta'), type: 'ddDelta', val: calculatedAvgDdDelta }
+            };
+
+            // スタイル適用ループ
+            for (const key in statElements) {
+                const el = statElements[key];
+                if (!el.card || !el.valueEl || !el.tierEl) continue; 
+
+                const itemTierKey = (el.val === null || typeof el.val === 'undefined') ? 'default' : getTier(el.val, el.type);
+                const currentItemStyle = tierStylesDefinition[itemTierKey] || tierStylesDefinition.default;
+                
+                const labelSpan = el.card.children[0]; 
+
+                el.card.classList.remove(...allBgStyleClasses);
+                el.card.classList.add(currentItemStyle.bgClass);
+
+                if (labelSpan) {
+                    labelSpan.classList.remove(...allLabelTextStyleClasses);
+                    labelSpan.classList.add(currentItemStyle.labelTextClass);
+                }
+                
+                el.valueEl.classList.remove(...allValueTextStyleClasses);
+                el.valueEl.classList.add(currentItemStyle.valueTextClass);
+                
+                const tierLetter = (itemTierKey === 'default') ? '--' : itemTierKey.toUpperCase();
+                el.tierEl.textContent = tierLetter;
+                el.tierEl.classList.remove(...allValueTextStyleClasses);
+                el.tierEl.classList.add(currentItemStyle.valueTextClass);
+            }
+
+            // 値の表示更新 (statElementsループ内でも良いが、ここでまとめて行う)
+            statAvgAcsEl.textContent = Math.round(avgAcs);
+            statAvgKdEl.textContent = avgKd.toFixed(2);
+            statWinRateEl.textContent = `${winRate.toFixed(1)}% (${wins}/${totalGames})`;
+            statAvgDdDeltaEl.textContent = (calculatedAvgDdDelta === null) ? "N/A" : calculatedAvgDdDelta;
+        }
+
+        function getTier(value, type) {
+            switch (type) {
+                case 'acs':
+                    if (value >= 220) return 's';
+                    if (value >= 180) return 'a';
+                    if (value >= 140) return 'b';
+                    if (value >= 100) return 'c';
+                    return 'd';
+                case 'kd':
+                    if (value >= 1.3) return 's';
+                    if (value >= 1.1) return 'a';
+                    if (value >= 0.9) return 'b';
+                    if (value >= 0.7) return 'c';
+                    return 'd';
+                case 'winRate':
+                    if (value >= 65) return 's';
+                    if (value >= 55) return 'a';
+                    if (value >= 45) return 'b';
+                    if (value >= 35) return 'c';
+                    return 'd';
+                case 'ddDelta':
+                    if (value >= 20) return 's';
+                    if (value >= 10) return 'a';
+                    if (value >= 0) return 'b';
+                    if (value >= -10) return 'c';
+                    return 'd';
+                default:
+                    console.warn(`Unknown tier type encountered: ${type}`);
+                    return 'default'; // Ensure a string is always returned
+            }
+        }
+
+        function updateStatsChart() {
+            if (!lastProcessedMatchHistory || lastProcessedMatchHistory.length === 0) {
+                // データがない場合はグラフをクリアまたは非表示にする (任意)
+                if (statsChartInstance) {
+                    statsChartInstance.destroy();
+                    statsChartInstance = null;
+                }
+                document.getElementById('chartTitle').textContent = 'グラフデータがありません';
+                return;
+            }
+
+            let chartData = [];
+            let yAxisLabel = '';
+            let chartTitleText = '';
+            let datasetLabel = '';
+
+            switch (currentChartType) {
+                case 'acs':
+                    chartData = lastProcessedMatchHistory.map(match => match.acs);
+                    yAxisLabel = 'ACS';
+                    datasetLabel = 'ACS';
+                    chartTitleText = 'ACS (Average Combat Score) 推移';
+                    break;
+                case 'kd':
+                    chartData = lastProcessedMatchHistory.map(match => parseFloat(match.kd) || 0);
+                    yAxisLabel = 'K/D Ratio';
+                    datasetLabel = 'K/D';
+                    chartTitleText = 'K/D 比率 推移';
+                    break;
+                case 'ddDelta':
+                    chartData = lastProcessedMatchHistory.map(match => {
+                        if (match.roundsPlayed > 0 && typeof match.damageDealt === 'number' && typeof match.damageReceived === 'number') {
+                            return Math.round((match.damageDealt - match.damageReceived) / match.roundsPlayed);
+                        }
+                        return 0; // データ不備またはラウンド数0の場合は0
+                    });
+                    yAxisLabel = 'DDΔ / Round';
+                    datasetLabel = 'DDΔ';
+                    chartTitleText = 'ラウンド毎ダメージ差 (DDΔ) 推移';
+                    break;
+                case 'hs':
+                    chartData = lastProcessedMatchHistory.map(match => parseFloat(match.hs) || 0);
+                    yAxisLabel = 'HS %';
+                    datasetLabel = 'HS%';
+                    chartTitleText = 'ヘッドショット率 (%) 推移';
+                    break;
+                default:
+                    console.error('Unknown chart type:', currentChartType);
+                    return;
+            }
+
+            document.getElementById('chartTitle').textContent = chartTitleText;
+
+            const ctx = document.getElementById('statsChart').getContext('2d');
+            
+            if (statsChartInstance) {
+                statsChartInstance.destroy();
+            }
+
+            const labels = lastProcessedMatchHistory.length > 0 ? lastProcessedMatchHistory.map((_, i) => `Match ${lastProcessedMatchHistory.length - i}`).reverse() : [];
+
+            statsChartInstance = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: datasetLabel,
+                        data: chartData,
+                        borderColor: 'rgb(239, 68, 68)',       // Tailwind red-500
+                        backgroundColor: 'rgba(239, 68, 68, 0.2)', // Tailwind red-500 with alpha
+                        tension: 0.3,
+                        fill: true,
+                        pointBackgroundColor: '#fff',
+                        pointBorderColor: 'rgb(239, 68, 68)',
+                        pointHoverRadius: 7,
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        y: {
+                            beginAtZero: false, // HS%やDDΔは0始まりでない方が見やすい場合がある
+                            title: { display: true, text: yAxisLabel, color: '#9ca3af' },
+                            grid: { color: 'rgba(255, 255, 255, 0.1)' },
+                            ticks: { color: '#9ca3af' }
+                        },
+                        x: {
+                            grid: { color: 'rgba(255, 255, 255, 0.1)' },
+                            ticks: { color: '#9ca3af' }
+                        }
+                    },
+                    plugins: {
+                        legend: { display: true, labels: { color: '#9ca3af' } } // 凡例は表示し、文字色を設定
+                    }
+                }
+            });
+        }
+
+        // --- UTILITY FUNCTIONS ---
+        function setLoadingState(isLoading) {
+            if (isLoading) {
+                searchButton.disabled = true;
+                searchIcon.classList.add('hidden');
+                loadingIcon.classList.remove('hidden');
+                buttonText.textContent = '検索中...';
+            } else {
+                searchButton.disabled = false;
+                searchIcon.classList.remove('hidden');
+                loadingIcon.classList.add('hidden');
+                buttonText.textContent = '検索';
+            }
+        }
+
+        function showError(message) {
+            errorMessage.textContent = message;
+            errorModal.classList.remove('hidden');
+        }
+    </script>
+</body>
+</html>
