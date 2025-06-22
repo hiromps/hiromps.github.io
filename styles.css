@@ -82,9 +82,13 @@ body {
     padding: 0;
     font-family: 'Arial', sans-serif;
     background-color: transparent !important; /* 強制的に透明にする */
-    overflow: hidden; /* スクロールバーを非表示に */
+    overflow-x: hidden; /* 横スクロールのみ無効 */
+    overflow-y: auto; /* 縦スクロールを有効に */
     min-height: 100vh;
     position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
 }
 
 .overlay {
@@ -95,14 +99,15 @@ body {
     flex-direction: column;
     background: var(--overlay-bg-color); /* 変数を適用 */
     /* background-color: transparent; */
-    /* backdrop-filter: blur(10px); */
+    backdrop-filter: blur(10px);
     border: 1px solid var(--border-color); /* 変数を適用 */
-    border-radius: 8px; /* 角を丸く */
+    border-radius: 12px; /* 角丸を統一 */
     color: var(--text-color);
     overflow: hidden;
     width: 300px;
     height: auto;
-    transition: transform 0.3s ease;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.3);
 }
 
 .overlay:hover {
@@ -275,19 +280,32 @@ body {
     font-weight: bold;
 }
 
+/* 入力セクションとチュートリアルセクションを横並びにするためのコンテナ */
+.main-content-container {
+    display: flex;
+    gap: 30px; /* ギャップを少し広げて見やすく */
+    max-width: 1200px;
+    width: 100%;
+    margin: 30px auto 20px auto; /* 上部の余白を増やす */
+    align-items: flex-start;
+    padding: 0 20px; /* 左右に余白を追加 */
+    box-sizing: border-box;
+}
+
 .input-section {
     max-width: 600px;
     width: 100%;
-    margin: 20px auto;
-    padding: 20px;
-    background-color: rgba(31, 31, 31, 0.9);
+    margin: 0; /* コンテナ内なのでmarginをリセット */
+    padding: 24px; /* パディングを少し増やして見やすく */
+    background-color: rgba(31, 31, 31, 0.95); /* 背景をより濃く */
     backdrop-filter: blur(10px);
-    border-radius: 8px;
+    border-radius: 12px; /* 角丸を少し大きく */
     color: white;
     border: 1px solid var(--border-color); /* 変数を適用 */
-    box-shadow: 0 0 20px rgba(255, 70, 85, 0.2);
-    transition: transform 0.3s ease;
+    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.3), 0 0 20px rgba(255, 70, 85, 0.15); /* シャドウを改善 */
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
     box-sizing: border-box;
+    flex: 1; /* フレックスアイテムとして伸縮 */
 }
 
 .input-section:hover {
@@ -310,27 +328,40 @@ body {
 .input-form input {
     flex: 1;
     min-width: 200px;
-    padding: 10px;
-    border: 1px solid #333;
-    border-radius: 4px;
-    background-color: #2a2a2a;
+    padding: 12px 16px; /* パディングを増やして使いやすく */
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 8px; /* 角丸を増やす */
+    background-color: rgba(42, 42, 42, 0.8);
     color: white;
     box-sizing: border-box;
+    transition: all 0.3s ease;
+    font-size: 14px;
+}
+
+.input-form input:focus {
+    outline: none;
+    border-color: var(--valorant-red);
+    box-shadow: 0 0 0 2px rgba(255, 70, 85, 0.2);
 }
 
 .input-form button {
-    padding: 10px 20px;
+    padding: 12px 24px; /* パディングを調整 */
     background-color: #ff4655;
     color: white;
     border: none;
-    border-radius: 4px;
+    border-radius: 8px; /* 角丸を統一 */
     cursor: pointer;
-    transition: background-color 0.3s;
+    transition: all 0.3s ease;
     white-space: nowrap;
+    font-weight: 600;
+    font-size: 14px;
+    box-shadow: 0 2px 8px rgba(255, 70, 85, 0.3);
 }
 
 .input-form button:hover {
     background-color: #ff2d3f;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(255, 70, 85, 0.4);
 }
 
 .url-output {
@@ -365,6 +396,157 @@ body {
     background-color: #1a2634;
 }
 
+/* OBSチュートリアルセクション */
+.tutorial-section {
+    max-width: 400px; /* 幅をコンパクトに */
+    margin: 30px auto 40px auto; /* 上下の余白を調整 */
+    background-color: transparent; /* 背景を透明に */
+    border-radius: 12px; /* 角丸を統一 */
+    border: none; /* ボーダーを削除 */
+    box-shadow: none; /* シャドウを削除 */
+    flex: 1; /* フレックスアイテムとして伸縮 */
+}
+
+.tutorial-toggle {
+    width: 100%;
+    padding: 14px 20px; /* パディングを調整 */
+    background: linear-gradient(135deg, var(--valorant-red), #e0303f);
+    color: white;
+    border: 1px solid var(--border-color);
+    border-radius: 12px; /* 角丸を統一 */
+    cursor: pointer;
+    font-size: 1em; /* フォントサイズを少し縮小 */
+    font-weight: 600;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    transition: all 0.3s ease;
+    text-align: left;
+    box-shadow: 0 4px 16px rgba(255, 70, 85, 0.3);
+}
+
+/* 展開時のトグルボタンのスタイル */
+.tutorial-toggle:has(+ .tutorial-content.expanded) {
+    border-radius: 12px 12px 0 0; /* 展開時は下の角を直角に */
+}
+
+.tutorial-toggle:hover {
+    background: linear-gradient(135deg, #e0303f, var(--valorant-red));
+    transform: translateY(-1px);
+}
+
+.tutorial-content {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.3s ease, padding 0.3s ease;
+    background-color: transparent; /* 閉じた状態では透明 */
+    border-radius: 0 0 8px 8px;
+    padding: 0; /* 閉じた状態ではパディングなし */
+    border: none; /* 閉じた状態ではボーダーなし */
+}
+
+.tutorial-content.expanded {
+    max-height: 320px; /* 高さをより制限してコンパクトに */
+    padding: 20px; /* パディングを調整 */
+    overflow-y: auto; /* 縦スクロールを有効にする */
+    background-color: rgba(15, 25, 35, 0.95); /* より濃い背景色 */
+    border: 1px solid var(--border-color); /* 開いた状態でのみボーダー */
+    border-top: none; /* 上のボーダーは削除してトグルボタンと繋げる */
+    backdrop-filter: blur(10px);
+    border-radius: 0 0 12px 12px; /* 下の角丸を統一 */
+}
+
+/* チュートリアルコンテンツのスクロールバーのスタイル */
+.tutorial-content.expanded::-webkit-scrollbar {
+    width: 8px;
+}
+
+.tutorial-content.expanded::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 4px;
+}
+
+.tutorial-content.expanded::-webkit-scrollbar-thumb {
+    background: var(--valorant-red);
+    border-radius: 4px;
+}
+
+.tutorial-content.expanded::-webkit-scrollbar-thumb:hover {
+    background: #e0303f;
+}
+
+.tutorial-step {
+    margin-bottom: 15px; /* マージンを縮小 */
+    padding: 12px; /* パディングを縮小 */
+    background-color: rgba(255, 255, 255, 0.05);
+    border-radius: 6px;
+    border-left: 4px solid var(--valorant-red);
+}
+
+.tutorial-step:last-child {
+    margin-bottom: 0;
+}
+
+.tutorial-step h4 {
+    color: var(--valorant-light);
+    margin: 0 0 8px 0; /* マージンを縮小 */
+    font-size: 1em; /* フォントサイズを縮小 */
+}
+
+.tutorial-step p,
+.tutorial-step li {
+    color: #d0d0d0;
+    line-height: 1.4; /* 行間を縮小 */
+    margin: 6px 0; /* マージンを縮小 */
+    font-size: 0.9em; /* フォントサイズを縮小 */
+}
+
+.tutorial-step ol,
+.tutorial-step ul {
+    margin: 8px 0; /* マージンを縮小 */
+    padding-left: 16px; /* パディングを縮小 */
+}
+
+.tutorial-step strong {
+    color: var(--valorant-red);
+    font-weight: bold;
+}
+
+.tutorial-note {
+    margin-top: 15px; /* マージンを縮小 */
+    padding: 12px; /* パディングを縮小 */
+    background-color: rgba(255, 193, 7, 0.1);
+    border: 1px solid rgba(255, 193, 7, 0.3);
+    border-radius: 6px;
+}
+
+.tutorial-note h4 {
+    color: #ffc107;
+    margin: 0 0 8px 0; /* マージンを縮小 */
+    font-size: 1em; /* フォントサイズを縮小 */
+}
+
+.tutorial-note ul {
+    margin: 8px 0; /* マージンを縮小 */
+    padding-left: 16px; /* パディングを縮小 */
+}
+
+.tutorial-note li {
+    color: #e0e0e0;
+    margin: 6px 0; /* マージンを縮小 */
+    line-height: 1.4; /* 行間を縮小 */
+    font-size: 0.9em; /* フォントサイズを縮小 */
+}
+
+#tutorialArrow {
+    transition: transform 0.3s ease;
+    font-size: 0.9em;
+}
+
+#tutorialArrow.rotated {
+    transform: rotate(180deg);
+}
+
 /* カスタマイズボタンのコンテナ */
 .customize-button-container {
     text-align: center; /* ボタンを中央寄せ */
@@ -373,17 +555,22 @@ body {
 }
 
 .customize-button-container button {
-    padding: 10px 20px;
+    padding: 12px 24px; /* パディングを統一 */
     background-color: var(--valorant-grey); /* VALORANT風のグレー */
     color: var(--valorant-light); /* VALORANT風のライトカラー */
     border: none;
-    border-radius: 4px;
+    border-radius: 8px; /* 角丸を統一 */
     cursor: pointer;
-    transition: background-color 0.3s;
+    transition: all 0.3s ease;
+    font-weight: 600;
+    font-size: 14px;
+    box-shadow: 0 2px 8px rgba(58, 68, 78, 0.3);
 }
 
 .customize-button-container button:hover {
     background-color: #5a646e; /* ホバー時の色 */
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(58, 68, 78, 0.4);
 }
 
 /* PCレイアウト */
@@ -391,15 +578,67 @@ body {
     body {
         display: flex;
         flex-direction: column;
+        align-items: center; /* 中央寄せに変更 */
+        padding: 0 20px 40px 20px; /* 上は0、横と下に余白 */
+    }
+
+    .main-content-container {
+        margin: 40px auto 30px auto; /* 上下のマージンを調整 */
+        padding: 0 30px; /* 左右の余白も追加 */
+    }
+
+    /* 2段目のコンテナ（カスタマイズボタンとチュートリアル） */
+    .second-row-container {
+        display: flex;
+        gap: 20px;
+        max-width: 1200px;
+        width: 100%;
+        margin: 0 0 20px 0;
         align-items: flex-start;
-        padding: 20px;
+    }
+
+    /* PCでのチュートリアルセクションの高さ制限 */
+    .tutorial-content.expanded {
+        max-height: 280px; /* PCでもよりコンパクトに */
+    }
+
+    /* PCでのオーバーレイ位置調整 */
+    .overlay {
+        position: relative;
+        top: 0;
+        right: 0;
+        margin: 0 auto 20px auto; /* 中央寄せにして下にマージン */
+        align-self: flex-start; /* 左寄せ（プレイヤー情報カードと同じ位置） */
+        margin-left: 0; /* 左マージンを0に */
+    }
+
+    /* PCでの右側カラム */
+    .right-column {
+        display: flex;
+        flex-direction: column;
+        flex: 1;
+        align-items: flex-start;
+    }
+
+    /* PCでのカスタマイズボタン位置調整 */
+    .right-column .customize-button-container {
+        width: 100%;
+        margin: 10px 0 0 0;
+        text-align: left;
+        max-width: 400px; /* オーバーレイの幅に合わせる */
     }
 
     .input-section {
         width: 100%;
         max-width: 550px;
         margin: 0;
-        margin-bottom: 20px;
+    }
+
+    /* PCでのチュートリアルセクション位置調整 */
+    .tutorial-section {
+        width: 100%;
+        margin: 40px auto 50px auto; /* 上下の余白を調整 */
+        max-width: 800px; /* よりコンパクトに */
     }
 
     .input-form {
@@ -430,20 +669,7 @@ body {
         white-space: nowrap;
     }
 
-    .overlay {
-        position: relative;
-        top: 0;
-        right: 0;
-        width: 400;
-        margin: 0;
-    }
 
-    .customize-button-container {
-        width: 100%;
-        max-width: 550px; /* 入力セクションの幅に合わせる */
-        margin: 20px 0; /* PCレイアウトでのマージン調整 */
-        text-align: left; /* PCレイアウトでは左寄せ */
-    }
 
     .ad-container {
         display: block; /* PCでは表示 */
@@ -460,6 +686,22 @@ body {
         display: flex; /* 子要素をflexboxで配置 */
         flex-direction: column; /* 子要素を縦に並べる */
         align-items: center; /* 子要素を中央寄せ */
+    }
+
+    /* モバイルでは縦並びに */
+    .main-content-container {
+        flex-direction: column;
+        align-items: center;
+        margin: 10px auto;
+        max-width: 95%;
+    }
+
+    /* モバイルでの右側カラム */
+    .right-column {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        width: 100%;
     }
 
     .overlay {
@@ -506,6 +748,7 @@ body {
         padding: 15px;
         max-width: 350px; /* オーバーレイの幅に合わせる */
         order: 0; /* 1番目に表示 */
+        flex: none; /* モバイルではflexを無効に */
     }
 
     .input-section h2 {
@@ -521,6 +764,15 @@ body {
         order: -1; /* 任意: 例えば入力セクションの上に表示したい場合 */
         /* order: 1; /* 入力セクションの下、オーバーレイの上に表示したい場合 */
         order: 2; /* オーバーレイの下、author-sectionの上に表示 */
+    }
+
+    /* モバイルでのカスタマイズボタン（right-column内） */
+    .right-column .customize-button-container {
+        width: 100%;
+        margin: 10px auto;
+        text-align: center;
+        max-width: 350px;
+        order: unset;
     }
 
     .input-form {
@@ -543,16 +795,7 @@ body {
         min-width: unset;
     }
 
-    .author-section {
-        position: static !important; /* 固定解除を確実に */
-        margin: 10px auto !important; /* 上下にマージン、左右中央寄せを確実に */
-        top: auto !important; /* 固定位置解除を確実に */
-        right: auto !important; /* 固定位置解除を確実に */
-        left: auto !important; /* 左固定も解除 */
-        bottom: auto !important; /* 下固定も解除 */
-        align-items: center; /* 中央寄せ */
-        order: 3; /* カスタマイズボタンの後に表示 */
-    }
+
 
     .ad-container {
         order: 4; /* 最後に表示 */
@@ -561,12 +804,36 @@ body {
         max-width: 350px; /* 他の要素の幅に合わせる */
     }
 
-    .author-avatar {
-        width: 60px;
-        height: 60px;
+
+
+    .tutorial-section {
+        width: 90%;
+        margin: 10px auto;
+        order: 1.5; /* 入力セクションとオーバーレイの間に配置 */
+        flex: none; /* モバイルではflexを無効に */
+        max-width: 350px; /* 他の要素との統一 */
     }
-    
-    .author-text {
+
+    .tutorial-toggle {
+        font-size: 1em;
+        padding: 12px 15px;
+    }
+
+    .tutorial-content.expanded {
+        padding: 15px;
+    }
+
+    .tutorial-step {
+        padding: 12px;
+        margin-bottom: 15px;
+    }
+
+    .tutorial-step h4 {
+        font-size: 1em;
+    }
+
+    .tutorial-step p,
+    .tutorial-step li {
         font-size: 0.9em;
     }
 }
@@ -616,7 +883,7 @@ body {
 /* bodyにobs-modeクラスが付与されている場合に適用 */
 body.obs-mode {
     background-color: transparent !important;
-    overflow: hidden !important;
+    overflow: hidden !important; /* OBSモードではスクロールを無効に */
 }
 
 body.obs-mode .background {
@@ -632,6 +899,11 @@ body.obs-mode .overlay {
     margin: 0 !important; /* マージンをリセット */
 }
 
+/* ヘッダーナビゲーションを非表示 */
+body.obs-mode .app-header {
+    display: none !important;
+}
+
 /* 入力フォームも非表示 */
 body.obs-mode .input-section {
     display: none !important;
@@ -642,6 +914,12 @@ body.obs-mode .customize-button-container {
 }
 
 body.obs-mode .ad-container {
+    display: none !important; /* OBSモードでは非表示 */
+}
+
+
+
+body.obs-mode .tutorial-section {
     display: none !important; /* OBSモードでは非表示 */
 }
 
@@ -660,26 +938,22 @@ body:has(input[id="generatedURL"][value*="obs"]) .ad-container {
 
 /* 製作者紹介セクション */
 .author-section {
-    position: fixed; /* 画面に固定 */
-    top: 20px; /* 上から20px */
-    right: 20px; /* 右から20px */
     display: flex;
-    flex-direction: column;
-    align-items: flex-end; /* 右寄せ */
-    z-index: 10; /* 他の要素より前面に */
+    align-items: center;
+    gap: 10px;
     color: var(--valorant-light); /* テキスト色 */
 }
 
 .author-text {
-    margin: 0 0 5px 0; /* 下に少しマージン */
-    font-size: 1em;
-    font-weight: bold;
+    margin: 0;
+    font-size: 0.9em;
+    font-weight: 600;
     text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.5); /* 読みやすく影を追加 */
 }
 
 .author-avatar {
-    width: 120px;
-    height: 120px;
+    width: 40px;
+    height: 40px;
     border-radius: 50%; /* 丸くする */
     border: 2px solid var(--border-color); /* 変数を適用 */
     object-fit: cover; /* 画像の表示方法 */

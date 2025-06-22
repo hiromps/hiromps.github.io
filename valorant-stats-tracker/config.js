@@ -1,1 +1,0 @@
-const RIOT_API_KEY = "HDEV-8cc10f10-c970-40d4-9825-f2bc6f18045d"; // Riot API Key

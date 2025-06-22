@@ -12,31 +12,75 @@
         /* 基本的なヘッダースタイル */
         .app-header {
             padding: 1rem;
-            text-align: center;
+            background-color: rgba(15, 25, 35, 0.95);
+            border-bottom: 2px solid #ff4655;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 2px 20px rgba(0, 0, 0, 0.3);
+            width: 100%;
+        }
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+        .nav-buttons {
+            display: flex;
+            gap: 1rem;
         }
         .app-header button,
         .app-header a.header-button {
             background-color: #ff4655;
             color: white;
             border: none;
-            padding: 0.5rem 1rem;
+            padding: 0.75rem 1.5rem;
             margin: 0 0.5rem;
             font-size: 1rem;
+            font-weight: 600;
             cursor: pointer;
-            border-radius: 5px;
-            transition: background-color 0.3s;
+            border-radius: 8px;
+            transition: all 0.3s ease;
             text-decoration: none; /* 下線を消す */
             display: inline-block; /* ボタンらしく見せるため */
+            box-shadow: 0 2px 8px rgba(255, 70, 85, 0.3);
         }
         .app-header button:hover,
         .app-header a.header-button:hover {
             background-color: #e0303f;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(255, 70, 85, 0.4);
         }
         .app-header button.active,
         .app-header a.header-button.active {
             background-color: #22c55e; /* 緑などでアクティブ状態を示す */
-            box-shadow: 0 0 5px #22c55e;
+            box-shadow: 0 0 15px rgba(34, 197, 94, 0.5);
             text-decoration: none; /* アクティブ時も下線を消す */
+        }
+        @media screen and (max-width: 768px) {
+            .header-content {
+                flex-direction: column;
+                gap: 1rem;
+                padding: 0 10px;
+                align-items: center;
+            }
+            .nav-buttons {
+                flex-direction: row;
+                width: auto;
+                gap: 0.5rem;
+                justify-content: center;
+            }
+            .nav-buttons .header-button {
+                width: auto;
+                text-align: center;
+                margin: 0;
+                padding: 0.5rem 1rem;
+                font-size: 0.9rem;
+            }
+            .author-section {
+                margin-top: 10px;
+            }
         }
         .mode-container {
             /* display: none; */ /* 初期状態はJSで制御 */
@@ -48,16 +92,18 @@
 </head>
 <body>
     <header class="app-header">
-        <a href="/" id="showOverlayModeLink" class="header-button">OBSオーバーレイ</a>
-        <a href="https://hiromps.github.io/valorant-stats-tracker/" id="showTrackerModeLink" class="header-button">戦績トラッカー</a>
+        <div class="header-content">
+            <div class="nav-buttons">
+                <a href="/" id="showOverlayModeLink" class="header-button active">OBSオーバーレイ</a>
+                <a href="./valorant-stats-tracker/" id="showTrackerModeLink" class="header-button">戦績トラッカー</a>
+            </div>
+            <div class="author-section">
+                <p class="author-text">Project by にど寝</p>
+                <img src="assets/images/nidone.png" alt="製作者アバター" class="author-avatar">
+            </div>
+        </div>
     </header>
     <div class="background"></div>
-    
-    <!-- 製作者紹介セクション -->
-    <div class="author-section">
-        <p class="author-text">Project by にど寝</p>
-        <img src="assets/images/nidone.png" alt="製作者アバター" class="author-avatar">
-    </div>
 
     <!-- Google AdSense広告ユニット -->
     <div class="ad-container">
@@ -72,43 +118,91 @@
         </script>
     </div>
 
-    <div id="inputSection" class="input-section">
-        <h2>VALORANT プレイヤー情報</h2>
-        <div class="input-form">
-            <input type="text" id="playerName" placeholder="プレイヤー名" required>
-            <input type="text" id="playerTag" placeholder="タグ" required>
-            <button onclick="generateURL()">URLを生成</button>
-        </div>
-        <div class="url-output">
-            <input type="text" id="generatedURL" readonly>
-            <button onclick="copyURL()">コピー</button>
-        </div>
-    </div>
-
-    <!-- カスタマイズボタン -->
-    <div class="customize-button-container">
-        <button id="customizeButton">カスタマイズ</button>
-    </div>
-
-    <div class="overlay">
-        <div class="rank-section">
-            <img src="assets/images/ranks/ランクなし.png" alt="Rank Icon" class="rank-icon" id="rankIcon">
-            <div class="rank-details">
-                <div class="rank-name-line">
-                    <span class="rank-name" id="rankText">ランクなし</span> <span class="rr" id="rrText">0RR</span>
-                </div>
-                <!-- <span class="win-loss" id="winLossText">0 Win / 0 Loss</span> -->
+    <!-- メインコンテンツコンテナ -->
+    <div class="main-content-container">
+        <div id="inputSection" class="input-section">
+            <h2>VALORANT プレイヤー情報</h2>
+            <div class="input-form">
+                <input type="text" id="playerName" placeholder="プレイヤー名" required>
+                <input type="text" id="playerTag" placeholder="タグ" required>
+                <button onclick="generateURL()">URLを生成</button>
+            </div>
+            <div class="url-output">
+                <input type="text" id="generatedURL" readonly>
+                <button onclick="copyURL()">コピー</button>
             </div>
         </div>
-        <div class="last-match-section" id="lastMatchSection">
-            <div class="mmr-gauge-fill"></div>
-            <span class="last-match-text" id="lastMatchText">前回のマッチ +0pts</span>
+
+        <div class="right-column">
+            <div class="overlay">
+                <div class="rank-section">
+                    <img src="assets/images/ranks/ランクなし.png" alt="Rank Icon" class="rank-icon" id="rankIcon">
+                    <div class="rank-details">
+                        <div class="rank-name-line">
+                            <span class="rank-name" id="rankText">ランクなし</span> <span class="rr" id="rrText">0RR</span>
+                        </div>
+                        <!-- <span class="win-loss" id="winLossText">0 Win / 0 Loss</span> -->
+                    </div>
+                </div>
+                <div class="last-match-section" id="lastMatchSection">
+                    <div class="mmr-gauge-fill"></div>
+                    <span class="last-match-text" id="lastMatchText">前回のマッチ +0pts</span>
+                </div>
+                <!-- OBS用デバッグ情報 -->
+                <div id="obsDebugInfo" style="display: none; font-size: 12px; color: #888; margin-top: 10px;">
+                    <div>自動更新: <span id="autoUpdateStatus">無効</span></div>
+                    <div>最終更新: <span id="lastUpdateTime">-</span></div>
+                    <button onclick="manualUpdate()" style="margin-top: 5px; padding: 2px 8px; font-size: 10px;">手動更新</button>
+                </div>
+            </div>
+            
+            <!-- カスタマイズボタン -->
+            <div class="customize-button-container">
+                <button id="customizeButton">カスタマイズ</button>
+            </div>
         </div>
-        <!-- OBS用デバッグ情報 -->
-        <div id="obsDebugInfo" style="display: none; font-size: 12px; color: #888; margin-top: 10px;">
-            <div>自動更新: <span id="autoUpdateStatus">無効</span></div>
-            <div>最終更新: <span id="lastUpdateTime">-</span></div>
-            <button onclick="manualUpdate()" style="margin-top: 5px; padding: 2px 8px; font-size: 10px;">手動更新</button>
+    </div>
+
+    <!-- OBSチュートリアルセクション -->
+    <div class="tutorial-section">
+        <button class="tutorial-toggle" onclick="toggleTutorial()">
+            📺 OBS設定ガイド <span id="tutorialArrow" class="rotated">▼</span>
+        </button>
+        <div class="tutorial-content expanded" id="tutorialContent">
+            <div class="tutorial-step">
+                <h4>🎯 ステップ 1: URLを生成</h4>
+                <p>上記のフォームにプレイヤー名とタグを入力し、「URLを生成」ボタンを押してください。</p>
+            </div>
+            <div class="tutorial-step">
+                <h4>🖥️ ステップ 2: OBSでブラウザソースを追加</h4>
+                <ol>
+                    <li>OBS Studioを開く</li>
+                    <li>「ソース」の「+」ボタンをクリック</li>
+                    <li>「ブラウザ」を選択</li>
+                    <li>「新規作成」を選択してOKを押す</li>
+                </ol>
+            </div>
+            <div class="tutorial-step">
+                <h4>⚙️ ステップ 3: ブラウザソースの設定</h4>
+                <ul>
+                    <li><strong>URL:</strong> 生成されたURLをコピー&ペースト</li>
+                    <li><strong>幅:</strong> 450</li>
+                    <li><strong>高さ:</strong> 200</li>
+                    <li><strong>カスタムCSS:</strong> そのまま</li>
+                </ul>
+            </div>
+            <div class="tutorial-step">
+                <h4>✨ ステップ 4: 位置とサイズの調整</h4>
+                <p>OBSのプレビュー画面でオーバーレイを好きな位置にドラッグして配置してください。</p>
+            </div>
+            <div class="tutorial-note">
+                <h4>📝 注意事項</h4>
+                <ul>
+                    <li>オーバーレイは30秒間隔で自動更新されます</li>
+                    <li>ランク情報が正常に表示されない場合はURLを生成し直してください</li>
+                    <li>APIの制限により、一時的にデータが取得できない場合があります</li>
+                </ul>
+            </div>
         </div>
     </div>
 
@@ -418,9 +512,9 @@
             const defaultRankBgOpacity = '100';
             const defaultLastMatchBgColor = '#F44336'; // ラストマッチセクションのデフォルト背景色
             const defaultLastMatchBgOpacity = '100';
-            const defaultTextColor = '#ece8e1'; // VALORANT風のライトカラー
+            const defaultTextColor = '#ffffff'; // 真っ白
             const defaultRrColor = '#ff4655'; // VALORANT風のレッド
-            const defaultWinLossTextColor = '#ece8e1'; // デフォルトは他のテキスト色と同じ
+            const defaultWinLossTextColor = '#ffffff'; // 真っ白
             const defaultBorderColor = '#ff4655'; // VALORANT風のレッド
 
             // カラーピッカーの値をデフォルトに戻す
@@ -566,6 +660,12 @@
                     // bodyにOBSモードクラスを追加
                     document.body.classList.add('obs-mode');
 
+                    // ヘッダーナビゲーションを非表示
+                    const headerElement = document.querySelector('.app-header');
+                    if (headerElement) {
+                        headerElement.style.display = 'none';
+                    }
+
                     // 背景アニメーション要素を非表示
                     const backgroundElement = document.querySelector('.background');
                     if (backgroundElement) {
@@ -632,6 +732,16 @@
             } else if (isOBS) {
                 // name, tag パラメータがないが OBS モードの場合
                 document.getElementById('inputSection').style.display = 'none';
+                
+                // ヘッダーナビゲーションを非表示
+                const headerElement = document.querySelector('.app-header');
+                if (headerElement) {
+                    headerElement.style.display = 'none';
+                }
+                
+                // bodyにOBSモードクラスを追加
+                document.body.classList.add('obs-mode');
+                
                 const backgroundElement = document.querySelector('.background');
                 if (backgroundElement) {
                     backgroundElement.style.display = 'none';
@@ -644,12 +754,16 @@
             }
         }
 
+        
+
         async function updatePlayerInfo(name, tag) {
             try {
                 console.log(`[${new Date().toLocaleTimeString()}] プレイヤー情報を取得中: ${name}#${tag}`);
+                
+                // 堅牢なAPI呼び出しを使用（改善されたfetchPlayerStats関数を使用）
                 const stats = await fetchPlayerStats(name, tag);
 
-                console.log('Stats:', stats);
+                console.log('Stats response:', stats);
 
                 if (stats && stats.data) {
                     const playerData = stats.data; // stats.data の内容を直接使用
@@ -671,9 +785,6 @@
 
                         document.getElementById('rankText').textContent = currentRank;
                         document.getElementById('rrText').textContent = `${rankingInTier || 0}RR`;
-
-                        // 勝敗情報はMMRデータに含まれていないため表示しない（必要であればプロフィールAPIから取得）
-                        // document.getElementById('winLossText').textContent = '';
 
                         // 直近のマッチ結果（MMR変動値）を更新
                         const lastMatchSection = document.getElementById('lastMatchSection');
@@ -710,28 +821,14 @@
                         document.getElementById('rankIcon').src = 'assets/images/ranks/ランクなし.png';
                         document.getElementById('rankText').textContent = 'ランクなし';
                         document.getElementById('rrText').textContent = '';
-                        // document.getElementById('winLossText').textContent = '';
                         document.getElementById('lastMatchSection').style.display = 'none';
                         console.log(`[${new Date().toLocaleTimeString()}] ランク情報なし`);
                     }
-
-                    // プロフィールAPIからのデータ（エージェントアイコン、KDA等）は使用しないため関連コードはコメントアウトのまま
-                    // document.getElementById('playerName').textContent = `${name}#${tag}`;
-                    // if (profile && profile.data && profile.data.agent) {
-                    //     document.getElementById('agentIcon').src = getAgentImageUrl(profile.data.agent.name);
-                    // }
-                    // if (profile && profile.data && profile.data.stats) {
-                    //     const stats = profile.data.stats;
-                    //     document.getElementById('kda').textContent = `${stats.kills || 0}/${stats.deaths || 0}/${stats.assists || 0}`;
-                    //     document.getElementById('hsPercent').textContent = `${Math.round((stats.headshots || 0) / (stats.bodyshots || 1) * 100)}%`;
-                    //     document.getElementById('adr').textContent = Math.round((stats.damage || 0) / (stats.matches || 1));
-                    // }
 
                 } else { // stats または stats.data が存在しない場合
                     document.getElementById('rankIcon').src = 'assets/images/ranks/ランクなし.png';
                     document.getElementById('rankText').textContent = 'データなし';
                     document.getElementById('rrText').textContent = '';
-                    // document.getElementById('winLossText').textContent = '';
                     document.getElementById('lastMatchSection').style.display = 'none';
                     console.log(`[${new Date().toLocaleTimeString()}] API応答にデータが含まれていません`);
                 }
@@ -741,11 +838,11 @@
 
             } catch (error) {
                 console.error(`[${new Date().toLocaleTimeString()}] Error updating player info:`, error);
+                
                 // エラー発生時も表示をリセット
                 document.getElementById('rankIcon').src = 'assets/images/ranks/ランクなし.png';
                 document.getElementById('rankText').textContent = 'エラー';
                 document.getElementById('rrText').textContent = '';
-                // document.getElementById('winLossText').textContent = '';
                 document.getElementById('lastMatchSection').style.display = 'none';
                 
                 // エラー時も最終更新時刻を更新
@@ -806,6 +903,22 @@
             }).catch(error => {
                 console.error('手動更新中にエラーが発生しました:', error);
             });
+        }
+
+        // チュートリアルの開閉機能
+        function toggleTutorial() {
+            const content = document.getElementById('tutorialContent');
+            const arrow = document.getElementById('tutorialArrow');
+            
+            if (content.classList.contains('expanded')) {
+                // 閉じる
+                content.classList.remove('expanded');
+                arrow.classList.remove('rotated');
+            } else {
+                // 開く
+                content.classList.add('expanded');
+                arrow.classList.add('rotated');
+            }
         }
     </script>
 </body>

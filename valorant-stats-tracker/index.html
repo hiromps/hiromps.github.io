@@ -18,25 +18,90 @@
         .tier-b { background-color: #FACC15; color: #1F2937; } /* 黄 (yellow-400), 文字色: gray-800 */
         .tier-c { background-color: #6B7280; color: white; } /* グレー (gray-500) */
         .tier-d { background-color: #EF4444; color: white; } /* 赤 (red-500) */
+        
+        /* ヘッダーナビゲーション用のスタイル */
+        .app-header {
+            padding: 1rem;
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+        .app-header a.header-button {
+            background-color: #ff4655;
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            margin: 0 0.5rem;
+            font-size: 1rem;
+            cursor: pointer;
+            border-radius: 5px;
+            transition: background-color 0.3s;
+            text-decoration: none;
+            display: inline-block;
+        }
+        .app-header a.header-button:hover {
+            background-color: #e0303f;
+        }
+        .app-header a.header-button.active {
+            background-color: #22c55e;
+            box-shadow: 0 0 5px #22c55e;
+        }
+
+        /* モバイル用マッチカードスタイル */
+        @media (max-width: 768px) {
+            .match-table-desktop {
+                display: none;
+            }
+            .match-cards-mobile {
+                display: block;
+            }
+        }
+        
+        @media (min-width: 769px) {
+            .match-table-desktop {
+                display: block;
+            }
+            .match-cards-mobile {
+                display: none;
+            }
+        }
+
+        .match-card {
+            background: linear-gradient(135deg, rgba(31, 41, 55, 0.8), rgba(55, 65, 81, 0.8));
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(75, 85, 99, 0.3);
+        }
+        
+        .match-card:hover {
+            background: linear-gradient(135deg, rgba(31, 41, 55, 0.9), rgba(55, 65, 81, 0.9));
+            border-color: rgba(239, 68, 68, 0.5);
+            transform: translateY(-2px);
+            transition: all 0.3s ease;
+        }
     </style>
 </head>
-<body class="bg-gray-900 text-white min-h-screen p-4 sm:p-6 md:p-8">
+<body class="bg-gray-900 text-white min-h-screen p-2 sm:p-4 md:p-6 lg:p-8">
 
     <div class="max-w-5xl mx-auto">
         <!-- Header -->
-        <header class="text-center mb-8">
-            <h1 class="text-4xl md:text-5xl font-bold text-red-500 tracking-wider">VALORANT Tracker</h1>
-            <p class="text-gray-400 mt-2">今シーズンのコンペティティブ戦績を分析します</p>
+        <header class="app-header">
+            <a href="../" class="header-button text-sm sm:text-base">OBSオーバーレイ</a>
+            <a href="./" class="header-button active text-sm sm:text-base">戦績トラッカー</a>
+        </header>
+
+        <!-- Page Title -->
+        <header class="text-center mb-6 sm:mb-8">
+            <h1 class="text-3xl sm:text-4xl md:text-5xl font-bold text-red-500 tracking-wider">VALORANT Tracker</h1>
+            <p class="text-gray-400 mt-2 text-sm sm:text-base">今シーズンのコンペティティブ戦績を分析します</p>
         </header>
 
         <!-- Search Form -->
-        <div class="mb-8 p-6 bg-gray-800 rounded-xl shadow-lg">
-            <div class="flex flex-col sm:flex-row gap-4">
-                <input type="text" id="gameNameInput" class="flex-grow bg-gray-700 text-white placeholder-gray-400 border-2 border-gray-600 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500" placeholder="ゲーム名 (例: TenZ)">
-                <input type="text" id="tagLineInput" class="flex-grow bg-gray-700 text-white placeholder-gray-400 border-2 border-gray-600 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500" placeholder="タグライン (例: 1234)">
-                <button id="searchButton" class="bg-red-600 hover:bg-red-700 text-white font-bold py-3 px-6 rounded-lg transition-colors duration-300 flex items-center justify-center">
-                    <svg id="searchIcon" class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
-                    <svg id="loadingIcon" class="animate-spin -ml-1 mr-3 h-5 w-5 text-white hidden" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+        <div class="mb-6 sm:mb-8 p-4 sm:p-6 bg-gray-800 rounded-xl shadow-lg">
+            <div class="flex flex-col sm:flex-row gap-3 sm:gap-4">
+                <input type="text" id="gameNameInput" class="flex-grow bg-gray-700 text-white placeholder-gray-400 border-2 border-gray-600 rounded-lg px-3 sm:px-4 py-2 sm:py-3 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500 text-sm sm:text-base" placeholder="ゲーム名 (例: TenZ)">
+                <input type="text" id="tagLineInput" class="flex-grow bg-gray-700 text-white placeholder-gray-400 border-2 border-gray-600 rounded-lg px-3 sm:px-4 py-2 sm:py-3 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500 text-sm sm:text-base" placeholder="タグライン (例: 1234)">
+                <button id="searchButton" class="bg-red-600 hover:bg-red-700 text-white font-bold py-2 sm:py-3 px-4 sm:px-6 rounded-lg transition-colors duration-300 flex items-center justify-center text-sm sm:text-base">
+                    <svg id="searchIcon" class="w-4 h-4 sm:w-5 sm:h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                    <svg id="loadingIcon" class="animate-spin -ml-1 mr-3 h-4 w-4 sm:h-5 sm:w-5 text-white hidden" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                         <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                         <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                     </svg>
@@ -46,48 +111,48 @@
         </div>
 
         <!-- Results Section -->
-        <div id="resultsSection" class="hidden space-y-8">
+        <div id="resultsSection" class="hidden space-y-6 sm:space-y-8">
             <!-- Player Info and Score -->
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-                <div class="md:col-span-1 bg-gray-800 p-6 rounded-xl shadow-lg flex flex-col items-center justify-center text-center">
-                    <h2 id="playerName" class="text-2xl font-bold"></h2>
-                    <p id="playerTag" class="text-gray-400"></p>
-                    <div id="playerRankSection" class="mt-4"></div> <!-- Player Rank Display Area, mt-2からmt-4へ変更 -->
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 sm:gap-8">
+                <div class="lg:col-span-1 bg-gray-800 p-4 sm:p-6 rounded-xl shadow-lg flex flex-col items-center justify-center text-center">
+                    <h2 id="playerName" class="text-xl sm:text-2xl font-bold"></h2>
+                    <p id="playerTag" class="text-gray-400 text-sm sm:text-base"></p>
+                    <div id="playerRankSection" class="mt-4"></div>
                 </div>
-                <div class="md:col-span-2 bg-gray-800 p-6 rounded-xl shadow-lg">
-                    <div class="flex flex-col lg:flex-row gap-6 items-center lg:items-start w-full">
+                <div class="lg:col-span-2 bg-gray-800 p-4 sm:p-6 rounded-xl shadow-lg">
+                    <div class="flex flex-col lg:flex-row gap-4 sm:gap-6 items-center lg:items-start w-full">
                         <!-- 左側: Tracker Score と Tier -->
                         <div class="flex flex-col items-center text-center p-2 lg:w-1/3 w-full">
-                            <h3 class="text-xl font-semibold text-gray-300 mb-1">Tracker Score</h3>
-                            <p id="trackerScore" class="text-7xl font-bold text-red-500 leading-tight">---</p>
-                            <div id="trackerTier" class="mt-3 text-2xl font-bold px-8 py-2 rounded-full shadow-md">--</div>
+                            <h3 class="text-lg sm:text-xl font-semibold text-gray-300 mb-1">Tracker Score</h3>
+                            <p id="trackerScore" class="text-5xl sm:text-7xl font-bold text-red-500 leading-tight">---</p>
+                            <div id="trackerTier" class="mt-3 text-xl sm:text-2xl font-bold px-6 sm:px-8 py-2 rounded-full shadow-md">--</div>
                         </div>
 
                         <!-- 右側: 詳細統計カード群 -->
-                        <div id="additionalStatsContainer" class="grid grid-cols-2 gap-3 md:gap-4 lg:w-2/3 w-full mt-4 lg:mt-0">
+                        <div id="additionalStatsContainer" class="grid grid-cols-2 gap-2 sm:gap-3 md:gap-4 lg:w-2/3 w-full mt-4 lg:mt-0">
                             <!-- 平均ACSカード -->
-                            <div id="statCardAvgAcs" class="p-3 rounded-lg shadow-md flex flex-col items-center justify-center">
+                            <div id="statCardAvgAcs" class="p-2 sm:p-3 rounded-lg shadow-md flex flex-col items-center justify-center">
                                 <span class="block text-xs font-medium mb-1">平均ACS</span>
-                                <span id="statAvgAcs" class="block font-semibold text-xl">N/A</span>
-                                <span id="statTierAvgAcs" class="block text-sm font-bold mt-1">--</span>
+                                <span id="statAvgAcs" class="block font-semibold text-lg sm:text-xl">N/A</span>
+                                <span id="statTierAvgAcs" class="block text-xs sm:text-sm font-bold mt-1">--</span>
                             </div>
                             <!-- 平均K/Dカード -->
-                            <div id="statCardAvgKd" class="p-3 rounded-lg shadow-md flex flex-col items-center justify-center">
+                            <div id="statCardAvgKd" class="p-2 sm:p-3 rounded-lg shadow-md flex flex-col items-center justify-center">
                                 <span class="block text-xs font-medium mb-1">平均K/D</span>
-                                <span id="statAvgKd" class="block font-semibold text-xl">N/A</span>
-                                <span id="statTierAvgKd" class="block text-sm font-bold mt-1">--</span>
+                                <span id="statAvgKd" class="block font-semibold text-lg sm:text-xl">N/A</span>
+                                <span id="statTierAvgKd" class="block text-xs sm:text-sm font-bold mt-1">--</span>
                             </div>
                             <!-- 勝率カード -->
-                            <div id="statCardWinRate" class="p-3 rounded-lg shadow-md flex flex-col items-center justify-center">
+                            <div id="statCardWinRate" class="p-2 sm:p-3 rounded-lg shadow-md flex flex-col items-center justify-center">
                                 <span class="block text-xs font-medium mb-1">勝率</span>
-                                <span id="statWinRate" class="block font-semibold text-xl">N/A</span>
-                                <span id="statTierWinRate" class="block text-sm font-bold mt-1">--</span>
+                                <span id="statWinRate" class="block font-semibold text-lg sm:text-xl">N/A</span>
+                                <span id="statTierWinRate" class="block text-xs sm:text-sm font-bold mt-1">--</span>
                             </div>
                             <!-- 平均DDΔカード -->
-                            <div id="statCardAvgDdDelta" class="p-3 rounded-lg shadow-md flex flex-col items-center justify-center">
+                            <div id="statCardAvgDdDelta" class="p-2 sm:p-3 rounded-lg shadow-md flex flex-col items-center justify-center">
                                 <span class="block text-xs font-medium mb-1">平均DDΔ</span>
-                                <span id="statAvgDdDelta" class="block font-semibold text-xl">N/A</span>
-                                <span id="statTierAvgDdDelta" class="block text-sm font-bold mt-1">--</span>
+                                <span id="statAvgDdDelta" class="block font-semibold text-lg sm:text-xl">N/A</span>
+                                <span id="statTierAvgDdDelta" class="block text-xs sm:text-sm font-bold mt-1">--</span>
                             </div>
                         </div>
                     </div>
@@ -95,14 +160,14 @@
             </div>
 
             <!-- ACS Chart -->
-            <div class="bg-gray-800 p-6 rounded-xl shadow-lg">
-                <div class="flex justify-between items-center mb-4">
-                    <h3 id="chartTitle" class="text-xl font-bold">ACS (Average Combat Score) 推移</h3>
-                    <div id="chartTypeSelector" class="flex space-x-2">
-                        <button data-type="acs" class="chart-type-button bg-red-500 text-white px-3 py-1 rounded-md text-sm">ACS</button>
-                        <button data-type="kd" class="chart-type-button bg-gray-600 hover:bg-gray-500 text-white px-3 py-1 rounded-md text-sm">K/D</button>
-                        <button data-type="ddDelta" class="chart-type-button bg-gray-600 hover:bg-gray-500 text-white px-3 py-1 rounded-md text-sm">DDΔ</button>
-                        <button data-type="hs" class="chart-type-button bg-gray-600 hover:bg-gray-500 text-white px-3 py-1 rounded-md text-sm">HS%</button>
+            <div class="bg-gray-800 p-4 sm:p-6 rounded-xl shadow-lg">
+                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 gap-3 sm:gap-0">
+                    <h3 id="chartTitle" class="text-lg sm:text-xl font-bold">ACS (Average Combat Score) 推移</h3>
+                    <div id="chartTypeSelector" class="flex flex-wrap gap-1 sm:gap-2">
+                        <button data-type="acs" class="chart-type-button bg-red-500 text-white px-2 sm:px-3 py-1 rounded-md text-xs sm:text-sm">ACS</button>
+                        <button data-type="kd" class="chart-type-button bg-gray-600 hover:bg-gray-500 text-white px-2 sm:px-3 py-1 rounded-md text-xs sm:text-sm">K/D</button>
+                        <button data-type="ddDelta" class="chart-type-button bg-gray-600 hover:bg-gray-500 text-white px-2 sm:px-3 py-1 rounded-md text-xs sm:text-sm">DDΔ</button>
+                        <button data-type="hs" class="chart-type-button bg-gray-600 hover:bg-gray-500 text-white px-2 sm:px-3 py-1 rounded-md text-xs sm:text-sm">HS%</button>
                     </div>
                 </div>
                 <canvas id="statsChart"></canvas>
@@ -110,8 +175,10 @@
 
             <!-- Match History -->
             <div class="bg-gray-800 rounded-xl shadow-lg overflow-hidden">
-                <h3 class="text-xl font-bold p-6">今シーズンの戦績 (コンペティティブ)</h3>
-                <div class="overflow-x-auto">
+                <h3 class="text-lg sm:text-xl font-bold p-4 sm:p-6">今シーズンの戦績 (コンペティティブ)</h3>
+                
+                <!-- デスクトップ用テーブル -->
+                <div class="match-table-desktop overflow-x-auto">
                     <table class="w-full text-left">
                         <thead class="bg-gray-700 text-gray-300 uppercase text-sm">
                             <tr>
@@ -130,29 +197,42 @@
                         </tbody>
                     </table>
                 </div>
+
+                <!-- モバイル用カード -->
+                <div id="matchHistoryMobile" class="match-cards-mobile p-4 space-y-4">
+                    <!-- Match cards will be inserted here -->
+                </div>
             </div>
         </div>
     </div>
 
+    <!-- 製作者紹介セクション -->
+    <div class="max-w-5xl mx-auto mt-12 sm:mt-16 mb-6 sm:mb-8">
+        <div class="flex flex-col items-center text-center p-4 sm:p-6">
+            <img src="../assets/images/nidone.png" alt="製作者アバター" class="w-20 h-20 sm:w-24 sm:h-24 rounded-full border-2 border-red-500 object-cover mb-4">
+            <p class="text-white font-bold text-base sm:text-lg">Project by にど寝</p>
+        </div>
+    </div>
+
     <!-- Error Modal -->
-    <div id="errorModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 hidden">
-        <div class="bg-gray-800 rounded-lg shadow-xl p-6 max-w-sm w-full text-center">
-            <div class="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-red-200 mb-4">
-                <svg class="h-6 w-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+    <div id="errorModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 hidden z-50">
+        <div class="bg-gray-800 rounded-lg shadow-xl p-4 sm:p-6 max-w-sm w-full text-center">
+            <div class="mx-auto flex items-center justify-center h-10 w-10 sm:h-12 sm:w-12 rounded-full bg-red-200 mb-4">
+                <svg class="h-5 w-5 sm:h-6 sm:w-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
             </div>
-            <h3 class="text-lg font-medium text-white">エラーが発生しました</h3>
-            <div class="mt-2 text-sm text-gray-400">
+            <h3 class="text-base sm:text-lg font-medium text-white">エラーが発生しました</h3>
+            <div class="mt-2 text-xs sm:text-sm text-gray-400">
                 <p id="errorMessage"></p>
             </div>
             <div class="mt-4">
-                <button id="closeModalButton" class="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded-lg transition-colors">
+                <button id="closeModalButton" class="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded-lg transition-colors text-sm sm:text-base">
                     閉じる
                 </button>
             </div>
         </div>
     </div>
 
-    <script src="config.js"></script>
+    <script src="../config.js"></script>
     <script type="module">
         // --- ★★★ 重要 ★★★ ---
         // Riot Developer Portal (https://developer.riotgames.com/) から
@@ -240,49 +320,91 @@
             resultsSection.classList.add('hidden');
 
             try {
-                // const [gameName, tagLine] = riotId.split('#'); // この行を削除 (gameName, tagLine は既に入力フィールドから取得済み)
+                console.log(`[検索開始] プレイヤー: ${gameName}#${tagLine}`);
                 
                 // 1. Get Account Data (PUUID and Region) from Riot ID
+                console.log('[ステップ1] アカウント情報を取得中...');
                 const accountData = await getPuuid(gameName, tagLine);
                 if (!accountData || !accountData.puuid || !accountData.region) {
-                    throw new Error('アカウント情報の取得に失敗しました。PUUIDまたはリージョンが見つかりません。');
+                    throw new Error('アカウント情報の取得に失敗しました。プレイヤー名とタグラインを確認してください。');
                 }
                 const puuid = accountData.puuid;
                 const userRegion = accountData.region;
-
-                // ★ 追加: Get MMR Data
-                const mmrData = await getMmrData(userRegion, gameName, tagLine);
-                
-                // ★ 追加: Get MMR History Data
-                const mmrHistory = await getMmrHistory(userRegion, puuid);
+                console.log(`[ステップ1完了] 地域: ${userRegion}, PUUID: ${puuid.substring(0, 8)}...`);
 
                 // 2. Get recent competitive match IDs
+                console.log('[ステップ2] マッチID一覧を取得中...');
                 const matchIds = await getMatchIds(gameName, tagLine, userRegion);
                 if (matchIds.length === 0) {
-                    showError('直近のコンペティティブのマッチデータが見つかりませんでした。');
+                    showError('このプレイヤーの直近のコンペティティブマッチが見つかりませんでした。アンレートやカスタムゲームのみプレイしている可能性があります。');
                     setLoadingState(false);
                     return;
                 }
+                console.log(`[ステップ2完了] ${matchIds.length}件のマッチIDを取得`);
 
-                // 3. Get details for each match
+                // 3. Get details for each match  
+                console.log('[ステップ3] マッチ詳細データを取得中...');
                 const matchDetails = await getMatchDetails(matchIds, userRegion);
+                console.log(`[ステップ3完了] ${matchDetails.length}件のマッチ詳細を取得`);
 
-                // 4. Process and render data
-                const processedMatchHistory = processMatchData(matchDetails, puuid); 
-                renderResults(processedMatchHistory, gameName, tagLine, accountData, mmrData, mmrHistory); 
+                // 4. Get MMR Data (並行実行)
+                console.log('[ステップ4] MMRデータを取得中...');
+                const [mmrData, mmrHistory] = await Promise.allSettled([
+                    getMmrData(userRegion, gameName, tagLine),
+                    getMmrHistory(userRegion, puuid)
+                ]);
+                
+                const finalMmrData = mmrData.status === 'fulfilled' ? mmrData.value : null;
+                const finalMmrHistory = mmrHistory.status === 'fulfilled' ? mmrHistory.value : [];
+                
+                if (mmrData.status === 'rejected') {
+                    console.warn('[警告] MMRデータの取得に失敗:', mmrData.reason);
+                }
+                if (mmrHistory.status === 'rejected') {
+                    console.warn('[警告] MMR履歴の取得に失敗:', mmrHistory.reason);
+                }
+                console.log('[ステップ4完了] MMRデータ取得完了');
+
+                // 5. Process and render data
+                console.log('[ステップ5] データ処理中...');
+                const processedMatchHistory = processMatchData(matchDetails, puuid);
+                if (processedMatchHistory.length === 0) {
+                    showError('今シーズンのコンペティティブマッチデータがありません。前のシーズンのデータまたはプレイヤー情報が古い可能性があります。');
+                    setLoadingState(false);
+                    return;
+                }
+                
+                renderResults(processedMatchHistory, gameName, tagLine, accountData, finalMmrData, finalMmrHistory);
+                console.log(`[検索完了] ${processedMatchHistory.length}件のマッチデータを表示`);
                 
                 resultsSection.classList.remove('hidden');
 
             } catch (error) {
-                console.error("Error fetching data:", error);
-                showError(error.message || 'データの取得中に不明なエラーが発生しました。');
+                console.error("[検索エラー] 詳細:", error);
+                
+                // エラーの種類に応じてより具体的なメッセージを表示
+                let userFriendlyMessage = error.message || 'データの取得中に不明なエラーが発生しました。';
+                
+                if (error.message.includes('ネットワーク')) {
+                    userFriendlyMessage += '\n\n• インターネット接続を確認してください\n• VPNを使用している場合は無効にしてみてください';
+                } else if (error.message.includes('タイムアウト')) {
+                    userFriendlyMessage += '\n\n• しばらく時間をおいてから再試行してください\n• ネットワーク速度が遅い可能性があります';
+                } else if (error.message.includes('レート制限')) {
+                    userFriendlyMessage += '\n\n• 短時間に多くのリクエストが送信されました\n• 1-2分待ってから再試行してください';
+                } else if (error.message.includes('APIキー')) {
+                    userFriendlyMessage += '\n\n• config.jsファイルのAPIキーを確認してください\n• 新しいAPIキーが必要な場合があります';
+                } else if (error.message.includes('プレイヤーが見つかりません')) {
+                    userFriendlyMessage += '\n\n• ゲーム名とタグラインの入力内容を確認してください\n• 大文字小文字や特殊文字に注意してください';
+                }
+                
+                showError(userFriendlyMessage);
             } finally {
                 setLoadingState(false);
             }
         }
 
         // --- API CALLS ---
-        async function apiFetch(url, isHenrikDev = true) {
+        async function apiFetch(url, isHenrikDev = true, retryCount = 3) {
             let requestUrl = url;
             if (isHenrikDev && API_KEY) {
                 // URLに既にクエリパラメータがあるか確認
@@ -290,28 +412,90 @@
             }
 
             const headers = {};
-            // HenrikDev APIの場合、Authorizationヘッダーは不要にし、クエリパラメータでキーを渡す
-            // if (isHenrikDev) {
-            //     headers["Authorization"] = `Bearer ${API_KEY}`; 
-            // }
+            
+            for (let attempt = 1; attempt <= retryCount; attempt++) {
+                try {
+                    console.log(`[API] リクエスト送信中 (試行 ${attempt}/${retryCount}): ${requestUrl}`);
+                    
+                    const controller = new AbortController();
+                    const timeoutId = setTimeout(() => controller.abort(), 15000); // 15秒タイムアウト
 
-            const response = await fetch(requestUrl, {
-                headers: headers
-            });
+                    const response = await fetch(requestUrl, {
+                        headers: headers,
+                        signal: controller.signal
+                    });
 
-            if (!response.ok) {
-                const errorData = await response.json().catch(() => ({ message: "Unknown error structure" }));
-                const errorMessageDetail = errorData.errors && errorData.errors[0] && errorData.errors[0].message 
-                                        ? errorData.errors[0].message 
-                                        : (errorData.message || `API Error ${response.status}`);
+                    clearTimeout(timeoutId);
 
-                if (response.status === 401) throw new Error(`APIキーが無効のようです (HenrikDev API)。 Error: ${errorMessageDetail}`);
-                if (response.status === 403) throw new Error(`アクセスが禁止されています (HenrikDev API)。 Error: ${errorMessageDetail}`);
-                if (response.status === 404) throw new Error(`リソースが見つかりませんでした (HenrikDev API)。 Error: ${errorMessageDetail}`);
-                if (response.status === 429) throw new Error(`レート制限を超過しました (HenrikDev API)。 Error: ${errorMessageDetail}`);
-                throw new Error(`HenrikDev APIエラー: ${response.status} - ${errorMessageDetail}`);
+                    if (!response.ok) {
+                        const errorData = await response.json().catch(() => ({ message: "レスポンス解析エラー" }));
+                        const errorMessageDetail = errorData.errors && errorData.errors[0] && errorData.errors[0].message 
+                                                ? errorData.errors[0].message 
+                                                : (errorData.message || `HTTP ${response.status}`);
+
+                        if (response.status === 401) {
+                            throw new Error(`APIキーが無効か期限切れです。新しいAPIキーを取得してください。詳細: ${errorMessageDetail}`);
+                        }
+                        if (response.status === 403) {
+                            throw new Error(`アクセスが拒否されました。APIキーの権限を確認してください。詳細: ${errorMessageDetail}`);
+                        }
+                        if (response.status === 404) {
+                            throw new Error(`プレイヤーが見つかりません。ゲーム名とタグラインを確認してください。詳細: ${errorMessageDetail}`);
+                        }
+                        if (response.status === 429) {
+                            if (attempt < retryCount) {
+                                console.warn(`[API] レート制限検出。${2 ** attempt}秒後にリトライします...`);
+                                await new Promise(resolve => setTimeout(resolve, 2000 * (2 ** (attempt - 1))));
+                                continue;
+                            }
+                            throw new Error(`APIのレート制限に達しました。しばらく時間をおいてから再試行してください。詳細: ${errorMessageDetail}`);
+                        }
+                        if (response.status >= 500) {
+                            if (attempt < retryCount) {
+                                console.warn(`[API] サーバーエラー (${response.status})。${2 * attempt}秒後にリトライします...`);
+                                await new Promise(resolve => setTimeout(resolve, 2000 * attempt));
+                                continue;
+                            }
+                            throw new Error(`APIサーバーエラーが発生しました。しばらく時間をおいてから再試行してください。詳細: ${errorMessageDetail}`);
+                        }
+                        throw new Error(`API呼び出しエラー: ${response.status} - ${errorMessageDetail}`);
+                    }
+
+                    console.log(`[API] リクエスト成功 (試行 ${attempt}/${retryCount})`);
+                    return await response.json();
+
+                } catch (error) {
+                    if (error.name === 'AbortError') {
+                        console.warn(`[API] タイムアウト (試行 ${attempt}/${retryCount})`);
+                        if (attempt < retryCount) {
+                            await new Promise(resolve => setTimeout(resolve, 1000 * attempt));
+                            continue;
+                        }
+                        throw new Error('APIリクエストがタイムアウトしました。ネットワーク接続を確認してください。');
+                    }
+                    
+                    if (error.message.includes('fetch')) {
+                        console.warn(`[API] ネットワークエラー (試行 ${attempt}/${retryCount}): ${error.message}`);
+                        if (attempt < retryCount) {
+                            await new Promise(resolve => setTimeout(resolve, 1000 * attempt));
+                            continue;
+                        }
+                        throw new Error('ネットワークエラーが発生しました。インターネット接続を確認してください。');
+                    }
+                    
+                    // APIエラー系は即座に投げる（リトライしない）
+                    if (error.message.includes('APIキー') || error.message.includes('アクセスが拒否') || error.message.includes('プレイヤーが見つかりません')) {
+                        throw error;
+                    }
+                    
+                    console.error(`[API] 予期しないエラー (試行 ${attempt}/${retryCount}):`, error);
+                    if (attempt === retryCount) {
+                        throw new Error(`データの取得に失敗しました: ${error.message}`);
+                    }
+                    
+                    await new Promise(resolve => setTimeout(resolve, 1000 * attempt));
+                }
             }
-            return response.json();
         }
 
         async function getPuuid(gameName, tagLine) {
@@ -495,7 +679,7 @@
                 if (player.agent && player.agent.name) {
                     const rawAgentName = player.agent.name;
                     const formattedAgentName = rawAgentName.toLowerCase().replace(/[^a-z0-9]/gi, '');
-                    agentIconUrl = `assets/images/agents/${formattedAgentName}.png`;
+                    agentIconUrl = `../assets/images/agents/${formattedAgentName}.png`;
                 }
 
                 const rankNameMapping = {
@@ -537,7 +721,7 @@
 
                 if (rankNameMapping[apiRankName]) {
                     const japaneseFileName = rankNameMapping[apiRankName];
-                    rankIconUrl = `assets/images/ranks/${japaneseFileName}.png`;
+                    rankIconUrl = `../assets/images/ranks/${japaneseFileName}.png`;
                     // ★ デバッグログ: マッピング成功時のアイコンURL
                     console.log(`[Debug] Match ${match.metadata.match_id} - Rank Mapped for player ${player.game_name}. New rankIconUrl: ${rankIconUrl}`);
                 } else {
@@ -609,7 +793,7 @@
                      // images.largeがない場合でも、rankNameMapping を使ってローカルアセットを参照する試みは残す
                      if (rankNameMapping[currentRankName]) {
                          const japaneseFileName = rankNameMapping[currentRankName];
-                         rankIconFromMmr = `assets/images/ranks/${japaneseFileName}.png`;
+                         rankIconFromMmr = `../assets/images/ranks/${japaneseFileName}.png`;
                      }
                 }
                 
@@ -646,7 +830,10 @@
 
             // Render Match History (これも processedMatchHistory を使う)
             const matchHistoryBody = document.getElementById('matchHistoryBody');
+            const matchHistoryMobile = document.getElementById('matchHistoryMobile');
             matchHistoryBody.innerHTML = ''; 
+            matchHistoryMobile.innerHTML = '';
+            
             processedMatchHistory.forEach(match => {
                 let matchRankPoints = "-- RR"; // デフォルト
                 const historyEntry = mmrHistory.find(h => h.match_id === match.matchId); 
@@ -662,14 +849,14 @@
                         match.rankName = historyEntry.currenttier_patched;
                         if (rankNameMapping[match.rankName]) {
                             const japaneseFileName = rankNameMapping[match.rankName];
-                            match.rankIcon = `assets/images/ranks/${japaneseFileName}.png`;
+                            match.rankIcon = `../assets/images/ranks/${japaneseFileName}.png`;
                         } else {
                              match.rankIcon = 'https://placehold.co/48x48/1f2937/7f1d1d?text=R';
                         }
                     }
                 }
 
-
+                // デスクトップ用テーブル行
                 const row = `
                     <tr class="hover:bg-gray-700/50 transition-colors">
                         <td class="p-4 font-semibold">${match.map}</td>
@@ -696,6 +883,55 @@
                     </tr>
                 `;
                 matchHistoryBody.innerHTML += row;
+
+                // モバイル用カード
+                const card = `
+                    <div class="match-card p-4 rounded-xl shadow-lg">
+                        <div class="flex items-center justify-between mb-3">
+                            <div class="flex items-center gap-3">
+                                <img src="${match.agentIcon}" alt="${match.agentName}" class="w-10 h-10 rounded-full object-contain" onerror="this.onerror=null; this.src='https://placehold.co/32x32/1f2937/7f1d1d?text=?';">
+                                <div>
+                                    <div class="font-bold text-sm">${match.agentName}</div>
+                                    <div class="text-gray-400 text-xs">${match.map}</div>
+                                </div>
+                            </div>
+                            <div class="text-right">
+                                <div class="font-bold ${match.resultColor} text-sm">${match.result}</div>
+                                <div class="text-gray-400 text-xs">${match.score}</div>
+                            </div>
+                        </div>
+                        
+                        <div class="grid grid-cols-2 gap-3 mb-3">
+                            <div class="bg-gray-700/50 rounded-lg p-2 text-center">
+                                <div class="text-xs text-gray-400 mb-1">KDA</div>
+                                <div class="font-semibold text-sm">${match.kda}</div>
+                            </div>
+                            <div class="bg-gray-700/50 rounded-lg p-2 text-center">
+                                <div class="text-xs text-gray-400 mb-1">K/D</div>
+                                <div class="font-semibold text-sm">${match.kd}</div>
+                            </div>
+                            <div class="bg-gray-700/50 rounded-lg p-2 text-center">
+                                <div class="text-xs text-gray-400 mb-1">HS%</div>
+                                <div class="font-semibold text-sm">${match.hs}%</div>
+                            </div>
+                            <div class="bg-gray-700/50 rounded-lg p-2 text-center">
+                                <div class="text-xs text-gray-400 mb-1">ACS</div>
+                                <div class="font-semibold text-sm text-red-400">${match.acs}</div>
+                            </div>
+                        </div>
+                        
+                        <div class="flex items-center justify-between pt-2 border-t border-gray-700/50">
+                            <div class="flex items-center gap-2">
+                                <img src="${match.rankIcon}" alt="${match.rankName}" class="w-8 h-8 object-contain" onerror="this.onerror=null; this.src='https://placehold.co/32x32/1f2937/7f1d1d?text=R';">
+                                <div class="text-xs">
+                                    <div class="font-medium">${match.rankName}</div>
+                                    <div class="text-gray-400">${matchRankPoints}</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                matchHistoryMobile.innerHTML += card;
             });
 
             // Render ACS Chart (これも processedMatchHistory を使う)
@@ -992,8 +1228,13 @@
         }
 
         function showError(message) {
-            errorMessage.textContent = message;
+            // 改行文字を<br>タグに変換して表示
+            const formattedMessage = message.replace(/\n/g, '<br>');
+            errorMessage.innerHTML = formattedMessage;
             errorModal.classList.remove('hidden');
+            
+            // デバッグ用：エラーメッセージもコンソールに出力
+            console.error('[エラー表示]', message);
         }
     </script>
 </body>
