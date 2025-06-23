@@ -67,16 +67,20 @@
             }
             .nav-buttons {
                 flex-direction: row;
-                width: auto;
-                gap: 0.5rem;
+                width: 100%;
+                gap: 0.3rem;
                 justify-content: center;
+                flex-wrap: nowrap;
+                overflow-x: auto;
             }
             .nav-buttons .header-button {
                 width: auto;
                 text-align: center;
                 margin: 0;
-                padding: 0.5rem 1rem;
-                font-size: 0.9rem;
+                padding: 0.4rem 0.7rem;
+                font-size: 0.85rem;
+                min-width: 80px;
+                white-space: nowrap;
             }
             .author-section {
                 margin-top: 10px;
@@ -87,6 +91,16 @@
         }
         .hidden {
             display: none !important;
+        }
+        #showOverlayModeLink {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        #showTrackerModeLink {
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
     </style>
 </head>
@@ -224,16 +238,12 @@
             </div>
             <div class="color-picker-section">
                 <label for="textColorPicker">文字色:</label>
-                <input type="color" id="textColorPicker" value="#ece8e1">
+                <input type="color" id="textColorPicker" value="#ffffff">
             </div>
             <div class="color-picker-section">
                 <label for="rrColorPicker">RRテキスト色:</label>
                 <input type="color" id="rrColorPicker" value="#ff4655">
             </div>
-            <!-- <div class="color-picker-section">
-                <label for="winLossTextColorPicker">Win/Loss テキスト色:</label>
-                <input type="color" id="winLossTextColorPicker" value="#ece8e1">
-            </div> -->
             <div class="color-picker-section">
                 <label for="borderColorPicker">境界線色:</label>
                 <input type="color" id="borderColorPicker" value="#ff4655">
@@ -404,8 +414,6 @@
             const lastMatchBgOpacity = document.getElementById('lastMatchBgOpacitySlider').value;
             const textColor = document.getElementById('textColorPicker').value;
             const rrColor = document.getElementById('rrColorPicker').value;
-            const winLossTextColorElement = document.getElementById('winLossTextColorPicker');
-            const winLossTextColor = winLossTextColorElement ? winLossTextColorElement.value : '#ece8e1';
             const borderColor = document.getElementById('borderColorPicker').value;
 
             // ランク背景色をrgba形式に変換
@@ -425,7 +433,6 @@
             document.documentElement.style.setProperty('--last-match-bg-color', rgbaLastMatchBgColor);
             document.documentElement.style.setProperty('--text-color', textColor);
             document.documentElement.style.setProperty('--rr-color', rrColor);
-            document.documentElement.style.setProperty('--win-loss-text-color', winLossTextColor);
             document.documentElement.style.setProperty('--border-color', borderColor);
 
             // 設定を保存
@@ -435,9 +442,6 @@
             localStorage.setItem('customLastMatchBgOpacity', lastMatchBgOpacity);
             localStorage.setItem('customTextColor', textColor);
             localStorage.setItem('customRrColor', rrColor);
-            if (winLossTextColorElement) {
-                localStorage.setItem('customWinLossTextColor', winLossTextColor);
-            }
             localStorage.setItem('customBorderColor', borderColor);
 
             closeColorPicker();
@@ -451,7 +455,6 @@
             const savedLastMatchBgOpacity = localStorage.getItem('customLastMatchBgOpacity');
             const savedTextColor = localStorage.getItem('customTextColor');
             const savedRrColor = localStorage.getItem('customRrColor');
-            const savedWinLossTextColor = localStorage.getItem('customWinLossTextColor');
             const savedBorderColor = localStorage.getItem('customBorderColor');
 
             if (savedRankBgColor && savedRankBgOpacity && savedTextColor) {
@@ -475,9 +478,6 @@
                 if (savedRrColor) {
                     document.documentElement.style.setProperty('--rr-color', savedRrColor);
                 }
-                if (savedWinLossTextColor) {
-                    document.documentElement.style.setProperty('--win-loss-text-color', savedWinLossTextColor);
-                }
                 if (savedBorderColor) {
                     document.documentElement.style.setProperty('--border-color', savedBorderColor);
                 }
@@ -495,10 +495,6 @@
                 if (savedRrColor) {
                     document.getElementById('rrColorPicker').value = savedRrColor;
                 }
-                const winLossTextColorElement = document.getElementById('winLossTextColorPicker');
-                if (savedWinLossTextColor && winLossTextColorElement) {
-                    winLossTextColorElement.value = savedWinLossTextColor;
-                }
                 if (savedBorderColor) {
                     document.getElementById('borderColorPicker').value = savedBorderColor;
                 }
@@ -514,7 +510,6 @@
             const defaultLastMatchBgOpacity = '100';
             const defaultTextColor = '#ffffff'; // 真っ白
             const defaultRrColor = '#ff4655'; // VALORANT風のレッド
-            const defaultWinLossTextColor = '#ffffff'; // 真っ白
             const defaultBorderColor = '#ff4655'; // VALORANT風のレッド
 
             // カラーピッカーの値をデフォルトに戻す
@@ -526,10 +521,6 @@
             document.getElementById('lastMatchBgOpacityValue').textContent = defaultLastMatchBgOpacity + '%';
             document.getElementById('textColorPicker').value = defaultTextColor;
             document.getElementById('rrColorPicker').value = defaultRrColor;
-            const winLossTextColorElement = document.getElementById('winLossTextColorPicker');
-            if (winLossTextColorElement) {
-                winLossTextColorElement.value = defaultWinLossTextColor;
-            }
             document.getElementById('borderColorPicker').value = defaultBorderColor;
 
             // デフォルト値を適用
@@ -542,7 +533,6 @@
             localStorage.removeItem('customLastMatchBgOpacity');
             localStorage.removeItem('customTextColor');
             localStorage.removeItem('customRrColor');
-            localStorage.removeItem('customWinLossTextColor');
             localStorage.removeItem('customBorderColor');
         }
 
@@ -576,7 +566,6 @@
             const paramLastMatchBgOpacity = urlParams.get('lastMatchBgOpacity');
             const paramTextColor = urlParams.get('textColor');
             const paramRrColor = urlParams.get('rrColor');
-            const paramWinLossTextColor = urlParams.get('winLossTextColor');
             const paramBorderColor = urlParams.get('borderColor');
 
             if (paramRankBgColor && paramRankBgOpacity && paramTextColor) {
@@ -601,9 +590,6 @@
                 if (paramRrColor) {
                     document.documentElement.style.setProperty('--rr-color', paramRrColor);
                 }
-                if (paramWinLossTextColor) {
-                    document.documentElement.style.setProperty('--win-loss-text-color', paramWinLossTextColor);
-                }
                 if (paramBorderColor) {
                     document.documentElement.style.setProperty('--border-color', paramBorderColor);
                 }
@@ -615,7 +601,6 @@
                 if (paramLastMatchBgOpacity) localStorage.setItem('customLastMatchBgOpacity', paramLastMatchBgOpacity);
                 localStorage.setItem('customTextColor', paramTextColor);
                 if (paramRrColor) localStorage.setItem('customRrColor', paramRrColor);
-                if (paramWinLossTextColor) localStorage.setItem('customWinLossTextColor', paramWinLossTextColor);
                 if (paramBorderColor) localStorage.setItem('customBorderColor', paramBorderColor);
 
                 // カラーピッカーの値を更新（モーダルを開いた時に反映されるように）
@@ -630,10 +615,6 @@
                 }
                 document.getElementById('textColorPicker').value = paramTextColor;
                 if (paramRrColor) document.getElementById('rrColorPicker').value = paramRrColor;
-                const winLossTextColorElement = document.getElementById('winLossTextColorPicker');
-                if (paramWinLossTextColor && winLossTextColorElement) {
-                    winLossTextColorElement.value = paramWinLossTextColor;
-                }
                 if (paramBorderColor) document.getElementById('borderColorPicker').value = paramBorderColor;
 
             } else {
@@ -873,7 +854,6 @@
             const savedLastMatchBgOpacity = localStorage.getItem('customLastMatchBgOpacity');
             const savedTextColor = localStorage.getItem('customTextColor');
             const savedRrColor = localStorage.getItem('customRrColor');
-            const savedWinLossTextColor = localStorage.getItem('customWinLossTextColor');
             const savedBorderColor = localStorage.getItem('customBorderColor');
 
             if (savedRankBgColor) urlParams.append('rankBgColor', savedRankBgColor);
@@ -882,7 +862,6 @@
             if (savedLastMatchBgOpacity) urlParams.append('lastMatchBgOpacity', savedLastMatchBgOpacity);
             if (savedTextColor) urlParams.append('textColor', savedTextColor);
             if (savedRrColor) urlParams.append('rrColor', savedRrColor);
-            if (savedWinLossTextColor) urlParams.append('winLossTextColor', savedWinLossTextColor);
             if (savedBorderColor) urlParams.append('borderColor', savedBorderColor);
             
             const newURL = `${currentURL}?${urlParams.toString()}`;
