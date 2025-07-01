@@ -5,6 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>VALORANT Tracker Overlay</title>
     <link rel="stylesheet" href="styles.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+JP:wght@400;500;700&family=Rajdhani:wght@400;500;600;700&family=Orbitron:wght@400;500;700;800;900&display=swap" rel="stylesheet">
     <!-- Google AdSense script -->
     <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6090439809602995"
      crossorigin="anonymous"></script>
@@ -101,6 +104,495 @@
             display: flex;
             align-items: center;
             justify-content: center;
+        }
+        .theme-selector {
+            display: flex;
+            gap: 0.5rem;
+            margin-top: 0.5rem;
+        }
+        .theme-button {
+            padding: 0.5rem 1rem;
+            border: 2px solid #374151;
+            background: transparent;
+            color: #9ca3af;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.875rem;
+            font-weight: 500;
+        }
+        .theme-button:hover {
+            border-color: #6b7280;
+            color: #d1d5db;
+        }
+        .theme-button.active {
+            border-color: #ff4655;
+            background: #ff4655;
+            color: white;
+        }
+        /* 全テーマ共通 - 文字途切れ防止 */
+        .overlay .rank-name {
+            white-space: nowrap;
+            overflow: visible;
+            text-overflow: unset;
+            min-width: 0;
+            word-break: keep-all;
+        }
+
+        .overlay .rr {
+            white-space: nowrap;
+            overflow: visible;
+            text-overflow: unset;
+        }
+
+        .overlay .last-match-text {
+            white-space: nowrap;
+            overflow: visible;
+            text-overflow: unset;
+        }
+
+        .overlay .rank-details {
+            min-width: 0;
+            flex: 1;
+            overflow: visible;
+        }
+
+        .overlay .rank-name-line {
+            min-width: 0;
+            overflow: visible;
+            flex-wrap: wrap;
+            gap: 5px;
+        }
+        /* テーマ別スタイル */
+        /* クラシックテーマ（現在のデザイン） */
+        .theme-classic .overlay {
+            background: var(--overlay-bg-color);
+            backdrop-filter: blur(10px);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            box-shadow: none;
+            width: auto;
+            min-width: 300px;
+            max-width: 400px;
+        }
+
+        .theme-classic .rank-section {
+            background: var(--rank-bg-color);
+            padding: 6px 10px;
+        }
+
+        .theme-classic .rank-icon {
+            width: 60px;
+            height: 60px;
+        }
+
+        .theme-classic .rank-name {
+            font-size: clamp(1rem, 3.5vw, 1.3rem);
+        }
+
+        .theme-classic .rr {
+            font-size: clamp(0.95rem, 3vw, 1.2rem);
+        }
+
+        .theme-classic .last-match-section {
+            background-color: var(--last-match-bg-color);
+            padding: 6px 10px;
+        }
+
+        /* モダンテーマ - カード分割レイアウト */
+        .theme-modern .overlay {
+            background: transparent;
+            backdrop-filter: none;
+            border: none;
+            border-radius: 0;
+            box-shadow: none;
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 8px;
+            width: auto;
+            min-width: 320px;
+            max-width: 380px;
+        }
+
+        .theme-modern .rank-section {
+            background: var(--rank-bg-color);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 14px 18px;
+            box-shadow: none;
+            position: relative;
+            overflow: hidden;
+            min-height: auto;
+        }
+
+        .theme-modern .rank-section::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: linear-gradient(90deg, #3b82f6, #8b5cf6, #ec4899);
+            border-radius: 16px 16px 0 0;
+        }
+
+        .theme-modern .rank-icon {
+            width: 52px;
+            height: 52px;
+            border-radius: 12px;
+            flex-shrink: 0;
+            border: none;
+            box-shadow: none;
+            background: none;
+        }
+
+        .theme-modern .rank-name {
+            font-size: clamp(1rem, 3vw, 1.15rem);
+            font-weight: 700;
+            background: linear-gradient(135deg, #f1f5f9, #cbd5e1);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            line-height: 1.2;
+        }
+
+        .theme-modern .rr {
+            font-size: clamp(1.1rem, 3.5vw, 1.3rem);
+            font-weight: 800;
+            color: var(--rr-color);
+            text-shadow: 0 0 20px rgba(59, 130, 246, 0.5);
+            line-height: 1.1;
+        }
+
+        .theme-modern .last-match-section {
+            background: var(--last-match-bg-color);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 12px 18px;
+            box-shadow: none;
+            position: relative;
+            min-height: auto;
+        }
+
+        .theme-modern .last-match-text {
+            color: var(--text-color);
+            font-weight: 600;
+            font-size: clamp(0.8rem, 2.2vw, 0.9rem);
+            line-height: 1.3;
+        }
+
+        /* Shadcn/UIテーマ - VALORANT風サイバーテック */
+        .theme-shadcn .overlay {
+            background: transparent;
+            backdrop-filter: none;
+            border: none;
+            border-radius: 0;
+            box-shadow: none;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            width: auto;
+            min-width: 340px;
+            max-width: 420px;
+            padding: 0;
+            position: relative;
+        }
+
+        .theme-shadcn .rank-section {
+            background: var(--rank-bg-color);
+            border: 1px solid var(--border-color);
+            border-left: 4px solid var(--border-color);
+            border-radius: 12px;
+            padding: 14px 18px;
+            position: relative;
+            overflow: hidden;
+            box-shadow: none;
+            min-height: auto;
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+
+        .theme-shadcn .rank-section::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background: linear-gradient(90deg, 
+                var(--border-color) 0%, 
+                #00f5ff 50%, 
+                var(--border-color) 100%
+            );
+        }
+
+        .theme-shadcn .rank-section::after {
+            content: '';
+            position: absolute;
+            top: 6px;
+            right: 6px;
+            width: 6px;
+            height: 6px;
+            background: #00f5ff;
+            border-radius: 50%;
+            box-shadow: 0 0 6px #00f5ff;
+            animation: pulse-valorant 2s ease-in-out infinite;
+        }
+
+        .theme-shadcn .rank-icon {
+            width: 52px;
+            height: 52px;
+            border-radius: 8px;
+            flex-shrink: 0;
+            border: none;
+            box-shadow: none;
+            background: none;
+        }
+
+        .theme-shadcn .rank-details {
+            display: flex;
+            flex-direction: column;
+            gap: 3px;
+            align-items: flex-start;
+            flex: 1;
+        }
+
+        .theme-shadcn .rank-name-line {
+            display: flex;
+            flex-direction: column;
+            gap: 1px;
+            align-items: flex-start;
+            width: 100%;
+        }
+
+        .theme-shadcn .rank-name {
+            color: var(--text-color);
+            font-weight: 700;
+            font-size: clamp(1.1rem, 3.5vw, 1.3rem);
+            line-height: 1.1;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            font-family: 'Rajdhani', 'Arial', sans-serif;
+            text-shadow: 0 0 8px rgba(255, 255, 255, 0.3);
+        }
+
+        .theme-shadcn .rr {
+            color: var(--rr-color);
+            font-weight: 800;
+            font-size: clamp(1.3rem, 4.5vw, 1.6rem);
+            line-height: 1;
+            font-family: 'Orbitron', 'Arial', sans-serif;
+            letter-spacing: 2px;
+            text-shadow: 
+                0 0 10px rgba(255, 70, 85, 0.6),
+                0 0 20px rgba(255, 70, 85, 0.3);
+        }
+
+        .theme-shadcn .last-match-section {
+            background: var(--last-match-bg-color);
+            border: 1px solid var(--border-color);
+            border-right: 4px solid var(--border-color);
+            border-radius: 12px;
+            padding: 12px 18px;
+            position: relative;
+            overflow: hidden;
+            box-shadow: none;
+            min-height: auto;
+        }
+
+        .theme-shadcn .last-match-section::before {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background: linear-gradient(90deg, 
+                #00f5ff 0%, 
+                var(--border-color) 50%, 
+                #00f5ff 100%
+            );
+        }
+
+        .theme-shadcn .last-match-section::after {
+            content: '';
+            position: absolute;
+            bottom: 6px;
+            left: 6px;
+            width: 5px;
+            height: 5px;
+            background: var(--border-color);
+            border-radius: 50%;
+            box-shadow: 0 0 5px var(--border-color);
+            animation: pulse-valorant 2.5s ease-in-out infinite;
+        }
+
+        .theme-shadcn .last-match-text {
+            color: var(--text-color);
+            font-weight: 600;
+            font-size: clamp(0.9rem, 3vw, 1.1rem);
+            line-height: 1.2;
+            text-align: center;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-family: 'Rajdhani', 'Arial', sans-serif;
+            text-shadow: 0 0 6px rgba(255, 255, 255, 0.2);
+        }
+
+        .theme-shadcn .mmr-gauge-fill {
+            background: linear-gradient(90deg, 
+                var(--rr-color) 0%, 
+                #00f5ff 50%, 
+                var(--rr-color) 100%
+            );
+            border-radius: 0;
+            box-shadow: 
+                0 0 8px rgba(255, 70, 85, 0.4),
+                inset 0 1px 0 rgba(255, 255, 255, 0.2);
+            height: 3px;
+        }
+
+        /* テクノロジー風スキャンライン効果 */
+        @keyframes scan-line {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(400px); }
+        }
+
+        .theme-shadcn .rank-section .scan-line {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 2px;
+            height: 100%;
+            background: linear-gradient(to bottom, 
+                transparent 0%, 
+                #00f5ff 50%, 
+                transparent 100%
+            );
+            animation: scan-line 3s linear infinite;
+            pointer-events: none;
+        }
+
+        /* Neonテーマ - サイバーパンク風 */
+        .theme-neon .overlay {
+            background: transparent;
+            backdrop-filter: none;
+            border: none;
+            border-radius: 0;
+            box-shadow: none;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            width: auto;
+            min-width: 340px;
+            max-width: 420px;
+        }
+
+        .theme-neon .rank-section {
+            background: var(--rank-bg-color);
+            border: 2px solid transparent;
+            background-clip: padding-box;
+            border-radius: 20px;
+            padding: 18px 20px;
+            position: relative;
+            overflow: hidden;
+            box-shadow: none;
+            min-height: auto;
+        }
+
+        .theme-neon .rank-section::before {
+            content: '';
+            position: absolute;
+            top: -2px;
+            left: -2px;
+            right: -2px;
+            bottom: -2px;
+            background: linear-gradient(45deg, var(--border-color), #ff00ff, #ffff00, var(--border-color));
+            border-radius: 20px;
+            z-index: -1;
+            animation: neonBorder 3s linear infinite;
+        }
+
+        .theme-neon .rank-section::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: var(--rank-bg-color);
+            border-radius: 18px;
+            z-index: -1;
+        }
+
+        .theme-neon .rank-icon {
+            width: 60px;
+            height: 60px;
+            border-radius: 16px;
+            flex-shrink: 0;
+            border: none;
+            box-shadow: none;
+            background: none;
+        }
+
+        .theme-neon .rank-name {
+            font-size: clamp(1.1rem, 3.5vw, 1.25rem);
+            font-weight: 800;
+            color: var(--text-color);
+            text-shadow: 
+                0 0 10px rgba(0, 255, 255, 0.8),
+                0 0 20px rgba(0, 255, 255, 0.5),
+                0 0 30px rgba(0, 255, 255, 0.3);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            line-height: 1.1;
+        }
+
+        .theme-neon .rr {
+            font-size: clamp(1.25rem, 4.5vw, 1.5rem);
+            font-weight: 900;
+            color: var(--rr-color);
+            text-shadow: 
+                0 0 10px rgba(255, 0, 255, 0.8),
+                0 0 20px rgba(255, 0, 255, 0.5);
+            line-height: 1;
+        }
+
+        .theme-neon .last-match-section {
+            background: var(--last-match-bg-color);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 12px 18px;
+            position: relative;
+            box-shadow: none;
+            min-height: auto;
+        }
+
+        .theme-neon .last-match-text {
+            color: var(--text-color);
+            font-weight: 700;
+            font-size: clamp(0.85rem, 2.8vw, 0.95rem);
+            text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            line-height: 1.2;
+        }
+
+        .theme-neon .mmr-gauge-fill {
+            background: linear-gradient(90deg, var(--rr-color), #ff00ff);
+            border-radius: 0;
+            box-shadow: 0 0 10px rgba(0, 255, 255, 0.5);
+        }
+
+        @keyframes neonBorder {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        @keyframes pulse-valorant {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.6; transform: scale(1.2); }
         }
     </style>
 </head>
@@ -225,6 +717,15 @@
         <div class="color-picker-content">
             <h3>カスタマイズ</h3>
             <div class="color-picker-section">
+                <label>デザインテーマ:</label>
+                <div class="theme-selector">
+                    <button type="button" id="themeClassic" class="theme-button active" data-theme="classic">クラシック</button>
+                    <button type="button" id="themeModern" class="theme-button" data-theme="modern">モダン</button>
+                    <button type="button" id="themeShadcn" class="theme-button" data-theme="shadcn">Shadcn/UI</button>
+                    <button type="button" id="themeNeon" class="theme-button" data-theme="neon">Neon</button>
+                </div>
+            </div>
+            <div class="color-picker-section">
                 <label for="rankBgColorPicker">ランク背景色:</label>
                 <input type="color" id="rankBgColorPicker" value="#3a444e">
                 <input type="range" id="rankBgOpacitySlider" min="0" max="100" value="100">
@@ -247,6 +748,8 @@
             <div class="color-picker-section">
                 <label for="borderColorPicker">境界線色:</label>
                 <input type="color" id="borderColorPicker" value="#ff4655">
+                <input type="range" id="borderOpacitySlider" min="0" max="100" value="100">
+                <span id="borderOpacityValue">100%</span>
             </div>
             <div class="color-picker-buttons">
                 <button onclick="applyCustomColors()">適用</button>
@@ -264,6 +767,51 @@
         let currentPlayerTag = null;
         let updateInterval = null;
         let isAutoUpdateEnabled = false;
+
+        // テーマ選択機能
+        let currentTheme = 'classic';
+
+        function applyTheme(theme) {
+            const body = document.body;
+            // 既存のテーマクラスを削除
+            body.classList.remove('theme-classic', 'theme-modern', 'theme-shadcn', 'theme-neon');
+            // 新しいテーマクラスを追加
+            body.classList.add(`theme-${theme}`);
+            currentTheme = theme;
+            
+            // テーマをlocalStorageに保存
+            localStorage.setItem('selectedTheme', theme);
+            
+            // ボタンのアクティブ状態を更新
+            document.querySelectorAll('.theme-button').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            document.querySelector(`[data-theme="${theme}"]`).classList.add('active');
+            
+            // オーバーレイの幅をリセット（全テーマでCSSによる最小幅調整が適用される）
+            const overlay = document.querySelector('.overlay');
+            if (overlay) {
+                // インラインスタイルをクリアしてCSSに委譲
+                overlay.style.width = '';
+                overlay.style.minWidth = '';
+                overlay.style.maxWidth = '';
+            }
+            
+            // Shadcn/UIテーマの場合、スキャンライン効果を追加
+            if (theme === 'shadcn') {
+                setTimeout(addScanLineEffect, 100);
+            }
+        }
+
+        // VALORANT風スキャンライン効果を追加
+        function addScanLineEffect() {
+            const rankSection = document.querySelector('.theme-shadcn .rank-section');
+            if (rankSection && !rankSection.querySelector('.scan-line')) {
+                const scanLine = document.createElement('div');
+                scanLine.className = 'scan-line';
+                rankSection.appendChild(scanLine);
+            }
+        }
 
         // カラーピッカーモーダルの表示/非表示
         function showColorPicker() {
@@ -396,7 +944,7 @@
             stopAutoUpdate();
         });
 
-        // 背景色の透明度スライダーの更新
+        // ランク背景色の透明度スライダーの更新
         document.getElementById('rankBgOpacitySlider').addEventListener('input', function(e) {
             document.getElementById('rankBgOpacityValue').textContent = e.target.value + '%';
         });
@@ -404,6 +952,11 @@
         // 前回のマッチ背景色の透明度スライダーの更新
         document.getElementById('lastMatchBgOpacitySlider').addEventListener('input', function(e) {
             document.getElementById('lastMatchBgOpacityValue').textContent = e.target.value + '%';
+        });
+
+        // 境界線色の透明度スライダーの更新
+        document.getElementById('borderOpacitySlider').addEventListener('input', function(e) {
+            document.getElementById('borderOpacityValue').textContent = e.target.value + '%';
         });
 
         // カスタムカラーの適用
@@ -415,6 +968,7 @@
             const textColor = document.getElementById('textColorPicker').value;
             const rrColor = document.getElementById('rrColorPicker').value;
             const borderColor = document.getElementById('borderColorPicker').value;
+            const borderOpacity = document.getElementById('borderOpacitySlider').value;
 
             // ランク背景色をrgba形式に変換
             const rankR = parseInt(rankBgColor.slice(1, 3), 16);
@@ -428,12 +982,18 @@
             const lastMatchB = parseInt(lastMatchBgColor.slice(5, 7), 16);
             const rgbaLastMatchBgColor = `rgba(${lastMatchR}, ${lastMatchG}, ${lastMatchB}, ${lastMatchBgOpacity / 100})`;
 
+            // 境界線色をrgba形式に変換
+            const borderR = parseInt(borderColor.slice(1, 3), 16);
+            const borderG = parseInt(borderColor.slice(3, 5), 16);
+            const borderB = parseInt(borderColor.slice(5, 7), 16);
+            const rgbaBorderColor = `rgba(${borderR}, ${borderG}, ${borderB}, ${borderOpacity / 100})`;
+
             // CSS変数を更新
             document.documentElement.style.setProperty('--rank-bg-color', rgbaRankBgColor);
             document.documentElement.style.setProperty('--last-match-bg-color', rgbaLastMatchBgColor);
             document.documentElement.style.setProperty('--text-color', textColor);
             document.documentElement.style.setProperty('--rr-color', rrColor);
-            document.documentElement.style.setProperty('--border-color', borderColor);
+            document.documentElement.style.setProperty('--border-color', rgbaBorderColor);
 
             // 設定を保存
             localStorage.setItem('customRankBgColor', rankBgColor);
@@ -443,8 +1003,45 @@
             localStorage.setItem('customTextColor', textColor);
             localStorage.setItem('customRrColor', rrColor);
             localStorage.setItem('customBorderColor', borderColor);
+            localStorage.setItem('customBorderOpacity', borderOpacity);
 
             closeColorPicker();
+        }
+
+        // カスタムカラーをリセット
+        function resetCustomColors() {
+            // デフォルト値に戻す
+            document.getElementById('rankBgColorPicker').value = '#3a444e';
+            document.getElementById('rankBgOpacitySlider').value = '100';
+            document.getElementById('rankBgOpacityValue').textContent = '100%';
+            document.getElementById('lastMatchBgColorPicker').value = '#F44336';
+            document.getElementById('lastMatchBgOpacitySlider').value = '100';
+            document.getElementById('lastMatchBgOpacityValue').textContent = '100%';
+            document.getElementById('textColorPicker').value = '#ffffff';
+            document.getElementById('rrColorPicker').value = '#ff4655';
+            document.getElementById('borderColorPicker').value = '#ff4655';
+            document.getElementById('borderOpacitySlider').value = '100';
+            document.getElementById('borderOpacityValue').textContent = '100%';
+
+            // CSS変数をリセット
+            document.documentElement.style.setProperty('--rank-bg-color', 'rgba(58, 68, 78, 1)');
+            document.documentElement.style.setProperty('--last-match-bg-color', 'rgba(244, 67, 54, 1)');
+            document.documentElement.style.setProperty('--text-color', '#ffffff');
+            document.documentElement.style.setProperty('--rr-color', '#ff4655');
+            document.documentElement.style.setProperty('--border-color', 'rgba(255, 70, 85, 1)');
+
+            // localStorageからカスタム設定を削除
+            localStorage.removeItem('customRankBgColor');
+            localStorage.removeItem('customRankBgOpacity');
+            localStorage.removeItem('customLastMatchBgColor');
+            localStorage.removeItem('customLastMatchBgOpacity');
+            localStorage.removeItem('customTextColor');
+            localStorage.removeItem('customRrColor');
+            localStorage.removeItem('customBorderColor');
+            localStorage.removeItem('customBorderOpacity');
+
+            // テーマをクラシックに戻す
+            applyTheme('classic');
         }
 
         // 保存された設定を読み込む
@@ -456,6 +1053,8 @@
             const savedTextColor = localStorage.getItem('customTextColor');
             const savedRrColor = localStorage.getItem('customRrColor');
             const savedBorderColor = localStorage.getItem('customBorderColor');
+            const savedBorderOpacity = localStorage.getItem('customBorderOpacity');
+            const savedTheme = localStorage.getItem('selectedTheme');
 
             if (savedRankBgColor && savedRankBgOpacity && savedTextColor) {
                 // ランク背景色の設定
@@ -473,13 +1072,19 @@
                     document.documentElement.style.setProperty('--last-match-bg-color', rgbaLastMatchBgColor);
                 }
 
+                // 境界線色の設定
+                if (savedBorderColor && savedBorderOpacity) {
+                    const borderR = parseInt(savedBorderColor.slice(1, 3), 16);
+                    const borderG = parseInt(savedBorderColor.slice(3, 5), 16);
+                    const borderB = parseInt(savedBorderColor.slice(5, 7), 16);
+                    const rgbaBorderColor = `rgba(${borderR}, ${borderG}, ${borderB}, ${savedBorderOpacity / 100})`;
+                    document.documentElement.style.setProperty('--border-color', rgbaBorderColor);
+                }
+
                 document.documentElement.style.setProperty('--rank-bg-color', rgbaRankBgColor);
                 document.documentElement.style.setProperty('--text-color', savedTextColor);
                 if (savedRrColor) {
                     document.documentElement.style.setProperty('--rr-color', savedRrColor);
-                }
-                if (savedBorderColor) {
-                    document.documentElement.style.setProperty('--border-color', savedBorderColor);
                 }
 
                 // カラーピッカーの値を更新
@@ -498,128 +1103,83 @@
                 if (savedBorderColor) {
                     document.getElementById('borderColorPicker').value = savedBorderColor;
                 }
+                if (savedBorderOpacity) {
+                    document.getElementById('borderOpacitySlider').value = savedBorderOpacity;
+                    document.getElementById('borderOpacityValue').textContent = savedBorderOpacity + '%';
+                }
+            }
+
+            // テーマ設定を適用
+            if (savedTheme) {
+                applyTheme(savedTheme);
             }
         }
 
-        // 設定をデフォルトに戻す
-        function resetCustomColors() {
-            // デフォルト値を定義
-            const defaultRankBgColor = '#3a444e'; // VALORANT風のグレー
-            const defaultRankBgOpacity = '100';
-            const defaultLastMatchBgColor = '#F44336'; // ラストマッチセクションのデフォルト背景色
-            const defaultLastMatchBgOpacity = '100';
-            const defaultTextColor = '#ffffff'; // 真っ白
-            const defaultRrColor = '#ff4655'; // VALORANT風のレッド
-            const defaultBorderColor = '#ff4655'; // VALORANT風のレッド
-
-            // カラーピッカーの値をデフォルトに戻す
-            document.getElementById('rankBgColorPicker').value = defaultRankBgColor;
-            document.getElementById('rankBgOpacitySlider').value = defaultRankBgOpacity;
-            document.getElementById('rankBgOpacityValue').textContent = defaultRankBgOpacity + '%';
-            document.getElementById('lastMatchBgColorPicker').value = defaultLastMatchBgColor;
-            document.getElementById('lastMatchBgOpacitySlider').value = defaultLastMatchBgOpacity;
-            document.getElementById('lastMatchBgOpacityValue').textContent = defaultLastMatchBgOpacity + '%';
-            document.getElementById('textColorPicker').value = defaultTextColor;
-            document.getElementById('rrColorPicker').value = defaultRrColor;
-            document.getElementById('borderColorPicker').value = defaultBorderColor;
-
-            // デフォルト値を適用
-            applyCustomColors();
-
-            // localStorageから設定を削除
-            localStorage.removeItem('customRankBgColor');
-            localStorage.removeItem('customRankBgOpacity');
-            localStorage.removeItem('customLastMatchBgColor');
-            localStorage.removeItem('customLastMatchBgOpacity');
-            localStorage.removeItem('customTextColor');
-            localStorage.removeItem('customRrColor');
-            localStorage.removeItem('customBorderColor');
-        }
-
-        // カスタマイズボタンのイベントリスナーを設定
-        document.addEventListener('DOMContentLoaded', function() {
-            const customizeButton = document.getElementById('customizeButton');
-            if (customizeButton) {
-                customizeButton.addEventListener('click', showColorPicker);
-            }
-
-            // 保存された設定を読み込む
-            loadSavedSettings();
-        });
-
-        // URLパラメータからプレイヤー情報を取得して表示
-        window.onload = function() {
+        // ページ初期化処理
+        function initializePage() {
+            // URLパラメータを取得
             const urlParams = new URLSearchParams(window.location.search);
             const name = urlParams.get('name');
             const tag = urlParams.get('tag');
             const isOBS = urlParams.has('obs');
-            const updateFreq = parseInt(urlParams.get('updateInterval')) || 60; // デフォルト60秒
+            const updateFreq = parseInt(urlParams.get('updateInterval')) || 60;
 
-            // プレイヤー情報をグローバル変数に保存
+            // プレイヤー情報をグローバル変数に設定
             currentPlayerName = name;
             currentPlayerTag = tag;
 
-            // URLパラメータから色設定を読み込んで適用
-            const paramRankBgColor = urlParams.get('rankBgColor');
-            const paramRankBgOpacity = urlParams.get('rankBgOpacity');
-            const paramLastMatchBgColor = urlParams.get('lastMatchBgColor');
-            const paramLastMatchBgOpacity = urlParams.get('lastMatchBgOpacity');
-            const paramTextColor = urlParams.get('textColor');
-            const paramRrColor = urlParams.get('rrColor');
-            const paramBorderColor = urlParams.get('borderColor');
+            // URLパラメータからカスタマイズ設定を読み込み
+            const urlRankBgColor = urlParams.get('rankBgColor');
+            const urlRankBgOpacity = urlParams.get('rankBgOpacity');
+            const urlLastMatchBgColor = urlParams.get('lastMatchBgColor');
+            const urlLastMatchBgOpacity = urlParams.get('lastMatchBgOpacity');
+            const urlTextColor = urlParams.get('textColor');
+            const urlRrColor = urlParams.get('rrColor');
+            const urlBorderColor = urlParams.get('borderColor');
+            const urlBorderOpacity = urlParams.get('borderOpacity');
+            const urlTheme = urlParams.get('theme');
 
-            if (paramRankBgColor && paramRankBgOpacity && paramTextColor) {
-                // ランク背景色の設定
-                const rankR = parseInt(paramRankBgColor.slice(1, 3), 16);
-                const rankG = parseInt(paramRankBgColor.slice(3, 5), 16);
-                const rankB = parseInt(paramRankBgColor.slice(5, 7), 16);
-                const rgbaRankBgColor = `rgba(${rankR}, ${rankG}, ${rankB}, ${paramRankBgOpacity / 100})`;
+            // URLパラメータから色設定を適用
+            if (urlRankBgColor && urlRankBgOpacity && urlTextColor) {
+                const rankR = parseInt(urlRankBgColor.slice(1, 3), 16);
+                const rankG = parseInt(urlRankBgColor.slice(3, 5), 16);
+                const rankB = parseInt(urlRankBgColor.slice(5, 7), 16);
+                const rgbaRankBgColor = `rgba(${rankR}, ${rankG}, ${rankB}, ${urlRankBgOpacity / 100})`;
+                document.documentElement.style.setProperty('--rank-bg-color', rgbaRankBgColor);
+                document.documentElement.style.setProperty('--text-color', urlTextColor);
 
-                // 前回のマッチ背景色の設定
-                if (paramLastMatchBgColor && paramLastMatchBgOpacity) {
-                    const lastMatchR = parseInt(paramLastMatchBgColor.slice(1, 3), 16);
-                    const lastMatchG = parseInt(paramLastMatchBgColor.slice(3, 5), 16);
-                    const lastMatchB = parseInt(paramLastMatchBgColor.slice(5, 7), 16);
-                    const rgbaLastMatchBgColor = `rgba(${lastMatchR}, ${lastMatchG}, ${lastMatchB}, ${paramLastMatchBgOpacity / 100})`;
+                if (urlLastMatchBgColor && urlLastMatchBgOpacity) {
+                    const lastMatchR = parseInt(urlLastMatchBgColor.slice(1, 3), 16);
+                    const lastMatchG = parseInt(urlLastMatchBgColor.slice(3, 5), 16);
+                    const lastMatchB = parseInt(urlLastMatchBgColor.slice(5, 7), 16);
+                    const rgbaLastMatchBgColor = `rgba(${lastMatchR}, ${lastMatchG}, ${lastMatchB}, ${urlLastMatchBgOpacity / 100})`;
                     document.documentElement.style.setProperty('--last-match-bg-color', rgbaLastMatchBgColor);
                 }
 
-                document.documentElement.style.setProperty('--rank-bg-color', rgbaRankBgColor);
-                document.documentElement.style.setProperty('--text-color', paramTextColor);
-
-                if (paramRrColor) {
-                    document.documentElement.style.setProperty('--rr-color', paramRrColor);
-                }
-                if (paramBorderColor) {
-                    document.documentElement.style.setProperty('--border-color', paramBorderColor);
+                if (urlRrColor) {
+                    document.documentElement.style.setProperty('--rr-color', urlRrColor);
                 }
 
-                // localStorageにも保存して次回以降も反映されるようにする
-                localStorage.setItem('customRankBgColor', paramRankBgColor);
-                localStorage.setItem('customRankBgOpacity', paramRankBgOpacity);
-                if (paramLastMatchBgColor) localStorage.setItem('customLastMatchBgColor', paramLastMatchBgColor);
-                if (paramLastMatchBgOpacity) localStorage.setItem('customLastMatchBgOpacity', paramLastMatchBgOpacity);
-                localStorage.setItem('customTextColor', paramTextColor);
-                if (paramRrColor) localStorage.setItem('customRrColor', paramRrColor);
-                if (paramBorderColor) localStorage.setItem('customBorderColor', paramBorderColor);
-
-                // カラーピッカーの値を更新（モーダルを開いた時に反映されるように）
-                // loadSavedSettings() が DOMContentLoaded で呼ばれるため不要だが念のため
-                document.getElementById('rankBgColorPicker').value = paramRankBgColor;
-                document.getElementById('rankBgOpacitySlider').value = paramRankBgOpacity;
-                document.getElementById('rankBgOpacityValue').textContent = paramRankBgOpacity + '%';
-                if (paramLastMatchBgColor && paramLastMatchBgOpacity) {
-                    document.getElementById('lastMatchBgColorPicker').value = paramLastMatchBgColor;
-                    document.getElementById('lastMatchBgOpacitySlider').value = paramLastMatchBgOpacity;
-                    document.getElementById('lastMatchBgOpacityValue').textContent = paramLastMatchBgOpacity + '%';
+                if (urlBorderColor && urlBorderOpacity) {
+                    const borderR = parseInt(urlBorderColor.slice(1, 3), 16);
+                    const borderG = parseInt(urlBorderColor.slice(3, 5), 16);
+                    const borderB = parseInt(urlBorderColor.slice(5, 7), 16);
+                    const rgbaBorderColor = `rgba(${borderR}, ${borderG}, ${borderB}, ${urlBorderOpacity / 100})`;
+                    document.documentElement.style.setProperty('--border-color', rgbaBorderColor);
                 }
-                document.getElementById('textColorPicker').value = paramTextColor;
-                if (paramRrColor) document.getElementById('rrColorPicker').value = paramRrColor;
-                if (paramBorderColor) document.getElementById('borderColorPicker').value = paramBorderColor;
-
             } else {
                 // URLパラメータに色設定がない場合はlocalStorageから読み込む
                 loadSavedSettings();
+            }
+
+            // テーマ設定を適用
+            if (urlTheme) {
+                applyTheme(urlTheme);
+            } else {
+                const savedTheme = localStorage.getItem('selectedTheme');
+                if (savedTheme) {
+                    applyTheme(savedTheme);
+                }
             }
 
             // モーダルの外側をクリックしたら閉じる
@@ -669,13 +1229,6 @@
                         authorSectionElement.style.display = 'none';
                     }
                     
-                    // デバッグ情報の表示（URLパラメータでdebug=trueがある場合のみ）
-                    // const showDebug = urlParams.get('debug') === 'true';
-                    // const debugElement = document.getElementById('obsDebugInfo');
-                    // if (debugElement && showDebug) {
-                    //     debugElement.style.display = 'block';
-                    // }
-
                     // OBSモードでは自動更新を開始
                     console.log(`OBSモードで自動更新を有効化（${updateFreq}秒間隔）`);
 
@@ -730,12 +1283,98 @@
                 // データがない旨を表示
                 document.getElementById('rankText').textContent = '情報なし';
                 document.getElementById('rrText').textContent = '';
-                // document.getElementById('winLossText').textContent = '';
                 document.getElementById('lastMatchSection').style.display = 'none';
+            }
+
+            // 文字サイズ調整機能を初期化
+            observeOverlayResize();
+
+            // カスタマイズボタンのイベントリスナーを設定
+            const customizeButton = document.getElementById('customizeButton');
+            if (customizeButton) {
+                customizeButton.addEventListener('click', showColorPicker);
+            }
+
+            // テーマボタンのイベントリスナーを設定
+            document.querySelectorAll('.theme-button').forEach(button => {
+                button.addEventListener('click', function() {
+                    const theme = this.getAttribute('data-theme');
+                    applyTheme(theme);
+                });
+            });
+        }
+
+        // 文字途切れ防止のための動的調整機能
+        function adjustTextSize() {
+            const overlay = document.querySelector('.overlay');
+            if (!overlay) return;
+
+            const rankName = overlay.querySelector('.rank-name');
+            const rrText = overlay.querySelector('.rr');
+            const lastMatchText = overlay.querySelector('.last-match-text');
+
+            // ランク名の調整
+            if (rankName) {
+                adjustElementText(rankName, overlay);
+            }
+
+            // RRテキストの調整
+            if (rrText) {
+                adjustElementText(rrText, overlay);
+            }
+
+            // 前回のマッチテキストの調整
+            if (lastMatchText) {
+                adjustElementText(lastMatchText, overlay);
+            }
+
+            // 全テーマで横幅を自動調整
+            adjustOverlayWidth();
+        }
+
+        // 全テーマの横幅自動調整機能（最小幅に調整）
+        function adjustOverlayWidth() {
+            const overlay = document.querySelector('.overlay');
+            if (!overlay) return;
+
+            // 全テーマでCSSによる最小幅調整が適用される
+            console.log(`${currentTheme}テーマ: CSSによる最小幅調整を適用`);
+        }
+
+        function adjustElementText(element, container) {
+            const containerWidth = container.offsetWidth;
+            const elementWidth = element.scrollWidth;
+            
+            // テキストがコンテナより大きい場合
+            if (elementWidth > containerWidth * 0.9) {
+                const currentFontSize = parseFloat(window.getComputedStyle(element).fontSize);
+                const ratio = (containerWidth * 0.85) / elementWidth;
+                const newFontSize = Math.max(currentFontSize * ratio, 10); // 最小10px
+                
+                element.style.fontSize = newFontSize + 'px';
             }
         }
 
-        
+        // オーバーレイのサイズ変更監視
+        function observeOverlayResize() {
+            const overlay = document.querySelector('.overlay');
+            if (!overlay) return;
+
+            const resizeObserver = new ResizeObserver(entries => {
+                for (let entry of entries) {
+                    setTimeout(adjustTextSize, 100); // 少し遅延させて確実に調整
+                }
+            });
+
+            resizeObserver.observe(overlay);
+        }
+
+        // プレイヤー情報更新時に文字サイズも調整
+        function updatePlayerInfoWithTextAdjustment(name, tag) {
+            return updatePlayerInfo(name, tag).then(() => {
+                setTimeout(adjustTextSize, 200); // データ更新後に調整
+            });
+        }
 
         async function updatePlayerInfo(name, tag) {
             try {
@@ -817,6 +1456,12 @@
                 // 最終更新時刻を更新
                 updateAutoUpdateStatus();
 
+                // プレイヤー情報更新後に文字サイズと横幅を調整
+                setTimeout(() => {
+                    adjustTextSize();
+                    adjustOverlayWidth();
+                }, 300);
+
             } catch (error) {
                 console.error(`[${new Date().toLocaleTimeString()}] Error updating player info:`, error);
                 
@@ -855,6 +1500,8 @@
             const savedTextColor = localStorage.getItem('customTextColor');
             const savedRrColor = localStorage.getItem('customRrColor');
             const savedBorderColor = localStorage.getItem('customBorderColor');
+            const savedBorderOpacity = localStorage.getItem('customBorderOpacity');
+            const savedTheme = localStorage.getItem('selectedTheme');
 
             if (savedRankBgColor) urlParams.append('rankBgColor', savedRankBgColor);
             if (savedRankBgOpacity) urlParams.append('rankBgOpacity', savedRankBgOpacity);
@@ -863,6 +1510,8 @@
             if (savedTextColor) urlParams.append('textColor', savedTextColor);
             if (savedRrColor) urlParams.append('rrColor', savedRrColor);
             if (savedBorderColor) urlParams.append('borderColor', savedBorderColor);
+            if (savedBorderOpacity) urlParams.append('borderOpacity', savedBorderOpacity);
+            if (savedTheme) urlParams.append('theme', savedTheme);
             
             const newURL = `${currentURL}?${urlParams.toString()}`;
             document.getElementById('generatedURL').value = newURL;
@@ -899,6 +1548,11 @@
                 arrow.classList.add('rotated');
             }
         }
+
+        // ページ読み込み時の初期化
+        window.addEventListener('DOMContentLoaded', function() {
+            initializePage();
+        });
     </script>
 </body>
 </html> 

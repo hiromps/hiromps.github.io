@@ -5,12 +5,12 @@
     --valorant-grey: #3a444e;
     --valorant-green: #4CAF50;
     --valorant-red-bg: #F44336;
-    /*--overlay-bg-color: #F44336; /* オーバーレイの背景色のデフォルト値 */
+    --overlay-bg-color: rgba(58, 68, 78, 0.9); /* オーバーレイの背景色のデフォルト値（透明度付き） */
     --last-match-bg-color: var(--valorant-red-bg); /* ラストマッチセクションの背景色 */
     --rank-bg-color: var(--valorant-grey);
-    --border-color: var(--border-color); /* ボーダー色のデフォルト値 */
-    --text-color: var(--valorant-light);
-    --rr-color: var(--valorant-red);
+    --border-color: #ff4655;
+    --text-color: #ffffff;
+    --rr-color: #ff4655;
     --win-color: var(--valorant-green);
     --loss-color: var(--valorant-red-bg);
     --win-loss-text-color: var(--text-color);
@@ -571,6 +571,98 @@ body {
     background-color: #5a646e; /* ホバー時の色 */
     transform: translateY(-2px);
     box-shadow: 0 4px 12px rgba(58, 68, 78, 0.4);
+}
+
+/* 全テーマ共通の最小幅調整スタイル */
+.theme-classic .overlay,
+.theme-modern .overlay,
+.theme-shadcn .overlay,
+.theme-neon .overlay {
+    transition: width 0.3s ease, min-width 0.3s ease, max-width 0.3s ease;
+    width: min-content !important;
+    min-width: 200px !important;
+    max-width: 350px !important;
+}
+
+.theme-classic .rank-section,
+.theme-modern .rank-section,
+.theme-shadcn .rank-section,
+.theme-neon .rank-section {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    width: max-content;
+    min-width: 0;
+    padding: 10px;
+}
+
+.theme-classic .rank-details,
+.theme-modern .rank-details,
+.theme-shadcn .rank-details,
+.theme-neon .rank-details {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    width: max-content;
+}
+
+.theme-classic .rank-name-line,
+.theme-modern .rank-name-line,
+.theme-shadcn .rank-name-line,
+.theme-neon .rank-name-line {
+    display: flex;
+    align-items: baseline;
+    gap: 5px;
+    width: max-content;
+    min-width: 0;
+}
+
+.theme-classic .rank-name,
+.theme-modern .rank-name,
+.theme-shadcn .rank-name,
+.theme-neon .rank-name {
+    white-space: nowrap;
+    width: max-content;
+}
+
+.theme-classic .rr,
+.theme-modern .rr,
+.theme-shadcn .rr,
+.theme-neon .rr {
+    white-space: nowrap;
+    width: max-content;
+}
+
+.theme-classic .last-match-section,
+.theme-modern .last-match-section,
+.theme-shadcn .last-match-section,
+.theme-neon .last-match-section {
+    width: max-content;
+    min-width: 0;
+    max-width: 100%;
+    margin: 0 auto;
+}
+
+.theme-classic .last-match-text,
+.theme-modern .last-match-text,
+.theme-shadcn .last-match-text,
+.theme-neon .last-match-text {
+    white-space: nowrap;
+    width: max-content;
+}
+
+.theme-classic .mmr-gauge-fill,
+.theme-modern .mmr-gauge-fill,
+.theme-shadcn .mmr-gauge-fill,
+.theme-neon .mmr-gauge-fill {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: 0;
+    background-color: var(--valorant-green);
+    transition: width 0.5s ease;
+    max-width: 100%;
 }
 
 /* PCレイアウト */
