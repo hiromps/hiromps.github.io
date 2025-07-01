@@ -110,6 +110,11 @@ body {
     box-shadow: 0 4px 24px rgba(0, 0, 0, 0.3);
 }
 
+/* OBSモード専用 - 全ての背景を完全に透明に */
+body.obs-mode .overlay {
+    backdrop-filter: none !important;
+}
+
 .overlay:hover {
     transform: translateY(-2px);
 }
@@ -161,6 +166,10 @@ body {
     object-fit: contain;
     margin-right: 10px;
     flex-shrink: 0;
+    border: none !important;
+    box-shadow: none !important;
+    background: none !important;
+    outline: none !important;
 }
 
 .rank-details {
@@ -224,6 +233,7 @@ body {
     position: relative; /* 子要素の絶対配置のために必要 */
     overflow: hidden; /* ゲージがはみ出さないように隠す */
     background-color: var(--last-match-bg-color); /* カスタマイズ可能な背景色 */
+    width: 100%; /* 親要素の全幅を使用 */
 }
 
 .mmr-gauge-fill {
@@ -574,17 +584,126 @@ body {
 }
 
 /* 全テーマ共通の最小幅調整スタイル */
-.theme-classic .overlay,
+/* クラシックテーマ専用スタイル（再構築版） */
+.theme-classic .overlay {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    width: fit-content !important;
+    min-width: 300px !important;
+    max-width: none !important;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+    transition: all 0.3s ease;
+}
+
+.theme-classic .rank-section {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    width: 100%;
+    min-width: 0;
+    padding: 12px;
+    background: var(--rank-bg-color);
+    box-sizing: border-box;
+    flex-shrink: 0;
+}
+
+.theme-classic .rank-icon {
+    width: 120px;
+    height: 120px;
+    margin-right: 12px;
+    flex-shrink: 0;
+}
+
+.theme-classic .rank-details {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    flex-grow: 1;
+}
+
+.theme-classic .rank-name-line {
+    display: flex;
+    align-items: baseline;
+    width: 100%;
+    min-width: 0;
+}
+
+.theme-classic .rank-name {
+    font-size: 2.2em;
+    font-weight: bold;
+    color: var(--text-color);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    flex-grow: 1;
+    min-width: 0;
+}
+
+.theme-classic .rr {
+    font-size: 2em;
+    font-weight: bold;
+    color: var(--rr-color);
+    white-space: nowrap;
+    flex-shrink: 0;
+}
+
+.theme-classic .win-loss {
+    font-size: 1em;
+    color: var(--text-color);
+    opacity: 0.8;
+    margin-top: 4px;
+}
+
+.theme-classic .last-match-section {
+    width: 100%;
+    min-width: 0;
+    margin: 0;
+    padding: 12px;
+    position: relative;
+    overflow: hidden;
+    box-sizing: border-box;
+    background: var(--last-match-bg-color);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.theme-classic .last-match-text {
+    font-size: 1.1em;
+    font-weight: 600;
+    color: var(--text-color);
+    white-space: nowrap;
+    position: relative;
+    z-index: 1;
+    text-align: center;
+}
+
+.theme-classic .mmr-gauge-fill {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: 0;
+    background-color: var(--valorant-green);
+    transition: width 0.5s ease;
+    max-width: 100%;
+    z-index: 0;
+}
+
+/* 他のテーマのスタイル */
 .theme-modern .overlay,
 .theme-shadcn .overlay,
 .theme-neon .overlay {
     transition: width 0.3s ease, min-width 0.3s ease, max-width 0.3s ease;
-    width: min-content !important;
-    min-width: 200px !important;
-    max-width: 350px !important;
+    width: auto !important;
+    min-width: 300px !important;
+    max-width: 450px !important;
 }
 
-.theme-classic .rank-section,
 .theme-modern .rank-section,
 .theme-shadcn .rank-section,
 .theme-neon .rank-section {
@@ -596,7 +715,6 @@ body {
     padding: 10px;
 }
 
-.theme-classic .rank-details,
 .theme-modern .rank-details,
 .theme-shadcn .rank-details,
 .theme-neon .rank-details {
@@ -606,7 +724,6 @@ body {
     width: max-content;
 }
 
-.theme-classic .rank-name-line,
 .theme-modern .rank-name-line,
 .theme-shadcn .rank-name-line,
 .theme-neon .rank-name-line {
@@ -617,7 +734,6 @@ body {
     min-width: 0;
 }
 
-.theme-classic .rank-name,
 .theme-modern .rank-name,
 .theme-shadcn .rank-name,
 .theme-neon .rank-name {
@@ -625,7 +741,6 @@ body {
     width: max-content;
 }
 
-.theme-classic .rr,
 .theme-modern .rr,
 .theme-shadcn .rr,
 .theme-neon .rr {
@@ -633,25 +748,27 @@ body {
     width: max-content;
 }
 
-.theme-classic .last-match-section,
 .theme-modern .last-match-section,
 .theme-shadcn .last-match-section,
 .theme-neon .last-match-section {
-    width: max-content;
-    min-width: 0;
-    max-width: 100%;
+    width: 100%;
+    min-width: 100%;
     margin: 0 auto;
+    position: relative;
+    overflow: hidden;
+    box-sizing: border-box;
 }
 
-.theme-classic .last-match-text,
 .theme-modern .last-match-text,
 .theme-shadcn .last-match-text,
 .theme-neon .last-match-text {
     white-space: nowrap;
-    width: max-content;
+    width: 100%;
+    text-align: center;
+    position: relative;
+    z-index: 1;
 }
 
-.theme-classic .mmr-gauge-fill,
 .theme-modern .mmr-gauge-fill,
 .theme-shadcn .mmr-gauge-fill,
 .theme-neon .mmr-gauge-fill {
@@ -663,6 +780,7 @@ body {
     background-color: var(--valorant-green);
     transition: width 0.5s ease;
     max-width: 100%;
+    z-index: 0;
 }
 
 /* PCレイアウト */
@@ -982,6 +1100,11 @@ body.obs-mode .background {
     display: none !important;
 }
 
+/* OBSモードでのクラシックテーマの黒い背景削除 */
+body.obs-mode .theme-classic .rank-section {
+    background: transparent !important;
+}
+
 body.obs-mode .overlay {
     position: absolute !important;
     top: 50% !important;
@@ -989,6 +1112,10 @@ body.obs-mode .overlay {
     right: auto !important; /* 右固定を解除 */
     transform: translate(-50%, -50%) !important; /* 中央寄せ */
     margin: 0 !important; /* マージンをリセット */
+    width: auto !important; /* 自動幅 */
+    min-width: unset !important; /* 最小幅制限を解除 */
+    max-width: unset !important; /* 最大幅制限を解除 */
+    scale: 1; /* 初期スケール */
 }
 
 /* ヘッダーナビゲーションを非表示 */

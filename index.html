@@ -184,6 +184,10 @@
         .theme-classic .rank-icon {
             width: 60px;
             height: 60px;
+            border: none !important;
+            box-shadow: none !important;
+            background: none !important;
+            outline: none !important;
         }
 
         .theme-classic .rank-name {
@@ -197,6 +201,13 @@
         .theme-classic .last-match-section {
             background-color: var(--last-match-bg-color);
             padding: 6px 10px;
+        }
+
+        .theme-classic .last-match-text {
+            color: var(--text-color);
+            font-weight: 600;
+            font-size: clamp(0.9rem, 2.5vw, 1rem) !important;
+            line-height: 1.3;
         }
 
         /* モダンテーマ - カード分割レイアウト */
@@ -241,9 +252,10 @@
             height: 52px;
             border-radius: 12px;
             flex-shrink: 0;
-            border: none;
-            box-shadow: none;
-            background: none;
+            border: none !important;
+            box-shadow: none !important;
+            background: none !important;
+            outline: none !important;
         }
 
         .theme-modern .rank-name {
@@ -272,16 +284,22 @@
             box-shadow: none;
             position: relative;
             min-height: auto;
+            width: 100%;
+            overflow: hidden;
         }
 
         .theme-modern .last-match-text {
             color: var(--text-color);
             font-weight: 600;
-            font-size: clamp(0.8rem, 2.2vw, 0.9rem);
+            font-size: clamp(0.9rem, 2.5vw, 1rem) !important;
             line-height: 1.3;
+            width: 100%;
+            text-align: center;
+            position: relative;
+            z-index: 1;
         }
 
-        /* Shadcn/UIテーマ - VALORANT風サイバーテック */
+        /* Cyberテーマ - VALORANT風サイバーテック */
         .theme-shadcn .overlay {
             background: transparent;
             backdrop-filter: none;
@@ -345,9 +363,10 @@
             height: 52px;
             border-radius: 8px;
             flex-shrink: 0;
-            border: none;
-            box-shadow: none;
-            background: none;
+            border: none !important;
+            box-shadow: none !important;
+            background: none !important;
+            outline: none !important;
         }
 
         .theme-shadcn .rank-details {
@@ -399,6 +418,7 @@
             overflow: hidden;
             box-shadow: none;
             min-height: auto;
+            width: 100%;
         }
 
         .theme-shadcn .last-match-section::before {
@@ -431,13 +451,16 @@
         .theme-shadcn .last-match-text {
             color: var(--text-color);
             font-weight: 600;
-            font-size: clamp(0.9rem, 3vw, 1.1rem);
+            font-size: clamp(1rem, 3.2vw, 1.2rem) !important;
             line-height: 1.2;
             text-align: center;
             text-transform: uppercase;
             letter-spacing: 1px;
             font-family: 'Rajdhani', 'Arial', sans-serif;
             text-shadow: 0 0 6px rgba(255, 255, 255, 0.2);
+            width: 100%;
+            position: relative;
+            z-index: 1;
         }
 
         .theme-shadcn .mmr-gauge-fill {
@@ -531,9 +554,10 @@
             height: 60px;
             border-radius: 16px;
             flex-shrink: 0;
-            border: none;
-            box-shadow: none;
-            background: none;
+            border: none !important;
+            box-shadow: none !important;
+            background: none !important;
+            outline: none !important;
         }
 
         .theme-neon .rank-name {
@@ -567,16 +591,22 @@
             position: relative;
             box-shadow: none;
             min-height: auto;
+            width: 100%;
+            overflow: hidden;
         }
 
         .theme-neon .last-match-text {
             color: var(--text-color);
             font-weight: 700;
-            font-size: clamp(0.85rem, 2.8vw, 0.95rem);
+            font-size: clamp(0.95rem, 3vw, 1.05rem) !important;
             text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
             text-transform: uppercase;
             letter-spacing: 0.5px;
             line-height: 1.2;
+            width: 100%;
+            text-align: center;
+            position: relative;
+            z-index: 1;
         }
 
         .theme-neon .mmr-gauge-fill {
@@ -689,13 +719,14 @@
                 </ol>
             </div>
             <div class="tutorial-step">
-                <h4>⚙️ ステップ 3: ブラウザソースの設定</h4>
+                <h4>⚙️ ステップ 3: ブラウザソースの設定（高画質推奨）</h4>
                 <ul>
                     <li><strong>URL:</strong> 生成されたURLをコピー&ペースト</li>
-                    <li><strong>幅:</strong> 450</li>
-                    <li><strong>高さ:</strong> 200</li>
+                    <li><strong>幅:</strong> 900（高画質）または 450（標準）</li>
+                    <li><strong>高さ:</strong> 400（高画質）または 200（標準）</li>
                     <li><strong>カスタムCSS:</strong> そのまま</li>
                 </ul>
+                <p><strong>💡 ヒント:</strong> 高画質設定後、OBSプレビューで右クリック→「変換」→「画面に合わせる」で適切なサイズに調整できます</p>
             </div>
             <div class="tutorial-step">
                 <h4>✨ ステップ 4: 位置とサイズの調整</h4>
@@ -721,7 +752,7 @@
                 <div class="theme-selector">
                     <button type="button" id="themeClassic" class="theme-button active" data-theme="classic">クラシック</button>
                     <button type="button" id="themeModern" class="theme-button" data-theme="modern">モダン</button>
-                    <button type="button" id="themeShadcn" class="theme-button" data-theme="shadcn">Shadcn/UI</button>
+                                            <button type="button" id="themeShadcn" class="theme-button" data-theme="shadcn">Cyber</button>
                     <button type="button" id="themeNeon" class="theme-button" data-theme="neon">Neon</button>
                 </div>
             </div>
@@ -797,10 +828,19 @@
                 overlay.style.maxWidth = '';
             }
             
-            // Shadcn/UIテーマの場合、スキャンライン効果を追加
+            // Cyberテーマの場合、スキャンライン効果を追加
             if (theme === 'shadcn') {
                 setTimeout(addScanLineEffect, 100);
             }
+            
+            // テーマ変更後に前回のマッチセクションの幅を調整（プレビュー画面のみ）
+            setTimeout(() => {
+                if (theme === 'classic') {
+                    resetLastMatchWidthForClassic();
+                } else {
+                    adjustLastMatchWidth();
+                }
+            }, 200);
         }
 
         // VALORANT風スキャンライン効果を追加
@@ -822,6 +862,15 @@
         function closeColorPicker() {
             const modal = document.getElementById('colorPickerModal');
             modal.style.display = 'none';
+            
+            // モーダルを閉じた後に幅調整を実行（プレビュー画面のみ）
+            setTimeout(() => {
+                if (currentTheme === 'classic') {
+                    resetLastMatchWidthForClassic();
+                } else {
+                    adjustLastMatchWidth();
+                }
+            }, 300);
         }
 
         // 自動更新機能（改善版）
@@ -1006,6 +1055,15 @@
             localStorage.setItem('customBorderOpacity', borderOpacity);
 
             closeColorPicker();
+            
+            // カスタムカラー適用後に幅調整を実行（プレビュー画面のみ）
+            setTimeout(() => {
+                if (currentTheme === 'classic') {
+                    resetLastMatchWidthForClassic();
+                } else {
+                    adjustLastMatchWidth();
+                }
+            }, 300);
         }
 
         // カスタムカラーをリセット
@@ -1042,6 +1100,12 @@
 
             // テーマをクラシックに戻す
             applyTheme('classic');
+            
+            // リセット後に幅調整を実行（プレビュー画面のみ）
+            setTimeout(() => {
+                // リセット後はクラシックテーマになるので、クラシック用の処理を実行
+                resetLastMatchWidthForClassic();
+            }, 300);
         }
 
         // 保存された設定を読み込む
@@ -1170,6 +1234,11 @@
             } else {
                 // URLパラメータに色設定がない場合はlocalStorageから読み込む
                 loadSavedSettings();
+                
+                // デフォルト値を確実に設定（カスタマイズベース用）
+                if (!localStorage.getItem('customRankBgColor')) {
+                    document.documentElement.style.setProperty('--rank-bg-color', 'rgba(58, 68, 78, 1)');
+                }
             }
 
             // テーマ設定を適用
@@ -1221,6 +1290,9 @@
                         overlayElement.style.left = '50%';
                         overlayElement.style.right = 'auto';
                         overlayElement.style.transform = 'translate(-50%, -50%)';
+                        
+                        // OBSブラウザソースサイズに応じてスケール調整
+                        adjustOBSScale();
                     }
 
                     // 製作者紹介セクションを非表示
@@ -1228,7 +1300,7 @@
                     if (authorSectionElement) {
                         authorSectionElement.style.display = 'none';
                     }
-                    
+
                     // OBSモードでは自動更新を開始
                     console.log(`OBSモードで自動更新を有効化（${updateFreq}秒間隔）`);
 
@@ -1289,6 +1361,32 @@
             // 文字サイズ調整機能を初期化
             observeOverlayResize();
 
+            // 初期化完了後に幅調整を実行（プレビュー画面のみ）
+            setTimeout(() => {
+                if (currentTheme === 'classic') {
+                    resetLastMatchWidthForClassic();
+                } else {
+                    adjustLastMatchWidth();
+                }
+            }, 500);
+            
+            // プレビュー画面でより確実に幅調整を実行
+            setTimeout(() => {
+                if (currentTheme === 'classic') {
+                    resetLastMatchWidthForClassic();
+                } else {
+                    adjustLastMatchWidth();
+                }
+            }, 1000);
+            
+            setTimeout(() => {
+                if (currentTheme === 'classic') {
+                    resetLastMatchWidthForClassic();
+                } else {
+                    adjustLastMatchWidth();
+                }
+            }, 2000);
+
             // カスタマイズボタンのイベントリスナーを設定
             const customizeButton = document.getElementById('customizeButton');
             if (customizeButton) {
@@ -1300,6 +1398,14 @@
                 button.addEventListener('click', function() {
                     const theme = this.getAttribute('data-theme');
                     applyTheme(theme);
+                    // テーマ変更後に幅調整（プレビュー画面のみ）
+                    setTimeout(() => {
+                        if (theme === 'classic') {
+                            resetLastMatchWidthForClassic();
+                        } else {
+                            adjustLastMatchWidth();
+                        }
+                    }, 300);
                 });
             });
         }
@@ -1328,8 +1434,81 @@
                 adjustElementText(lastMatchText, overlay);
             }
 
+            // 前回のマッチセクションの幅をランクセクションに合わせる
+            adjustLastMatchWidth();
+
             // 全テーマで横幅を自動調整
             adjustOverlayWidth();
+        }
+
+        // 前回のマッチセクションの幅をランクセクションに合わせる機能（プレビュー画面のみ）
+        function adjustLastMatchWidth() {
+            // URLパラメータがある場合（URL生成後）は何もしない
+            const urlParams = new URLSearchParams(window.location.search);
+            if (urlParams.has('name') || urlParams.has('tag')) {
+                return;
+            }
+            
+            // クラシックテーマの場合は元のデザインを保持
+            if (currentTheme === 'classic') {
+                console.log('クラシックテーマのため幅調整をスキップ');
+                return;
+            }
+            
+            const rankSection = document.querySelector('.rank-section');
+            const lastMatchSection = document.querySelector('.last-match-section');
+            
+            if (!rankSection || !lastMatchSection) return;
+
+            // ランクセクションの実際の幅を取得
+            const rankSectionWidth = rankSection.offsetWidth;
+            
+            // プレビュー画面でのみCSS制約を解除して幅と位置を設定（クラシック以外のテーマ）
+            lastMatchSection.style.width = rankSectionWidth + 'px';
+            lastMatchSection.style.minWidth = rankSectionWidth + 'px';
+            lastMatchSection.style.maxWidth = rankSectionWidth + 'px';
+            lastMatchSection.style.boxSizing = 'border-box';
+            lastMatchSection.style.margin = '0 auto'; // 中央揃え
+            lastMatchSection.style.display = 'block'; // ブロック要素として表示
+            
+            // ランクセクションと前回のマッチセクションの位置を完全に同期
+            const rankSectionStyle = window.getComputedStyle(rankSection);
+            const rankSectionRect = rankSection.getBoundingClientRect();
+            const overlay = rankSection.closest('.overlay');
+            
+            if (overlay) {
+                const overlayRect = overlay.getBoundingClientRect();
+                const rankLeftOffset = rankSectionRect.left - overlayRect.left;
+                
+                // 前回のマッチセクションをランクセクションと同じ左位置に配置
+                lastMatchSection.style.marginLeft = rankLeftOffset + 'px';
+                lastMatchSection.style.marginRight = 'auto';
+            }
+            
+            console.log(`前回のマッチセクション幅調整（プレビュー画面・${currentTheme}テーマ）: ${rankSectionWidth}px`);
+        }
+
+        // クラシックテーマ用にスタイルをリセットする機能（再構築版）
+        function resetLastMatchWidthForClassic() {
+            // URLパラメータがある場合（URL生成後）は何もしない
+            const urlParams = new URLSearchParams(window.location.search);
+            if (urlParams.has('name') || urlParams.has('tag')) {
+                return;
+            }
+            
+            const lastMatchSection = document.querySelector('.last-match-section');
+            const rankSection = document.querySelector('.rank-section');
+            if (!lastMatchSection || !rankSection) return;
+            
+            // クラシックテーマでは新しいCSS構造により自動的に幅が統一される
+            // 追加のスタイル調整をリセット
+            lastMatchSection.style.width = '';
+            lastMatchSection.style.minWidth = '';
+            lastMatchSection.style.maxWidth = '';
+            lastMatchSection.style.marginLeft = '';
+            lastMatchSection.style.marginRight = '';
+            
+            console.log('クラシックテーマ: CSS構造により自動幅統一');
         }
 
         // 全テーマの横幅自動調整機能（最小幅に調整）
@@ -1342,6 +1521,11 @@
         }
 
         function adjustElementText(element, container) {
+            // 前回のマッチテキストは調整をスキップ（専用のコンテナ幅を使用するため）
+            if (element && element.classList.contains('last-match-text')) {
+                return;
+            }
+
             const containerWidth = container.offsetWidth;
             const elementWidth = element.scrollWidth;
             
@@ -1354,6 +1538,38 @@
                 element.style.fontSize = newFontSize + 'px';
             }
         }
+
+        // OBSブラウザソースサイズに応じてオーバーレイをスケール調整
+        function adjustOBSScale() {
+            const overlay = document.querySelector('.overlay');
+            if (!overlay || !document.body.classList.contains('obs-mode')) return;
+
+            // ブラウザソースのサイズを取得
+            const browserWidth = window.innerWidth;
+            const browserHeight = window.innerHeight;
+            
+            // 基準サイズ（450x200）に対するスケール比を計算
+            const baseWidth = 450;
+            const baseHeight = 200;
+            
+            const scaleX = browserWidth / baseWidth;
+            const scaleY = browserHeight / baseHeight;
+            
+            // 縦横比を保持してスケール（小さい方のスケールを使用）
+            const scale = Math.min(scaleX, scaleY, 3); // 最大3倍まで
+            
+            // スケール適用
+            overlay.style.transform = `translate(-50%, -50%) scale(${scale})`;
+            
+            console.log(`OBSスケール調整: ${browserWidth}x${browserHeight} → スケール ${scale.toFixed(2)}`);
+        }
+
+        // ウィンドウサイズ変更時にスケール調整
+        window.addEventListener('resize', function() {
+            if (document.body.classList.contains('obs-mode')) {
+                adjustOBSScale();
+            }
+        });
 
         // オーバーレイのサイズ変更監視
         function observeOverlayResize() {
