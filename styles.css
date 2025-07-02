@@ -296,9 +296,9 @@ body.obs-mode .overlay {
     gap: 30px; /* ギャップを少し広げて見やすく */
     max-width: 1200px;
     width: 100%;
-    margin: 30px auto 20px auto; /* 上部の余白を増やす */
+    margin: 1rem auto 2rem auto; /* 上部の余白を減らす */
     align-items: flex-start;
-    padding: 0 20px; /* 左右に余白を追加 */
+    padding: 0 1rem; /* 左右に余白を追加 */
     box-sizing: border-box;
 }
 
@@ -316,6 +316,8 @@ body.obs-mode .overlay {
     transition: transform 0.3s ease, box-shadow 0.3s ease;
     box-sizing: border-box;
     flex: 1; /* フレックスアイテムとして伸縮 */
+    position: relative;
+    z-index: 1;
 }
 
 .input-section:hover {

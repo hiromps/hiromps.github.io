@@ -1,0 +1,2282 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>スキンデータベース - VALORANT Tracker</title>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        .skins-container {
+            max-width: 1400px;
+            margin: 2rem auto;
+            padding: 0 1rem;
+        }
+        
+        .filters-section {
+            background: rgba(15, 25, 35, 0.95);
+            border: 1px solid #ff4655;
+            border-radius: 12px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+        }
+        
+        .filters-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+        
+        .filters-actions {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        
+        .filter-stats {
+            color: #888;
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+        
+        .clear-filters-btn {
+            background: rgba(255, 70, 85, 0.1);
+            color: #ff4655;
+            border: 1px solid #ff4655;
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.9rem;
+            font-weight: 600;
+        }
+        
+        .clear-filters-btn:hover {
+            background: rgba(255, 70, 85, 0.2);
+            transform: translateY(-1px);
+        }
+        
+        .clear-filters-btn:active {
+            transform: translateY(0);
+        }
+        
+        .filters-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            align-items: end;
+        }
+        
+        .filter-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+        
+        .filter-group label {
+            color: #fff;
+            font-weight: 600;
+        }
+        
+        .filter-group select,
+        .filter-group input {
+            padding: 0.75rem;
+            border: 1px solid #444;
+            border-radius: 8px;
+            background: rgba(0, 0, 0, 0.3);
+            color: white;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        /* VALORANT風ドロップダウンスタイル */
+        .filter-group select {
+            appearance: none;
+            background-image: url('data:image/svg+xml;utf8,<svg fill="%2300f5ff" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg"><path d="M7 10l5 5 5-5z"/></svg>');
+            background-repeat: no-repeat;
+            background-position: right 12px center;
+            background-size: 20px;
+            padding-right: 45px;
+            cursor: pointer;
+            font-weight: 500;
+        }
+        
+        .filter-group select:hover {
+            background-color: rgba(0, 245, 255, 0.05);
+            border-color: #00f5ff;
+            box-shadow: 0 0 12px rgba(0, 245, 255, 0.15);
+        }
+        
+        .filter-group select:focus {
+            outline: none;
+            background-color: rgba(0, 245, 255, 0.08);
+            border-color: #00f5ff;
+            box-shadow: 0 0 16px rgba(0, 245, 255, 0.25);
+        }
+        
+        /* ドロップダウンオプションのスタイル */
+        .filter-group select option {
+            background: #0f1419;
+            color: #ffffff; 
+            padding: 12px 16px;
+            border: none;
+            font-size: 14px;
+            font-weight: 500;
+            line-height: 1.4;
+            border-bottom: 1px solid rgba(68, 68, 68, 0.3);
+        }
+        
+        .filter-group select option:hover {
+            background: linear-gradient(135deg, #00f5ff 0%, #0db8de 100%) !important;
+            color: #000000 !important;
+            font-weight: 600;
+        }
+        
+        .filter-group select option:checked,
+        .filter-group select option:focus {
+            background: linear-gradient(135deg, #0db8de 0%, #008bb3 100%);
+            color: #ffffff;
+            font-weight: 600;
+            box-shadow: inset 0 0 8px rgba(0, 245, 255, 0.3);
+        }
+        
+        /* 入力フィールドのスタイル改善 */
+        .filter-group input:focus {
+            outline: none;
+            background-color: rgba(0, 245, 255, 0.05);
+            border-color: #00f5ff;
+            box-shadow: 0 0 12px rgba(0, 245, 255, 0.2);
+        }
+        
+        .skins-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 1.5rem;
+            align-items: stretch;
+        }
+        
+        .skin-card {
+            background: rgba(15, 25, 35, 0.95);
+            border: 1px solid #444;
+            border-radius: 12px;
+            overflow: hidden;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            backdrop-filter: blur(10px);
+            display: flex;
+            flex-direction: column;
+            height: auto;
+            min-height: 380px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+        
+        .skin-card:hover {
+            border-color: #ff4655;
+            transform: translateY(-8px);
+            box-shadow: 0 16px 32px rgba(255, 70, 85, 0.25), 0 8px 16px rgba(0, 0, 0, 0.2);
+        }
+        
+        .skin-image {
+            width: 100%;
+            height: 200px;
+            object-fit: contain;
+            object-position: center;
+            background: linear-gradient(135deg, #1a1a2e, #16213e);
+            flex-shrink: 0;
+            padding: 0.75rem;
+            border-radius: 8px 8px 0 0;
+            transition: transform 0.3s ease;
+        }
+        
+        .skin-card:hover .skin-image {
+            transform: scale(1.02);
+        }
+        
+        .skin-info {
+            padding: 1.25rem 1.75rem;
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+        
+        .skin-name {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: #fff;
+            margin-bottom: 0.5rem;
+            line-height: 1.3;
+            word-wrap: break-word;
+            hyphens: auto;
+            overflow-wrap: break-word;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-height: 2.6em;
+        }
+        
+        .skin-weapon {
+            color: #888;
+            font-size: 0.9rem;
+            margin-bottom: 1rem;
+            font-weight: 500;
+        }
+        
+        .skin-details {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 1rem;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+        
+        .skin-price {
+            font-size: 1rem;
+            font-weight: 600;
+            color: #ff4655;
+            white-space: nowrap;
+        }
+        
+        .skin-rarity {
+            padding: 0.25rem 0.6rem;
+            border-radius: 15px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            white-space: nowrap;
+            text-align: center;
+            flex-shrink: 0;
+        }
+        
+        .rarity-select { background: #4CAF50; color: white; }
+        .rarity-deluxe { background: #2196F3; color: white; }
+        .rarity-premium { background: #9C27B0; color: white; }
+        .rarity-ultra { background: #FF9800; color: white; }
+        .rarity-exclusive { background: #F44336; color: white; }
+        .rarity-legendary { background: #FFC107; color: black; }
+        
+        .skin-collection {
+            color: #aaa;
+            font-size: 0.8rem;
+            margin-top: auto;
+            line-height: 1.2;
+            word-wrap: break-word;
+        }
+        
+        .search-section {
+            background: rgba(15, 25, 35, 0.95);
+            border: 1px solid #ff4655;
+            border-radius: 12px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            text-align: center;
+        }
+        
+        .search-input {
+            width: 100%;
+            max-width: 400px;
+            padding: 0.75rem;
+            border: 1px solid #444;
+            border-radius: 8px;
+            background: rgba(0, 0, 0, 0.3);
+            color: white;
+            font-size: 1rem;
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 4rem 2rem;
+            color: #888;
+            font-size: 1.1rem;
+        }
+        
+        .loading::before {
+            content: "⏳";
+            margin-right: 0.5rem;
+            animation: spin 2s linear infinite;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .no-results {
+            text-align: center;
+            padding: 4rem 2rem;
+            color: #888;
+            font-size: 1.1rem;
+            line-height: 1.6;
+        }
+        
+        .no-results small {
+            display: block;
+            margin-top: 0.5rem;
+            font-size: 0.9rem;
+            color: #aaa;
+        }
+        
+        /* 背景スタイル */
+        body {
+            margin: 0;
+            background: linear-gradient(135deg, #0f1419 0%, #1a252f 50%, #2d3748 100%);
+            min-height: 100vh;
+            color: white;
+            font-family: 'Inter', 'Noto Sans JP', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        }
+        
+        .background {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #0f1419 0%, #1a252f 50%, #2d3748 100%);
+            z-index: -1;
+            overflow: hidden;
+        }
+        
+        .background::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: 
+                radial-gradient(circle at 25% 25%, rgba(255, 70, 85, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 75% 75%, rgba(59, 130, 246, 0.08) 0%, transparent 50%);
+            animation: movePattern 20s ease-in-out infinite;
+        }
+        
+        .background::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                linear-gradient(45deg, transparent 49%, rgba(255, 70, 85, 0.02) 50%, transparent 51%),
+                linear-gradient(-45deg, transparent 49%, rgba(59, 130, 246, 0.02) 50%, transparent 51%);
+            background-size: 60px 60px;
+            animation: pulse 4s ease-in-out infinite;
+        }
+        
+        @keyframes movePattern {
+            0%, 100% { transform: translate(0, 0) rotate(0deg); }
+            50% { transform: translate(-30px, -30px) rotate(180deg); }
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 0.5; }
+            50% { opacity: 1; }
+        }
+        
+        h2, h3 {
+            color: #ff4655;
+        }
+        
+        /* グローバルリセット */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        html, body {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+        
+        /* レスポンシブヘッダー */
+        .app-header {
+            position: sticky;
+            top: 0;
+            left: 0;
+            right: 0;
+            width: 100%;
+            padding: 0.75rem 0;
+            background-color: rgba(15, 25, 35, 0.98);
+            border-bottom: 2px solid #ff4655;
+            backdrop-filter: blur(15px);
+            box-shadow: 0 2px 20px rgba(0, 0, 0, 0.4);
+            z-index: 999;
+            transition: all 0.3s ease;
+        }
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 1rem;
+            width: 100%;
+            min-height: 60px;
+        }
+        
+        .nav-buttons {
+            display: flex;
+            gap: 0.5rem;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        
+        .author-section {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: #fff;
+            flex-shrink: 0;
+        }
+        
+        .author-text {
+            margin: 0;
+            font-size: 0.85rem;
+            font-weight: 600;
+            text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.5);
+            white-space: nowrap;
+            color: #fff;
+            display: block;
+        }
+        
+        .author-avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            border: 2px solid #ff4655;
+            object-fit: cover;
+            flex-shrink: 0;
+        }
+        .app-header button,
+        .app-header a.header-button {
+            background-color: #ff4655;
+            color: white;
+            border: none;
+            padding: 0.6rem 1rem;
+            margin: 0;
+            font-size: 0.9rem;
+            font-weight: 600;
+            cursor: pointer;
+            border-radius: 6px;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            white-space: nowrap;
+            min-height: 40px;
+            box-shadow: 0 2px 8px rgba(255, 70, 85, 0.3);
+        }
+        .app-header button:hover,
+        .app-header a.header-button:hover {
+            background-color: #e0303f;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(255, 70, 85, 0.4);
+        }
+        .app-header button.active,
+        .app-header a.header-button.active {
+            background-color: #22c55e; /* 緑などでアクティブ状態を示す */
+            box-shadow: 0 0 15px rgba(34, 197, 94, 0.5);
+            text-decoration: none; /* アクティブ時も下線を消す */
+        }
+        .hidden {
+            display: none !important;
+        }
+        #showOverlayModeLink {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        #showTrackerModeLink {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .author-section {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: #fff;
+        }
+        .author-text {
+            margin: 0;
+            font-size: 0.9em;
+            font-weight: 600;
+            text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.5);
+        }
+        .author-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            border: 2px solid #ff4655;
+            object-fit: cover;
+        }
+        /* ハンバーガーメニュー */
+        .hamburger-menu {
+            display: none;
+            flex-direction: column;
+            justify-content: center;
+            cursor: pointer;
+            padding: 8px;
+            border-radius: 6px;
+            transition: all 0.3s ease;
+            min-width: 40px;
+            min-height: 40px;
+            background-color: transparent;
+            border: 1px solid transparent;
+        }
+        
+        .hamburger-menu:hover {
+            background-color: rgba(255, 70, 85, 0.1);
+            border-color: rgba(255, 70, 85, 0.3);
+        }
+        
+        .hamburger-line {
+            width: 22px;
+            height: 2px;
+            background-color: #fff;
+            margin: 2px 0;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            border-radius: 2px;
+        }
+        
+        .hamburger-menu.active .hamburger-line:nth-child(1) {
+            transform: rotate(45deg) translate(6px, 6px);
+        }
+        
+        .hamburger-menu.active .hamburger-line:nth-child(2) {
+            opacity: 0;
+        }
+        
+        .hamburger-menu.active .hamburger-line:nth-child(3) {
+            transform: rotate(-45deg) translate(6px, -6px);
+        }
+        
+        .mobile-nav {
+            display: none;
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: rgba(15, 25, 35, 0.98);
+            backdrop-filter: blur(15px);
+            border-top: 1px solid rgba(255, 70, 85, 0.3);
+            padding: 1rem;
+            z-index: 1000;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+            border-bottom: 2px solid rgba(255, 70, 85, 0.5);
+            animation: slideDown 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        .mobile-nav.active {
+            display: block;
+        }
+        
+        .mobile-nav-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+            max-width: 400px;
+            margin: 0 auto;
+        }
+        
+        .mobile-nav .header-button {
+            width: 100%;
+            text-align: center;
+            padding: 1rem 1.5rem;
+            margin: 0;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            background-color: rgba(255, 70, 85, 0.1);
+            border: 1px solid rgba(255, 70, 85, 0.3);
+            transition: all 0.3s ease;
+            min-height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .mobile-nav .header-button:hover {
+            background-color: rgba(255, 70, 85, 0.2);
+            transform: translateY(-1px);
+        }
+        
+        .mobile-nav .header-button.active {
+            background-color: rgba(34, 197, 94, 0.2);
+            border-color: rgba(34, 197, 94, 0.5);
+        }
+        
+        /* 背景スタイル */
+        .background {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #0f1419 0%, #1a252f 50%, #2d3748 100%);
+            z-index: -1;
+            overflow: hidden;
+        }
+        
+        .background::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: 
+                radial-gradient(circle at 25% 25%, rgba(255, 70, 85, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 75% 75%, rgba(59, 130, 246, 0.08) 0%, transparent 50%);
+            animation: movePattern 20s ease-in-out infinite;
+        }
+        
+        .background::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                linear-gradient(45deg, transparent 49%, rgba(255, 70, 85, 0.02) 50%, transparent 51%),
+                linear-gradient(-45deg, transparent 49%, rgba(59, 130, 246, 0.02) 50%, transparent 51%);
+            background-size: 60px 60px;
+            animation: pulse 4s ease-in-out infinite;
+        }
+        
+        @keyframes movePattern {
+            0%, 100% { transform: translate(0, 0) rotate(0deg); }
+            50% { transform: translate(-30px, -30px) rotate(180deg); }
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 0.5; }
+            50% { opacity: 1; }
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        /* レスポンシブブレイクポイント */
+        @media screen and (max-width: 1200px) {
+            .skins-grid {
+                grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+                gap: 1.25rem;
+            }
+        }
+        
+        @media screen and (max-width: 1024px) {
+            .nav-buttons {
+                gap: 0.25rem;
+            }
+            
+            .app-header a.header-button {
+                padding: 0.5rem 0.75rem;
+                font-size: 0.85rem;
+            }
+            
+            .skins-container {
+                padding: 0 0.75rem;
+            }
+            
+            .filters-grid {
+                grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+                gap: 0.75rem;
+            }
+        }
+        
+        @media screen and (max-width: 768px) {
+            .app-header {
+                padding: 0.5rem 0;
+            }
+            
+            .header-content {
+                padding: 0 1rem;
+                min-height: 56px;
+            }
+            
+            .nav-buttons {
+                display: none;
+            }
+            
+            .hamburger-menu {
+                display: flex;
+            }
+            
+            .author-text {
+                font-size: 0.8rem;
+            }
+            
+            .author-avatar {
+                width: 32px;
+                height: 32px;
+            }
+            
+            .skins-grid {
+                grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+                gap: 1rem;
+            }
+            
+            .skin-card {
+                min-height: 350px;
+            }
+            
+            .skin-image {
+                height: 180px;
+            }
+            
+            .skin-info {
+                padding: 1rem;
+            }
+            
+            .filters-section,
+            .search-section {
+                padding: 1.5rem;
+            }
+            
+            .filters-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 0.75rem;
+            }
+            
+            .filters-actions {
+                width: 100%;
+                justify-content: space-between;
+            }
+            
+            .filters-grid {
+                grid-template-columns: 1fr;
+                gap: 1rem;
+            }
+        }
+        
+        @media screen and (max-width: 480px) {
+            .header-content {
+                padding: 0 0.75rem;
+                min-height: 52px;
+            }
+            
+            .author-text {
+                font-size: 0.75rem;
+                display: block;
+            }
+            
+            .hamburger-menu {
+                min-width: 36px;
+                min-height: 36px;
+                padding: 6px;
+            }
+            
+            .hamburger-line {
+                width: 20px;
+            }
+            
+            .mobile-nav {
+                padding: 0.75rem;
+            }
+            
+            .mobile-nav .header-button {
+                padding: 0.875rem 1rem;
+                font-size: 0.95rem;
+                min-height: 46px;
+            }
+            
+            .skins-container {
+                padding: 0 0.5rem;
+            }
+            
+            .skins-grid {
+                grid-template-columns: 1fr;
+                gap: 1rem;
+            }
+            
+            .skin-card {
+                min-height: 320px;
+                max-width: 100%;
+            }
+            
+            .skin-image {
+                height: 160px;
+            }
+            
+            .skin-name {
+                font-size: 1rem;
+            }
+            
+            .skin-details {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 0.5rem;
+            }
+            
+            .skin-rarity {
+                align-self: flex-start;
+            }
+            
+            .filters-section,
+            .search-section {
+                padding: 1rem;
+                margin-bottom: 1rem;
+            }
+            
+            .filters-header {
+                flex-direction: column;
+                align-items: stretch;
+                gap: 0.5rem;
+                margin-bottom: 1rem;
+            }
+            
+            .filters-actions {
+                flex-direction: column;
+                align-items: stretch;
+                gap: 0.5rem;
+            }
+            
+            .filter-stats {
+                text-align: center;
+                font-size: 0.85rem;
+            }
+            
+            .clear-filters-btn {
+                width: 100%;
+                text-align: center;
+                padding: 0.75rem;
+            }
+            
+            .search-input {
+                font-size: 16px; /* iOSで拡大されるのを防ぐ */
+            }
+        }
+    </style>
+</head>
+    <body>
+    <div class="background"></div>
+    
+    <header class="app-header">
+        <div class="header-content">
+            <div class="nav-buttons">
+                <a href="/" id="showOverlayModeLink" class="header-button">OBSオーバーレイ</a>
+                <a href="./valorant-stats-tracker/" id="showTrackerModeLink" class="header-button">戦績トラッカー</a>
+                <a href="/match-history.html" class="header-button">マッチ履歴</a>
+                <a href="/skins-database.html" class="header-button active">スキンDB</a>
+                <a href="/leaderboard.html" class="header-button">ランキング</a>
+            </div>
+            
+            <!-- ハンバーガーメニューボタン -->
+            <div class="hamburger-menu" id="hamburgerMenu">
+                <div class="hamburger-line"></div>
+                <div class="hamburger-line"></div>
+                <div class="hamburger-line"></div>
+            </div>
+            
+            <div class="author-section">
+                <p class="author-text">Project by にど寝</p>
+                <img src="assets/images/nidone.png" alt="製作者アバター" class="author-avatar">
+            </div>
+        </div>
+        
+        <!-- モバイル用ナビゲーション -->
+        <div class="mobile-nav" id="mobileNav">
+            <div class="mobile-nav-buttons">
+                <a href="/" class="header-button">OBSオーバーレイ</a>
+                <a href="./valorant-stats-tracker/" class="header-button">戦績トラッカー</a>
+                <a href="/match-history.html" class="header-button">マッチ履歴</a>
+                <a href="/skins-database.html" class="header-button active">スキンDB</a>
+                <a href="/leaderboard.html" class="header-button">ランキング</a>
+            </div>
+        </div>
+    </header>
+    
+    <div class="background"></div>
+    
+    <div class="skins-container">
+        <div class="search-section">
+            <h2>🎨 スキンデータベース</h2>
+            <p style="color: #888; margin-bottom: 1rem; font-size: 0.9rem;">
+                VALORANT-API.COMから最新のスキン情報を取得
+            </p>
+            <input type="text" id="searchInput" class="search-input" placeholder="スキン名、武器名（ヴァンダル、ファントム等）、コレクション名で検索...">
+        </div>
+        
+        <div class="filters-section">
+            <div class="filters-header">
+                <h3>🔍 フィルター</h3>
+                <div class="filters-actions">
+                    <span id="filterStats" class="filter-stats">スキン読み込み中...</span>
+                    <button id="clearFiltersBtn" class="clear-filters-btn" onclick="clearFilters()">
+                        クリア
+                    </button>
+                </div>
+            </div>
+            
+            <div class="filters-grid">
+                <div class="filter-group">
+                    <label for="weaponFilter">武器名</label>
+                    <select id="weaponFilter">
+                        <option value="">すべての武器</option>
+                        <!-- 動的に生成されるオプション -->
+                    </select>
+                </div>
+                
+                <div class="filter-group">
+                    <label for="rarityFilter">レアリティ</label>
+                    <select id="rarityFilter">
+                        <option value="">すべてのレアリティ</option>
+                        <option value="select">セレクト</option>
+                        <option value="deluxe">デラックス</option>
+                        <option value="premium">プレミアム</option>
+                        <option value="ultra">ウルトラ</option>
+                        <option value="exclusive">エクスクルーシブ</option>
+                        <!-- レジェンダリーは実際に存在する場合のみ動的に追加 -->
+                    </select>
+                </div>
+                
+                <div class="filter-group">
+                    <label for="priceFilter">価格範囲</label>
+                    <select id="priceFilter">
+                        <option value="">すべての価格</option>
+                        <option value="0-0">無料</option>
+                        <option value="875-875">875 VP (セレクト/デラックス)</option>
+                        <option value="1775-1775">1775 VP (プレミアム)</option>
+                        <option value="2475-2475">2475 VP (ウルトラ)</option>
+                        <option value="3550-3550">3550 VP (エクスクルーシブ)</option>
+                        <option value="1775-99999">1775 VP以上 (プレミアム以上)</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+        
+        <div id="skinsGrid" class="skins-grid">
+            <!-- スキンカードがここに表示されます -->
+        </div>
+        
+        <div id="loadingMessage" class="loading">
+            スキン情報を読み込み中...
+        </div>
+    </div>
+    
+    <script>
+        // ハンバーガーメニューの動作（完全統一版）
+        function initializeHamburgerMenu() {
+            const hamburgerMenu = document.getElementById('hamburgerMenu');
+            const mobileNav = document.getElementById('mobileNav');
+            
+            if (!hamburgerMenu || !mobileNav) {
+                console.warn('ハンバーガーメニューまたはモバイルナビが見つかりません');
+                return;
+            }
+            
+            // ハンバーガーメニューのクリックイベント
+            hamburgerMenu.addEventListener('click', function(event) {
+                event.stopPropagation();
+                hamburgerMenu.classList.toggle('active');
+                mobileNav.classList.toggle('active');
+                
+                // アクセシビリティのためのaria属性を更新
+                const isActive = hamburgerMenu.classList.contains('active');
+                hamburgerMenu.setAttribute('aria-expanded', isActive);
+                mobileNav.setAttribute('aria-hidden', !isActive);
+            });
+            
+            // モバイルナビのリンクをクリックしたときにメニューを閉じる
+            const mobileNavLinks = mobileNav.querySelectorAll('.header-button');
+            mobileNavLinks.forEach(link => {
+                link.addEventListener('click', () => {
+                    closeHamburgerMenu();
+                });
+            });
+            
+            // 画面外をクリックしたときにメニューを閉じる
+            document.addEventListener('click', function(event) {
+                if (!hamburgerMenu.contains(event.target) && 
+                    !mobileNav.contains(event.target) && 
+                    mobileNav.classList.contains('active')) {
+                    closeHamburgerMenu();
+                }
+            });
+            
+            // ESCキーでメニューを閉じる
+            document.addEventListener('keydown', function(event) {
+                if (event.key === 'Escape' && mobileNav.classList.contains('active')) {
+                    closeHamburgerMenu();
+                }
+            });
+            
+            // ウィンドウリサイズ時にメニューを閉じる（デスクトップビューに戻った場合）
+            window.addEventListener('resize', function() {
+                if (window.innerWidth > 768 && mobileNav.classList.contains('active')) {
+                    closeHamburgerMenu();
+                }
+            });
+            
+            // メニューを閉じる共通関数
+            function closeHamburgerMenu() {
+                hamburgerMenu.classList.remove('active');
+                mobileNav.classList.remove('active');
+                hamburgerMenu.setAttribute('aria-expanded', false);
+                mobileNav.setAttribute('aria-hidden', true);
+            }
+            
+            // 初期状態のaria属性を設定
+            hamburgerMenu.setAttribute('aria-expanded', false);
+            hamburgerMenu.setAttribute('aria-label', 'メニューを開く');
+            mobileNav.setAttribute('aria-hidden', true);
+            
+            console.log('ハンバーガーメニューが正常に初期化されました');
+        }
+
+        // グローバル変数
+        let allSkins = [];
+        let currentSkins = [];
+        let weaponCategories = {};
+        let contentTiers = {};
+        
+        // VALORANT APIからデータを取得する関数
+        async function fetchValorantData() {
+            try {
+                console.log('[API] VALORANT データ取得開始...');
+                document.getElementById('loadingMessage').style.display = 'block';
+                
+                // 並行してすべてのデータを取得
+                const [skinsResponse, weaponsResponse, tiersResponse] = await Promise.all([
+                    fetch('https://valorant-api.com/v1/weapons/skins'),
+                    fetch('https://valorant-api.com/v1/weapons'),
+                    fetch('https://valorant-api.com/v1/contenttiers')
+                ]);
+                
+                if (!skinsResponse.ok || !weaponsResponse.ok || !tiersResponse.ok) {
+                    throw new Error('API応答エラー');
+                }
+                
+                const skinsData = await skinsResponse.json();
+                const weaponsData = await weaponsResponse.json();
+                const tiersData = await tiersResponse.json();
+                
+                console.log('[API] データ取得成功');
+                console.log(`[API] スキン数: ${skinsData.data.length}`);
+                console.log(`[API] 武器数: ${weaponsData.data.length}`);
+                console.log(`[API] ティア数: ${tiersData.data.length}`);
+                
+                // 武器カテゴリマッピングを作成
+                console.log(`[Weapon] ${weaponsData.data.length}個の武器データを処理中`);
+                
+                weaponsData.data.forEach(weapon => {
+                    let category = 'other';
+                    
+                    if (weapon.category) {
+                        // "EEquippableCategory::Heavy" -> "heavy" のように変換
+                        const categoryParts = weapon.category.split('::');
+                        if (categoryParts.length > 1) {
+                            category = categoryParts[1].toLowerCase();
+                        } else {
+                            category = weapon.category.toLowerCase();
+                        }
+                    }
+                    
+                    // カテゴリ名の正規化
+                    const categoryMap = {
+                        'heavy': 'sniper rifle',
+                        'rifle': 'assault rifle', 
+                        'smg': 'submachine gun',
+                        'shotgun': 'shotgun',
+                        'sidearm': 'sidearm',
+                        'melee': 'melee',
+                        'lmg': 'machine gun'
+                    };
+                    
+                    category = categoryMap[category] || 'other';
+                    
+                    // すべての武器を登録（unknownもotherとして登録）
+                    weaponCategories[weapon.uuid] = {
+                        name: weapon.displayName,
+                        category: category
+                    };
+                    
+                    console.log(`[Weapon] ${weapon.displayName}: ${category} (Original: ${weapon.category})`);
+                });
+                
+                console.log(`[Weapon] 武器カテゴリマッピング完了: ${Object.keys(weaponCategories).length}個`);
+                console.log(`[Weapon] カテゴリ統計:`, getWeaponCategoryStats());
+                
+                        // ティア情報をマッピング
+        console.log(`[Tier] ${tiersData.data.length}個のContent Tierを処理中`);
+        
+        tiersData.data.forEach(tier => {
+            contentTiers[tier.uuid] = {
+                name: tier.displayName,
+                rank: tier.rank || 0,
+                devName: tier.devName || '',
+                highlightColor: tier.highlightColor || '',
+                uuid: tier.uuid
+            };
+            
+            // 詳細なティア情報をログ出力（最初の10個のみ）
+            if (window.tierDetailLogCount === undefined) window.tierDetailLogCount = 0;
+            if (window.tierDetailLogCount < 10) {
+                console.log(`[Tier Detail] ${tier.displayName}:`, {
+                    rank: tier.rank,
+                    devName: tier.devName,
+                    highlightColor: tier.highlightColor,
+                    uuid: tier.uuid
+                });
+                window.tierDetailLogCount++;
+            }
+        });
+        
+        // ティアを価格順にソートして表示
+        const sortedTiers = Object.values(contentTiers).sort((a, b) => a.rank - b.rank);
+        console.log(`[Tier] Content Tierマッピング完了: ${Object.keys(contentTiers).length}個`);
+        console.log(`[Tier] 価格順ティア (上位10個):`, 
+            sortedTiers.slice(0, 10).map(t => `${t.name} (rank: ${t.rank})`));
+                
+                // スキンデータを処理
+                allSkins = processSkinsData(skinsData.data);
+                currentSkins = [...allSkins];
+                
+                console.log(`[API] 処理されたスキン数: ${allSkins.length}`);
+                
+                // スキンが0個の場合は警告表示
+                if (allSkins.length === 0) {
+                    document.getElementById('loadingMessage').innerHTML = `
+                        <div style="color: #ff4655;">
+                            <h3>⚠️ 警告</h3>
+                            <p>処理可能なスキンデータが見つかりませんでした。</p>
+                            <button onclick="debugFilterData()" style="margin-top: 1rem; padding: 0.5rem 1rem; background: #ff4655; color: white; border: none; border-radius: 4px; cursor: pointer;">
+                                デバッグ情報表示
+                            </button>
+                        </div>
+                    `;
+                    return;
+                }
+                
+                document.getElementById('loadingMessage').style.display = 'none';
+                
+                // フィルター機能を初期化
+                initializeFilters();
+                
+                // スキンを表示
+                displaySkins(currentSkins);
+                updateFilterStats(currentSkins.length, allSkins.length);
+                
+                console.log('[API] 初期化完了！');
+                
+            } catch (error) {
+                console.error('[API] データ取得エラー:', error);
+                document.getElementById('loadingMessage').innerHTML = `
+                    <div style="color: #ff4655;">
+                        <h3>❌ エラーが発生しました</h3>
+                        <p>VALORANT APIからデータを取得できませんでした。</p>
+                        <button onclick="fetchValorantData()" style="margin-top: 1rem; padding: 0.5rem 1rem; background: #ff4655; color: white; border: none; border-radius: 4px; cursor: pointer;">
+                            再試行
+                        </button>
+                    </div>
+                `;
+            }
+        }
+        
+        // スキンデータを処理する関数
+        function processSkinsData(skinsData) {
+            const processedSkins = [];
+            let skippedCount = 0;
+            let processedCount = 0;
+            
+            console.log(`[Process] ${skinsData.length}個のスキンデータを処理開始`);
+            
+            skinsData.forEach(skin => {
+                // デフォルトスキンや画像がないスキンをスキップ
+                if (!skin.displayIcon || 
+                    skin.displayName === 'Standard' || 
+                    skin.displayName.includes('Random Favorite') ||
+                    !skin.contentTierUuid) {
+                    skippedCount++;
+                    return;
+                }
+                
+                // 武器情報を取得
+                const weaponInfo = weaponCategories[skin.weaponUuid];
+                
+                // 武器情報がない場合はフォールバック処理
+                let normalizedCategory = 'other';
+                let weaponName = 'Unknown';
+                
+                if (weaponInfo && weaponInfo.category) {
+                    normalizedCategory = weaponInfo.category.toLowerCase().trim();
+                    weaponName = weaponInfo.name;
+                } else {
+                    // 武器情報がない場合はログに記録するが、スキンは表示
+                    console.log(`[Warning] 武器情報なし: ${skin.displayName} (UUID: ${skin.weaponUuid})`);
+                    // スキンの名前から武器名を推測
+                    weaponName = extractWeaponFromName(skin.displayName);
+                }
+                
+                // 'unknown'カテゴリも表示するように変更（フィルターで除外可能）
+                if (normalizedCategory === 'unknown' || normalizedCategory === '') {
+                    normalizedCategory = 'other';
+                    console.log(`[Info] 不明な武器タイプをotherに変更: ${skin.displayName}`);
+                }
+                
+                // ティア情報を取得
+                const tierInfo = contentTiers[skin.contentTierUuid] || {
+                    name: 'Unknown',
+                    rank: 0
+                };
+                
+                // レアリティを判定
+                const rarity = determineRarity(tierInfo);
+                
+                // レアリティ判定のログ（最初の10個のみ）
+                if (processedCount < 10) {
+                    console.log(`[Rarity Sample] ${skin.displayName}: ${rarity} (Tier: ${tierInfo.name}, Rank: ${tierInfo.rank})`);
+                }
+                
+                // 価格を推定（ティア情報とスキン名ベース）
+                const price = estimatePrice(tierInfo.rank, tierInfo.name, skin.displayName);
+                
+                // コレクション名を処理
+                const collection = extractCollectionName(skin.displayName, skin.themeUuid);
+                
+                processedSkins.push({
+                    uuid: skin.uuid,
+                    name: translateSkinName(skin.displayName), // 日本語スキン名
+                    originalName: skin.displayName, // 元の英語名（検索用）
+                    weapon: getJapaneseWeaponName(weaponName), // 日本語武器名
+                    weaponEnglish: weaponName, // 英語武器名（フィルター用）
+                    weaponType: normalizedCategory,
+                    weaponUuid: skin.weaponUuid,
+                    price: price,
+                    rarity: rarity,
+                    collection: collection,
+                    image: skin.displayIcon,
+                    wallpaper: skin.wallpaper,
+                    tierRank: tierInfo.rank,
+                    tierName: tierInfo.name,
+                    themeUuid: skin.themeUuid
+                });
+                processedCount++;
+            });
+            
+            console.log(`[Process] 処理完了: ${processedCount}個処理, ${skippedCount}個スキップ`);
+            
+            const rarityStats = getRarityStats(processedSkins);
+            const priceStats = getPriceStats(processedSkins);
+            const weaponStats = getWeaponStats(processedSkins);
+            
+            console.log(`[Process] レアリティ分布:`, rarityStats);
+            console.log(`[Process] 価格統計:`, priceStats);
+            console.log(`[Process] 武器統計:`, weaponStats);
+            
+            // 名前でソート
+            return processedSkins.sort((a, b) => a.name.localeCompare(b.name));
+        }
+        
+        // 武器名の日本語マッピング
+        function getJapaneseWeaponName(englishName) {
+            const weaponNameMap = {
+                'Phantom': 'ファントム',
+                'Vandal': 'ヴァンダル', 
+                'Operator': 'オペレーター',
+                'Sheriff': 'シェリフ',
+                'Ghost': 'ゴースト',
+                'Classic': 'クラシック',
+                'Frenzy': 'フレンジー',
+                'Stinger': 'スティンガー',
+                'Spectre': 'スペクター',
+                'Judge': 'ジャッジ',
+                'Bucky': 'バッキー',
+                'Bulldog': 'ブルドッグ',
+                'Guardian': 'ガーディアン',
+                'Marshal': 'マーシャル',
+                'Odin': 'オーディン',
+                'Ares': 'アレス',
+                'Knife': 'ナイフ',
+                'Karambit': 'カランビット',
+                'Axe': 'アックス',
+                'Sword': 'ソード',
+                'Shorty': 'ショーティー',
+                'Unknown': '近接武器'
+            };
+            
+            return weaponNameMap[englishName] || englishName;
+        }
+        
+        // スキン名の日本語翻訳マッピング
+        function translateSkinName(englishName) {
+            // コレクション名の翻訳マッピング
+            const collectionMap = {
+                'Abyssal': 'アビサル',
+                'Prime': 'プライム',
+                'Elderflame': 'エルダーフレイム',
+                'Reaver': 'リーバー',
+                'Singularity': 'シンギュラリティ',
+                'Ion': 'イオン',
+                'Sovereign': 'ソブリン',
+                'Dragon': 'ドラゴン',
+                'Oni': '鬼',
+                'Glitchpop': 'グリッチポップ',
+                'Spectrum': 'スペクトラム',
+                'RGX 11z Pro': 'RGX 11z プロ',
+                'Protocol 781-A': 'プロトコル 781-A',
+                'Champions': 'チャンピオンズ',
+                'Sentinels of Light': 'センチネルズ・オブ・ライト',
+                'Ruination': 'ルイネーション',
+                'Forsaken': 'フォーセイクン',
+                'Magepunk': 'メイジパンク',
+                'Blastx': 'ブラストX',
+                'Nebula': 'ネビュラ',
+                'Avalanche': 'アバランチ',
+                'Wasteland': 'ウェイストランド',
+                'Luxe': 'リュクス',
+                'Minima': 'ミニマ',
+                'Serenity': 'セレニティ',
+                'Sakura': '桜',
+                'Tigris': 'ティグリス',
+                'Convex': 'コンベックス',
+                'Depths': 'デプス',
+                'Velocity': 'ベロシティ',
+                'Infinity': 'インフィニティ',
+                'Standard': 'スタンダード',
+                'Rush': 'ラッシュ',
+                'Frenzy': 'フレンジー',
+                'Tidal': 'タイダル',
+                'Smite': 'スマイト',
+                'Dot Exe': 'ドット・エグゼ',
+                'POLYfox': 'ポリフォックス',
+                'Artisan': 'アルチザン',
+                'Nunca Olvidados': 'ヌンカ・オルビダドス',
+                'Give Back': 'ギブ・バック',
+                'GO! Vol. 1': 'GO! Vol. 1',
+                'GO! Vol. 2': 'GO! Vol. 2',
+                'Chronovoid': 'クロノヴォイド',
+                'Araxys': 'アラクシス',
+                'Xenohunter': 'ゼノハンター',
+                'Crimsonbeast': 'クリムゾンビースト',
+                'ChronoVoid': 'クロノヴォイド',
+                'VCT LOCK//IN': 'VCT ロックイン',
+                'Prelude to Chaos': 'プレリュード・トゥ・ケイオス',
+                'Neo Frontier': 'ネオ・フロンティア',
+                'Kohaku & Matsuba': '琥珀 & 松葉',
+                'Doodle Buds': 'ドゥードル・バッズ',
+                'Gaialas Vengeance': 'ガイアラズ・ベンジェンス',
+                'Imperium': 'インペリウム',
+                'Kuronami': '黒波',
+                'Outpost': 'アウトポスト',
+                'Mystbloom': 'ミストブルーム',
+                'Hush': 'ハッシュ',
+                'Radiant Entertainment System': 'レディアント・エンターテインメント・システム',
+                'Arcane': 'アーケイン',
+                'Winter Wunderland': 'ウィンター・ワンダーランド',
+                'Hivemind': 'ハイブマインド',
+                'Tethered Realms': 'テザード・レルムズ',
+                'Spline': 'スプライン',
+                'Prism': 'プリズム',
+                'Schema': 'スキーマ',
+                'Task Force 809': 'タスクフォース 809',
+                'Galleria': 'ガレリア',
+                'Bound': 'バウンド',
+                'Gridcrash': 'グリッドクラッシュ',
+                'Sarmad': 'サルマド',
+                'Composite': 'コンポジット',
+                'Endeavour': 'エンデバー',
+                'Ruin': 'ルイン',
+                'Signature': 'シグネチャー',
+                'Snowfall': 'スノーフォール',
+                'Moondash': 'ムーンダッシュ',
+                'Magepunk': 'メイジパンク',
+                'No Limits': 'ノー・リミッツ',
+                'K/TAC': 'K/TAC',
+                'Immortalized': 'イモータライズド',
+                'Cryostasis': 'クライオスタシス',
+                'BlastX': 'ブラストX'
+            };
+            
+            // 武器名の翻訳マッピング
+            const weaponTermMap = {
+                'Phantom': 'ファントム',
+                'Vandal': 'ヴァンダル',
+                'Operator': 'オペレーター',
+                'Sheriff': 'シェリフ',
+                'Ghost': 'ゴースト',
+                'Classic': 'クラシック',
+                'Frenzy': 'フレンジー',
+                'Stinger': 'スティンガー',
+                'Spectre': 'スペクター',
+                'Judge': 'ジャッジ',
+                'Bucky': 'バッキー',
+                'Bulldog': 'ブルドッグ',
+                'Guardian': 'ガーディアン',
+                'Marshal': 'マーシャル',
+                'Odin': 'オーディン',
+                'Ares': 'アレス',
+                'Knife': 'ナイフ',
+                'Karambit': 'カランビット',
+                'Axe': 'アックス',
+                'Sword': 'ソード',
+                'Shorty': 'ショーティー',
+                'Gauntlets': 'ガントレット',
+                'Claws': 'クロー',
+                'Butterfly Knife': 'バタフライナイフ',
+                'Tactical Knife': 'タクティカルナイフ',
+                'Melee': '近接武器'
+            };
+            
+            // バリアント名と一般用語の翻訳
+            const variantMap = {
+                'Level': 'レベル',
+                'Variant': 'バリアント',
+                'Edition': 'エディション',
+                'Collection': 'コレクション',
+                'Default': 'デフォルト',
+                'Premium': 'プレミアム',
+                'Standard': 'スタンダード',
+                'Deluxe': 'デラックス',
+                'Ultimate': 'アルティメット',
+                'Limited': 'リミテッド',
+                'Exclusive': 'エクスクルーシブ',
+                'Special': 'スペシャル',
+                'Legendary': 'レジェンダリー',
+                'Epic': 'エピック',
+                'Rare': 'レア',
+                'Common': 'コモン',
+                'Uncommon': 'アンコモン'
+            };
+            
+            // 一般的な形容詞・用語の翻訳
+            const generalTermMap = {
+                'Royal': 'ロイヤル',
+                'Divine': 'ディバイン',
+                'Celestial': 'セレスティアル',
+                'Infernal': 'インファーナル',
+                'Cosmic': 'コズミック',
+                'Quantum': 'クァンタム',
+                'Digital': 'デジタル',
+                'Cyber': 'サイバー',
+                'Neon': 'ネオン',
+                'Crystal': 'クリスタル',
+                'Shadow': 'シャドウ',
+                'Light': 'ライト',
+                'Dark': 'ダーク',
+                'Golden': 'ゴールデン',
+                'Silver': 'シルバー',
+                'Bronze': 'ブロンズ',
+                'Platinum': 'プラチナ',
+                'Diamond': 'ダイヤモンド',
+                'Ruby': 'ルビー',
+                'Emerald': 'エメラルド',
+                'Sapphire': 'サファイア',
+                'Fire': 'ファイア',
+                'Ice': 'アイス',
+                'Lightning': 'ライトニング',
+                'Storm': 'ストーム',
+                'Thunder': 'サンダー',
+                'Wind': 'ウィンド',
+                'Earth': 'アース',
+                'Water': 'ウォーター',
+                'Blood': 'ブラッド',
+                'Death': 'デス',
+                'Life': 'ライフ',
+                'War': 'ウォー',
+                'Peace': 'ピース',
+                'Honor': 'オナー',
+                'Glory': 'グローリー',
+                'Victory': 'ビクトリー',
+                'Champion': 'チャンピオン',
+                'Master': 'マスター',
+                'Elite': 'エリート',
+                'Pro': 'プロ',
+                'Advanced': 'アドバンスド',
+                'Basic': 'ベーシック',
+                'Classic': 'クラシック',
+                'Modern': 'モダン',
+                'Future': 'フューチャー',
+                'Past': 'パスト',
+                'Ancient': 'エンシェント',
+                'Vintage': 'ヴィンテージ',
+                'Retro': 'レトロ'
+            };
+            
+            let translatedName = englishName;
+            
+            // コレクション名を翻訳
+            for (const [english, japanese] of Object.entries(collectionMap)) {
+                const regex = new RegExp(`\\b${english}\\b`, 'gi');
+                translatedName = translatedName.replace(regex, japanese);
+            }
+            
+            // 武器名を翻訳
+            for (const [english, japanese] of Object.entries(weaponTermMap)) {
+                const regex = new RegExp(`\\b${english}\\b`, 'gi');
+                translatedName = translatedName.replace(regex, japanese);
+            }
+            
+            // 一般用語を翻訳
+            for (const [english, japanese] of Object.entries(generalTermMap)) {
+                const regex = new RegExp(`\\b${english}\\b`, 'gi');
+                translatedName = translatedName.replace(regex, japanese);
+            }
+            
+            // バリアント名を翻訳
+            for (const [english, japanese] of Object.entries(variantMap)) {
+                const regex = new RegExp(`\\b${english}\\b`, 'gi');
+                translatedName = translatedName.replace(regex, japanese);
+            }
+            
+            return translatedName;
+        }
+        
+        // スキン名から武器名を推測する関数
+        function extractWeaponFromName(skinName) {
+            const weaponKeywords = {
+                'Phantom': 'Phantom',
+                'Vandal': 'Vandal',
+                'Operator': 'Operator',
+                'Sheriff': 'Sheriff',
+                'Ghost': 'Ghost',
+                'Classic': 'Classic',
+                'Frenzy': 'Frenzy',
+                'Stinger': 'Stinger',
+                'Spectre': 'Spectre',
+                'Judge': 'Judge',
+                'Bucky': 'Bucky',
+                'Bulldog': 'Bulldog',
+                'Guardian': 'Guardian',
+                'Marshal': 'Marshal',
+                'Odin': 'Odin',
+                'Ares': 'Ares',
+                'Knife': 'Knife',
+                'Karambit': 'Knife',
+                'Axe': 'Knife',
+                'Sword': 'Knife',
+                'Shorty': 'Shorty'
+            };
+            
+            for (const [keyword, weapon] of Object.entries(weaponKeywords)) {
+                if (skinName.includes(keyword)) {
+                    return weapon;
+                }
+            }
+            
+            return 'Unknown';
+        }
+        
+        // 武器タイプ統計を取得する関数（後方互換性のため）
+        function getWeaponTypeStats(skins) {
+            return getWeaponStats(skins);
+        }
+        
+        // 武器カテゴリ統計を取得する関数
+        function getWeaponCategoryStats() {
+            const stats = {};
+            Object.values(weaponCategories).forEach(weapon => {
+                stats[weapon.category] = (stats[weapon.category] || 0) + 1;
+            });
+            return stats;
+        }
+        
+        // レアリティ統計を取得する関数
+        function getRarityStats(skins) {
+            const stats = {};
+            skins.forEach(skin => {
+                stats[skin.rarity] = (stats[skin.rarity] || 0) + 1;
+            });
+            return stats;
+        }
+        
+        // 価格統計を取得する関数
+        function getPriceStats(skins) {
+            const prices = skins.map(s => s.price);
+            const priceDistribution = {
+                0: skins.filter(s => s.price === 0).length,           // 無料
+                875: skins.filter(s => s.price === 875).length,       // セレクト/デラックス
+                1775: skins.filter(s => s.price === 1775).length,     // プレミアム
+                2475: skins.filter(s => s.price === 2475).length,     // ウルトラ
+                3550: skins.filter(s => s.price === 3550).length,     // エクスクルーシブ
+                other: skins.filter(s => ![0, 875, 1775, 2475, 3550].includes(s.price)).length
+            };
+            
+            return {
+                min: Math.min(...prices),
+                max: Math.max(...prices),
+                avg: Math.round(prices.reduce((a, b) => a + b, 0) / prices.length),
+                distribution: priceDistribution,
+                total: skins.length
+            };
+        }
+        
+        // 価格テスト用の関数
+        function testPriceDistribution() {
+            console.log('[Test] 価格分布の詳細調査...');
+            
+            const priceStats = getPriceStats(allSkins);
+            console.log('価格統計:', priceStats);
+            
+            // 各価格帯のサンプルを表示
+            [0, 875, 1775, 2475, 3550].forEach(price => {
+                const skinsAtPrice = allSkins.filter(s => s.price === price);
+                if (skinsAtPrice.length > 0) {
+                    console.log(`${price} VP (${skinsAtPrice.length}個):`, 
+                        skinsAtPrice.slice(0, 5).map(s => `${s.name} (${s.tierName}, rank:${s.tierRank})`));
+                } else {
+                    console.log(`${price} VP: 0個`);
+                }
+            });
+            
+            // 予期しない価格のスキンを確認
+            const unexpectedPrices = allSkins.filter(s => ![0, 875, 1775, 2475, 3550].includes(s.price));
+            if (unexpectedPrices.length > 0) {
+                console.log('予期しない価格のスキン:', 
+                    unexpectedPrices.slice(0, 10).map(s => `${s.name}: ${s.price}VP (${s.tierName}, rank:${s.tierRank})`));
+            }
+            
+            return priceStats;
+        }
+        
+        // レアリティを判定する関数
+        function determineRarity(tierInfo) {
+            try {
+                const rank = tierInfo.rank || 0;
+                const name = tierInfo.name?.toLowerCase() || '';
+                
+                // 初回のみティア情報をログ出力
+                if (window.tierLogCount === undefined) window.tierLogCount = 0;
+                if (window.tierLogCount < 5) {
+                    console.log(`[Rarity] ティア分析: "${tierInfo.name}" (rank: ${rank})`);
+                    window.tierLogCount++;
+                }
+            
+                // 実際のVALORANT APIのティア名に基づいた正確な判定
+                // Edition系の判定（最も一般的なパターン）
+                if (name.includes('select edition') || name.includes('select')) {
+                    return 'select';
+                }
+                
+                if (name.includes('deluxe edition') || name.includes('deluxe')) {
+                    return 'deluxe';
+                }
+                
+                if (name.includes('premium edition') || name.includes('premium')) {
+                    return 'premium';
+                }
+                
+                if (name.includes('ultra edition') || name.includes('ultra')) {
+                    return 'ultra';
+                }
+                
+                if (name.includes('exclusive edition') || name.includes('exclusive')) {
+                    return 'exclusive';
+                }
+                
+                // レジェンダリー系（非常に限定的）
+                if (name.includes('legendary') || name.includes('transcendent') || 
+                    name.includes('radiant') || name.includes('immortal')) {
+                    return 'legendary';
+                }
+                
+                // ランクベースの判定（保守的なアプローチ）
+                // 実際のVALORANTのContent Tier rankに基づく
+                if (rank === 0) {
+                    return 'select'; // 無料/基本
+                } else if (rank >= 1 && rank <= 12) {
+                    return 'deluxe'; // 875 VP tier
+                } else if (rank >= 13 && rank <= 24) {
+                    return 'premium'; // 1775 VP tier
+                } else if (rank >= 25 && rank <= 49) {
+                    return 'ultra'; // 2475 VP tier
+                } else if (rank >= 50) {
+                    return 'exclusive'; // 3550+ VP tier
+                }
+                
+                // フォールバック（ランクが範囲外の場合）
+                return 'deluxe';
+                
+            } catch (error) {
+                console.error('[Rarity] レアリティ判定エラー:', error, tierInfo);
+                return 'select';
+            }
+        }
+        
+        // 価格を推定する関数（実際のVALORANT価格体系に基づく）
+        function estimatePrice(tierRank, tierName, skinName) {
+            // デバッグ用：価格判定のログ出力（最初の10個のみ）
+            if (window.priceLogCount === undefined) window.priceLogCount = 0;
+            if (window.priceLogCount < 10) {
+                console.log(`[Price] 価格判定: "${skinName}" - Tier: "${tierName}" (rank: ${tierRank})`);
+                window.priceLogCount++;
+            }
+            
+            const name = tierName?.toLowerCase() || '';
+            
+            // ティア名に基づく直接的な価格判定（最も正確）
+            if (name.includes('select') && tierRank === 0) {
+                return 0; // 無料スキン（バトルパスなど）
+            }
+            
+            if (name.includes('select') || name.includes('deluxe')) {
+                return 875; // Select/Deluxe Edition
+            }
+            
+            if (name.includes('premium')) {
+                return 1775; // Premium Edition
+            }
+            
+            if (name.includes('ultra')) {
+                return 2475; // Ultra Edition
+            }
+            
+            if (name.includes('exclusive')) {
+                return 3550; // Exclusive Edition
+            }
+            
+            // 具体的なコレクションベースの価格判定
+            const skinNameLower = skinName?.toLowerCase() || '';
+            
+            // 3550 VP (最高価格) コレクション
+            if (skinNameLower.includes('elderflame') || skinNameLower.includes('glitchpop') ||
+                skinNameLower.includes('singularity') || skinNameLower.includes('ruination') ||
+                skinNameLower.includes('chronovoid') || skinNameLower.includes('radiant crisis') ||
+                skinNameLower.includes('kuronami')) {
+                return 3550;
+            }
+            
+            // 2475 VP コレクション
+            if (skinNameLower.includes('reaver') || skinNameLower.includes('prime') ||
+                skinNameLower.includes('sovereign') || skinNameLower.includes('ion') ||
+                skinNameLower.includes('oni') || skinNameLower.includes('protocol 781-a') ||
+                skinNameLower.includes('spectrum') || skinNameLower.includes('forsaken') ||
+                skinNameLower.includes('neptune') || skinNameLower.includes('origin') ||
+                skinNameLower.includes('sentinels of light')) {
+                return 2475;
+            }
+            
+            // 1775 VP コレクション
+            if (skinNameLower.includes('blast x') || skinNameLower.includes('magepunk') ||
+                skinNameLower.includes('wasteland') || skinNameLower.includes('nebula') ||
+                skinNameLower.includes('sakura') || skinNameLower.includes('spline') ||
+                skinNameLower.includes('avalanche') || skinNameLower.includes('prism') ||
+                skinNameLower.includes('luxe') || skinNameLower.includes('infantry')) {
+                return 1775;
+            }
+            
+            // 875 VP コレクション
+            if (skinNameLower.includes('minima') || skinNameLower.includes('rush') ||
+                skinNameLower.includes('velocity') || skinNameLower.includes('couture') ||
+                skinNameLower.includes('dot exe') || skinNameLower.includes('hivemind') ||
+                skinNameLower.includes('doodle buds') || skinNameLower.includes('tigris')) {
+                return 875;
+            }
+            
+            // ランクベースの価格判定（より広い範囲での判定）
+            if (tierRank === 0) {
+                return 0; // 完全無料
+            } else if (tierRank >= 1 && tierRank <= 15) {
+                return 875; // 低価格帯
+            } else if (tierRank >= 16 && tierRank <= 30) {
+                return 1775; // 中価格帯
+            } else if (tierRank >= 31 && tierRank <= 45) {
+                return 2475; // 高価格帯
+            } else if (tierRank >= 46) {
+                return 3550; // 最高価格帯
+            }
+            
+            // より細かいランク判定（実際のAPIデータに対応）
+            if (tierRank <= 5) return 875;
+            if (tierRank <= 10) return 875;
+            if (tierRank <= 20) return 1775;
+            if (tierRank <= 35) return 2475;
+            
+            return 3550; // 高ランクのフォールバック
+        }
+        
+        // コレクション名を抽出する関数
+        function extractCollectionName(displayName, themeUuid) {
+            // 一般的なコレクション名のパターンを検索
+            const collectionPatterns = [
+                'Prime', 'Reaver', 'Sovereign', 'Dragon', 'Glitchpop', 
+                'Elderflame', 'Singularity', 'Ion', 'Oni', 'Vandal',
+                'Phantom', 'Ruination', 'Forsaken', 'Spline', 'Avalanche',
+                'BlastX', 'Magepunk', 'Nebula', 'Prism', 'Luxe',
+                'Wasteland', 'Hivemind', 'Doodle Buds', 'Tethered Realms'
+            ];
+            
+            let collectionName = '';
+            
+            for (const pattern of collectionPatterns) {
+                if (displayName.includes(pattern)) {
+                    collectionName = `${pattern} Collection`;
+                    break;
+                }
+            }
+            
+            // パターンが見つからない場合は最初の単語を使用
+            if (!collectionName) {
+                const firstWord = displayName.split(' ')[0];
+                collectionName = `${firstWord} Collection`;
+            }
+            
+            // 日本語に翻訳して返す
+            return translateSkinName(collectionName);
+        }
+        
+        function displaySkins(skins) {
+            console.log(`[Display] ${skins.length}件のスキンを表示中`);
+            const skinsGrid = document.getElementById('skinsGrid');
+            
+            if (!skinsGrid) {
+                console.error('[Display] skinsGridエレメントが見つかりません');
+                return;
+            }
+            
+            if (skins.length === 0) {
+                skinsGrid.innerHTML = '<div class="no-results">🔍 検索条件に一致するスキンが見つかりません。<br><small>フィルターをクリアして再試行してください。</small></div>';
+                return;
+            }
+            
+            const skinsHTML = skins.map(skin => `
+                <div class="skin-card">
+                    <img src="${skin.image}" alt="${skin.name}" class="skin-image" 
+                         loading="lazy"
+                         onerror="this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzIwIiBoZWlnaHQ9IjE4MCIgdmlld0JveD0iMCAwIDMyMCAxODAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIzMjAiIGhlaWdodD0iMTgwIiBmaWxsPSIjMUExQTJFIi8+CjxjaXJjbGUgY3g9IjE2MCIgY3k9IjkwIiByPSIzMCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjZmY0NjU1IiBzdHJva2Utd2lkdGg9IjIiLz4KPHRleHQgeD0iMTYwIiB5PSI5NSIgZmlsbD0iI2ZmNDY1NSIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZm9udC1zaXplPSIxMiIgZm9udC1mYW1pbHk9IkFyaWFsLCBzYW5zLXNlcmlmIj5TS0lOPC90ZXh0Pgo8dGV4dCB4PSIxNjAiIHk9IjEzMCIgZmlsbD0iIzg4OCIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZm9udC1zaXplPSIxMCIgZm9udC1mYW1pbHk9IkFyaWFsLCBzYW5zLXNlcmlmIj5JbWFnZSBOb3QgQXZhaWxhYmxlPC90ZXh0Pgo8L3N2Zz4='"
+                    <div class="skin-info">
+                        <div class="skin-name">${skin.name}</div>
+                        <div class="skin-weapon">${skin.weapon}</div>
+                        <div class="skin-details">
+                            <div class="skin-price">${skin.price === 0 ? 'FREE' : skin.price.toLocaleString() + ' VP'}</div>
+                            <div class="skin-rarity rarity-${skin.rarity}">${getRarityDisplayName(skin.rarity)}</div>
+                        </div>
+                        <div class="skin-collection">${skin.collection}</div>
+                    </div>
+                </div>
+            `).join('');
+            
+            skinsGrid.innerHTML = skinsHTML;
+        }
+        
+        function getRarityDisplayName(rarity) {
+            const rarityMap = {
+                'select': 'セレクト',
+                'deluxe': 'デラックス',
+                'premium': 'プレミアム',
+                'ultra': 'ウルトラ',
+                'exclusive': 'エクスクルーシブ',
+                'legendary': 'レジェンダリー'
+            };
+            return rarityMap[rarity] || rarity;
+        }
+        
+        function filterSkins() {
+            console.log('[Filter] フィルター実行開始');
+            
+            // フィルター値を取得
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase().trim();
+            const weaponFilter = document.getElementById('weaponFilter').value;
+            const rarityFilter = document.getElementById('rarityFilter').value;
+            const priceFilter = document.getElementById('priceFilter').value;
+            
+            console.log('[Filter] フィルター条件:', {
+                search: searchTerm,
+                weapon: weaponFilter,
+                rarity: rarityFilter,
+                price: priceFilter,
+                totalSkins: allSkins.length
+            });
+            
+            // allSkinsが空の場合は早期リターン
+            if (!allSkins || allSkins.length === 0) {
+                console.log('[Filter] allSkinsが空です');
+                displaySkins([]);
+                return;
+            }
+            
+            let filtered = allSkins.filter(skin => {
+                // 検索テキストフィルター
+                let matchesSearch = true;
+                if (searchTerm) {
+                    matchesSearch = skin.name.toLowerCase().includes(searchTerm) || 
+                                  skin.originalName.toLowerCase().includes(searchTerm) ||
+                                  skin.weapon.toLowerCase().includes(searchTerm) ||
+                                  skin.weaponEnglish.toLowerCase().includes(searchTerm) ||
+                                  skin.collection.toLowerCase().includes(searchTerm);
+                }
+                
+                // 武器名フィルター
+                let matchesWeapon = true;
+                if (weaponFilter) {
+                    matchesWeapon = skin.weaponEnglish === weaponFilter;
+                }
+                
+                // レアリティフィルター
+                let matchesRarity = true;
+                if (rarityFilter) {
+                    matchesRarity = skin.rarity === rarityFilter;
+                }
+                
+                // 価格範囲フィルター
+                let matchesPrice = true;
+                if (priceFilter) {
+                    const [min, max] = priceFilter.split('-').map(Number);
+                    matchesPrice = skin.price >= min && skin.price <= (max === 99999 ? Infinity : max);
+                }
+                
+                return matchesSearch && matchesWeapon && matchesRarity && matchesPrice;
+            });
+            
+            console.log(`[Filter] フィルター結果: ${filtered.length}件`);
+            
+            currentSkins = filtered;
+            displaySkins(filtered);
+            
+            // フィルター結果の統計を表示
+            updateFilterStats(filtered.length, allSkins.length);
+        }
+        
+        // フィルター統計を更新する関数
+        function updateFilterStats(filteredCount, totalCount) {
+            const statsElement = document.getElementById('filterStats');
+            if (statsElement) {
+                statsElement.textContent = `${filteredCount} / ${totalCount} スキンを表示中`;
+            }
+        }
+        
+        // フィルターをクリアする関数
+        function clearFilters() {
+            document.getElementById('searchInput').value = '';
+            document.getElementById('weaponFilter').value = '';
+            document.getElementById('rarityFilter').value = '';
+            document.getElementById('priceFilter').value = '';
+            
+            currentSkins = [...allSkins];
+            displaySkins(currentSkins);
+            updateFilterStats(allSkins.length, allSkins.length);
+        }
+        
+        // 武器選択肢を動的に更新する関数
+        function updateWeaponFilterOptions() {
+            const weaponFilter = document.getElementById('weaponFilter');
+            const weapons = [...new Set(allSkins.map(skin => skin.weaponEnglish)
+                .filter(weapon => weapon && weapon.trim() !== '' && weapon !== 'Unknown'))];
+            
+            // 既存のオプションをクリア（最初の「すべての武器」以外）
+            weaponFilter.innerHTML = '<option value="">すべての武器</option>';
+            
+            // 武器の優先順位でソート（人気順・カテゴリ順）
+            const weaponSortOrder = [
+                'Vandal', 'Phantom', 'Operator', 'Sheriff', 'Ghost', 'Classic',
+                'Spectre', 'Stinger', 'Judge', 'Bucky', 'Bulldog', 'Guardian', 
+                'Marshal', 'Odin', 'Ares', 'Frenzy', 'Shorty', 'Knife'
+            ];
+            
+            const sortedWeapons = weapons.sort((a, b) => {
+                const indexA = weaponSortOrder.indexOf(a);
+                const indexB = weaponSortOrder.indexOf(b);
+                
+                // 両方が順序リストにある場合
+                if (indexA !== -1 && indexB !== -1) {
+                    return indexA - indexB;
+                }
+                // Aのみがある場合
+                if (indexA !== -1) return -1;
+                // Bのみがある場合
+                if (indexB !== -1) return 1;
+                // 両方ともない場合は名前でソート
+                return a.localeCompare(b);
+            });
+            
+            sortedWeapons.forEach(weapon => {
+                const count = allSkins.filter(s => s.weaponEnglish === weapon).length;
+                const option = document.createElement('option');
+                option.value = weapon;
+                option.textContent = `${getJapaneseWeaponName(weapon)} (${count}個)`;
+                weaponFilter.appendChild(option);
+            });
+            
+            console.log('[Filter] 武器フィルターを更新:', sortedWeapons);
+            console.log('[Filter] 各武器の件数:', getWeaponStats(allSkins));
+        }
+        
+        // 武器統計を取得する関数
+        function getWeaponStats(skins) {
+            const stats = {};
+            skins.forEach(skin => {
+                const weapon = skin.weaponEnglish;
+                stats[weapon] = (stats[weapon] || 0) + 1;
+            });
+            return stats;
+        }
+        
+        // レアリティフィルターを動的に更新する関数
+        function updateRarityFilterOptions() {
+            const rarityFilter = document.getElementById('rarityFilter');
+            const rarities = [...new Set(allSkins.map(skin => skin.rarity))];
+            
+            // 基本のオプションを設定
+            rarityFilter.innerHTML = '<option value="">すべてのレアリティ</option>';
+            
+            const rarityMap = {
+                'select': 'セレクト',
+                'deluxe': 'デラックス', 
+                'premium': 'プレミアム',
+                'ultra': 'ウルトラ',
+                'exclusive': 'エクスクルーシブ',
+                'legendary': 'レジェンダリー'
+            };
+            
+            // レアリティの優先順位（価格順）
+            const rarityOrder = ['select', 'deluxe', 'premium', 'ultra', 'exclusive', 'legendary'];
+            
+            const sortedRarities = rarities.sort((a, b) => {
+                const indexA = rarityOrder.indexOf(a);
+                const indexB = rarityOrder.indexOf(b);
+                return indexA - indexB;
+            });
+            
+            sortedRarities.forEach(rarity => {
+                const count = allSkins.filter(s => s.rarity === rarity).length;
+                if (count > 0) { // 実際に存在するレアリティのみ追加
+                    const option = document.createElement('option');
+                    option.value = rarity;
+                    option.textContent = `${rarityMap[rarity] || rarity} (${count}個)`;
+                    rarityFilter.appendChild(option);
+                }
+            });
+            
+            console.log('[Filter] レアリティフィルターを更新:', sortedRarities);
+        }
+        
+        // フィルター機能を初期化する関数
+        function initializeFilters() {
+            console.log('[Filter] フィルター機能を初期化中...');
+            
+            // フィルターオプションを動的に更新
+            updateWeaponFilterOptions();
+            updateRarityFilterOptions();
+            
+            // イベントリスナーをすべて削除してから再設定（重複防止）
+            const searchInput = document.getElementById('searchInput');
+            const weaponFilter = document.getElementById('weaponFilter');
+            const rarityFilter = document.getElementById('rarityFilter');
+            const priceFilter = document.getElementById('priceFilter');
+            
+            // 既存のイベントリスナーをクローンで削除
+            const newSearchInput = searchInput.cloneNode(true);
+            const newWeaponFilter = weaponFilter.cloneNode(true);
+            const newRarityFilter = rarityFilter.cloneNode(true);
+            const newPriceFilter = priceFilter.cloneNode(true);
+            
+            searchInput.parentNode.replaceChild(newSearchInput, searchInput);
+            weaponFilter.parentNode.replaceChild(newWeaponFilter, weaponFilter);
+            rarityFilter.parentNode.replaceChild(newRarityFilter, rarityFilter);
+            priceFilter.parentNode.replaceChild(newPriceFilter, priceFilter);
+            
+            // 新しいイベントリスナーを設定
+            document.getElementById('searchInput').addEventListener('input', filterSkins);
+            document.getElementById('weaponFilter').addEventListener('change', filterSkins);
+            document.getElementById('rarityFilter').addEventListener('change', filterSkins);
+            document.getElementById('priceFilter').addEventListener('change', filterSkins);
+            
+            console.log('[Filter] フィルター機能の初期化完了');
+        }
+        
+        // デバッグ用関数（開発時のみ使用）
+        function debugFilterData() {
+            console.log('[Debug] 現在のフィルターデータ:');
+            console.log('- 総スキン数:', allSkins.length);
+            console.log('- 表示中スキン数:', currentSkins.length);
+            
+            const rarityStats = getRarityStats(allSkins);
+            const priceStats = getPriceStats(allSkins);
+            
+            console.log('- レアリティ分布:', rarityStats);
+            console.log('- 価格分布:', priceStats.distribution);
+            console.log('- 武器一覧:', [...new Set(allSkins.map(s => s.weapon))]);
+            
+            // 価格別の詳細分布
+            console.log('\n=== 価格別詳細分布 ===');
+            Object.entries(priceStats.distribution).forEach(([price, count]) => {
+                if (count > 0 && price !== 'other') {
+                    const samples = allSkins.filter(s => s.price === parseInt(price)).slice(0, 3);
+                    console.log(`${price} VP (${count}個):`, samples.map(s => s.name));
+                }
+            });
+            
+            // 各レアリティのサンプル表示
+            console.log('\n=== レアリティ別サンプル ===');
+            Object.keys(rarityStats).forEach(rarity => {
+                const count = rarityStats[rarity];
+                const samples = allSkins.filter(s => s.rarity === rarity).slice(0, 3);
+                console.log(`${rarity} (${count}個):`, samples.map(s => `${s.name} (${s.price}VP)`));
+            });
+            
+            // 価格とレアリティの相関チェック
+            console.log('\n=== 価格・レアリティ相関チェック ===');
+            const correlationCheck = {};
+            allSkins.forEach(skin => {
+                const key = `${skin.rarity}_${skin.price}VP`;
+                correlationCheck[key] = (correlationCheck[key] || 0) + 1;
+            });
+            console.log('価格・レアリティ組み合わせ:', correlationCheck);
+        }
+        
+        // テスト用フィルター実行（開発時のみ使用）
+        function testFilter(type = 'weapon', value = 'Vandal') {
+            console.log(`[Test] ${type}フィルターのテスト: ${value}`);
+            if (type === 'weapon') {
+                document.getElementById('weaponFilter').value = value;
+                console.log(`ヴァンダルスキンを表示中...`);
+            } else if (type === 'rarity') {
+                document.getElementById('rarityFilter').value = value;
+            }
+            filterSkins();
+        }
+        
+        // 人気武器のテスト関数
+        function testPopularWeapons() {
+            console.log('[Test] 人気武器のスキン数をテスト...');
+            
+            const popularWeapons = ['Vandal', 'Phantom', 'Operator', 'Sheriff', 'Ghost'];
+            
+            popularWeapons.forEach(weapon => {
+                const count = allSkins.filter(s => s.weaponEnglish === weapon).length;
+                const japaneseWeapon = getJapaneseWeaponName(weapon);
+                console.log(`${japaneseWeapon} (${weapon}): ${count}個のスキン`);
+                
+                if (count > 0) {
+                    const samples = allSkins.filter(s => s.weaponEnglish === weapon).slice(0, 3);
+                    console.log(`  サンプル:`, samples.map(s => `${s.name} (${s.price}VP)`));
+                }
+            });
+        }
+        
+        // プレミアム以上のレアリティをテストする関数
+        function testPremiumSkins() {
+            console.log('[Test] プレミアム以上のスキンをテスト中...');
+            
+            const rarityOrder = ['select', 'deluxe', 'premium', 'ultra', 'exclusive', 'legendary'];
+            
+            rarityOrder.forEach(rarity => {
+                const skinsOfRarity = allSkins.filter(s => s.rarity === rarity);
+                console.log(`${rarity}: ${skinsOfRarity.length}個`);
+                
+                if (skinsOfRarity.length > 0) {
+                    console.log(`  サンプル:`, skinsOfRarity.slice(0, 5).map(s => `${s.name} (${s.tierName}, rank:${s.tierRank})`));
+                }
+            });
+            
+            // プレミアム以上を表示
+            const premiumSkins = allSkins.filter(s => 
+                ['premium', 'ultra', 'exclusive', 'legendary'].includes(s.rarity)
+            );
+            
+            console.log(`プレミアム以上の総数: ${premiumSkins.length}個`);
+            return premiumSkins;
+        }
+        
+        // レジェンダリースキンに特化したテスト関数
+        function testLegendarySkins() {
+            console.log('[Test] レジェンダリースキンの詳細調査...');
+            
+            const legendarySkins = allSkins.filter(s => s.rarity === 'legendary');
+            console.log(`レジェンダリースキン総数: ${legendarySkins.length}個`);
+            
+            if (legendarySkins.length > 0) {
+                console.log('レジェンダリースキンの詳細:');
+                legendarySkins.forEach((skin, index) => {
+                    console.log(`  ${index + 1}. ${skin.name}`);
+                    console.log(`     - 武器: ${skin.weapon}`);
+                    console.log(`     - ティア: ${skin.tierName} (rank: ${skin.tierRank})`);
+                    console.log(`     - 価格: ${skin.price} VP`);
+                    console.log('---');
+                });
+            } else {
+                console.log('✅ レジェンダリースキンはありません（正常な状態）');
+                console.log('実際のVALORANTでは、レジェンダリーレアリティは非常に稀です。');
+                
+                // 最高レアリティのスキンを表示
+                const exclusiveSkins = allSkins.filter(s => s.rarity === 'exclusive');
+                const ultraSkins = allSkins.filter(s => s.rarity === 'ultra');
+                
+                console.log(`最高レアリティ - エクスクルーシブ: ${exclusiveSkins.length}個`);
+                if (exclusiveSkins.length > 0) {
+                    console.log('エクスクルーシブのサンプル:', 
+                        exclusiveSkins.slice(0, 3).map(s => `${s.name} (${s.price}VP)`));
+                }
+                
+                console.log(`次点レアリティ - ウルトラ: ${ultraSkins.length}個`);
+                if (ultraSkins.length > 0) {
+                    console.log('ウルトラのサンプル:', 
+                        ultraSkins.slice(0, 3).map(s => `${s.name} (${s.price}VP)`));
+                }
+            }
+            
+            return legendarySkins;
+        }
+        
+        // 全Content Tierの詳細情報を表示
+        function showAllContentTiers() {
+            console.log('[Debug] 全Content Tierの詳細:');
+            
+            const tiers = Object.values(contentTiers);
+            const sortedTiers = tiers.sort((a, b) => b.rank - a.rank); // 高ランク順
+            
+            console.log(`総Content Tier数: ${sortedTiers.length}個`);
+            console.log('ランク順（上位20個）:');
+            
+            sortedTiers.slice(0, 20).forEach((tier, index) => {
+                const skinsWithThisTier = allSkins.filter(s => s.tierName === tier.name);
+                console.log(`${index + 1}. "${tier.name}" (rank: ${tier.rank}) - ${skinsWithThisTier.length}スキン`);
+            });
+            
+            // ランク分布を表示
+            const rankDistribution = {};
+            tiers.forEach(tier => {
+                const rankRange = Math.floor(tier.rank / 10) * 10;
+                const key = `${rankRange}-${rankRange + 9}`;
+                rankDistribution[key] = (rankDistribution[key] || 0) + 1;
+            });
+            
+            console.log('ランク分布:', rankDistribution);
+            return sortedTiers;
+        }
+        
+        // レアリティ別表示テスト
+        function showRarityTest(rarity) {
+            console.log(`[Test] ${rarity}レアリティのスキンを表示`);
+            document.getElementById('rarityFilter').value = rarity;
+            filterSkins();
+        }
+        
+        // グローバルスコープにデバッグ関数を公開（コンソールから実行可能）
+        window.debugFilterData = debugFilterData;
+        window.testFilter = testFilter;
+        window.testPopularWeapons = testPopularWeapons;
+        window.testPremiumSkins = testPremiumSkins;
+        window.testLegendarySkins = testLegendarySkins;
+        window.testPriceDistribution = testPriceDistribution;
+        window.showAllContentTiers = showAllContentTiers;
+        window.showRarityTest = showRarityTest;
+        window.clearFilters = clearFilters;
+        
+        // ページ読み込み時にハンバーガーメニューとAPIデータを初期化
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeHamburgerMenu();
+            fetchValorantData(); // APIからスキンデータを取得
+        });
+    </script>
+</body>
+</html> 

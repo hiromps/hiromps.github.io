@@ -12,41 +12,98 @@
     <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6090439809602995"
      crossorigin="anonymous"></script>
  <style>
-        /* 基本的なヘッダースタイル */
-        .app-header {
-            padding: 1rem;
-            background-color: rgba(15, 25, 35, 0.95);
-            border-bottom: 2px solid #ff4655;
-            backdrop-filter: blur(10px);
-            box-shadow: 0 2px 20px rgba(0, 0, 0, 0.3);
+        /* グローバルリセット */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        html, body {
+            margin: 0;
+            padding: 0;
             width: 100%;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+        
+        /* レスポンシブヘッダー */
+        .app-header {
+            position: sticky;
+            top: 0;
+            left: 0;
+            right: 0;
+            width: 100%;
+            padding: 0.75rem 0;
+            background-color: rgba(15, 25, 35, 0.98);
+            border-bottom: 2px solid #ff4655;
+            backdrop-filter: blur(15px);
+            box-shadow: 0 2px 20px rgba(0, 0, 0, 0.4);
+            z-index: 999;
+            transition: all 0.3s ease;
         }
         .header-content {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            max-width: 1200px;
+            max-width: 1400px;
             margin: 0 auto;
-            padding: 0 20px;
+            padding: 0 1rem;
+            width: 100%;
+            min-height: 60px;
         }
+        
         .nav-buttons {
             display: flex;
-            gap: 1rem;
+            gap: 0.5rem;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        
+        .author-section {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: #fff;
+            flex-shrink: 0;
+        }
+        
+        .author-text {
+            margin: 0;
+            font-size: 0.85rem;
+            font-weight: 600;
+            text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.5);
+            white-space: nowrap;
+            color: #fff;
+            display: block;
+        }
+        
+        .author-avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            border: 2px solid #ff4655;
+            object-fit: cover;
+            flex-shrink: 0;
         }
         .app-header button,
         .app-header a.header-button {
             background-color: #ff4655;
             color: white;
             border: none;
-            padding: 0.75rem 1.5rem;
-            margin: 0 0.5rem;
-            font-size: 1rem;
+            padding: 0.6rem 1rem;
+            margin: 0;
+            font-size: 0.9rem;
             font-weight: 600;
             cursor: pointer;
-            border-radius: 8px;
+            border-radius: 6px;
             transition: all 0.3s ease;
-            text-decoration: none; /* 下線を消す */
-            display: inline-block; /* ボタンらしく見せるため */
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            white-space: nowrap;
+            min-height: 40px;
             box-shadow: 0 2px 8px rgba(255, 70, 85, 0.3);
         }
         .app-header button:hover,
@@ -61,32 +118,315 @@
             box-shadow: 0 0 15px rgba(34, 197, 94, 0.5);
             text-decoration: none; /* アクティブ時も下線を消す */
         }
-        @media screen and (max-width: 768px) {
-            .header-content {
-                flex-direction: column;
-                gap: 1rem;
-                padding: 0 10px;
-                align-items: center;
+        /* ハンバーガーメニュー */
+        .hamburger-menu {
+            display: none;
+            flex-direction: column;
+            justify-content: center;
+            cursor: pointer;
+            padding: 8px;
+            border-radius: 6px;
+            transition: all 0.3s ease;
+            min-width: 40px;
+            min-height: 40px;
+            background-color: transparent;
+            border: 1px solid transparent;
+        }
+        
+        .hamburger-menu:hover {
+            background-color: rgba(255, 70, 85, 0.1);
+            border-color: rgba(255, 70, 85, 0.3);
+        }
+        
+        .hamburger-line {
+            width: 22px;
+            height: 2px;
+            background-color: #fff;
+            margin: 2px 0;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            border-radius: 2px;
+        }
+        
+        .hamburger-menu.active .hamburger-line:nth-child(1) {
+            transform: rotate(45deg) translate(6px, 6px);
+        }
+        
+        .hamburger-menu.active .hamburger-line:nth-child(2) {
+            opacity: 0;
+        }
+        
+        .hamburger-menu.active .hamburger-line:nth-child(3) {
+            transform: rotate(-45deg) translate(6px, -6px);
+        }
+        
+        .mobile-nav {
+            display: none;
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: rgba(15, 25, 35, 0.98);
+            backdrop-filter: blur(15px);
+            border-top: 1px solid rgba(255, 70, 85, 0.3);
+            padding: 1rem;
+            z-index: 1000;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+            border-bottom: 2px solid rgba(255, 70, 85, 0.5);
+            animation: slideDown 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        .mobile-nav.active {
+            display: block;
+        }
+        
+        .mobile-nav-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+            max-width: 400px;
+            margin: 0 auto;
+        }
+        
+        .mobile-nav .header-button {
+            width: 100%;
+            text-align: center;
+            padding: 1rem 1.5rem;
+            margin: 0;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            background-color: rgba(255, 70, 85, 0.1);
+            border: 1px solid rgba(255, 70, 85, 0.3);
+            transition: all 0.3s ease;
+            min-height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .mobile-nav .header-button:hover {
+            background-color: rgba(255, 70, 85, 0.2);
+            transform: translateY(-1px);
+        }
+        
+        .mobile-nav .header-button.active {
+            background-color: rgba(34, 197, 94, 0.2);
+            border-color: rgba(34, 197, 94, 0.5);
+        }
+        
+        /* 背景スタイル */
+        .background {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #0f1419 0%, #1a252f 50%, #2d3748 100%);
+            z-index: -1;
+            overflow: hidden;
+        }
+        
+        .background::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: 
+                radial-gradient(circle at 25% 25%, rgba(255, 70, 85, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 75% 75%, rgba(59, 130, 246, 0.08) 0%, transparent 50%);
+            animation: movePattern 20s ease-in-out infinite;
+        }
+        
+        .background::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                linear-gradient(45deg, transparent 49%, rgba(255, 70, 85, 0.02) 50%, transparent 51%),
+                linear-gradient(-45deg, transparent 49%, rgba(59, 130, 246, 0.02) 50%, transparent 51%);
+            background-size: 60px 60px;
+            animation: pulse 4s ease-in-out infinite;
+        }
+        
+        @keyframes movePattern {
+            0%, 100% { transform: translate(0, 0) rotate(0deg); }
+            50% { transform: translate(-30px, -30px) rotate(180deg); }
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 0.5; }
+            50% { opacity: 1; }
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
             }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        /* レスポンシブブレイクポイント */
+        @media screen and (max-width: 1024px) {
             .nav-buttons {
-                flex-direction: row;
-                width: 100%;
-                gap: 0.3rem;
-                justify-content: center;
-                flex-wrap: nowrap;
-                overflow-x: auto;
+                gap: 0.25rem;
             }
-            .nav-buttons .header-button {
-                width: auto;
-                text-align: center;
-                margin: 0;
-                padding: 0.4rem 0.7rem;
+            
+            .app-header a.header-button {
+                padding: 0.5rem 0.75rem;
                 font-size: 0.85rem;
-                min-width: 80px;
-                white-space: nowrap;
             }
-            .author-section {
-                margin-top: 10px;
+        }
+        
+        @media screen and (max-width: 768px) {
+            .app-header {
+                padding: 0.5rem 0;
+            }
+            
+            .header-content {
+                padding: 0 1rem;
+                min-height: 56px;
+            }
+            
+            .nav-buttons {
+                display: none;
+            }
+            
+            .hamburger-menu {
+                display: flex;
+            }
+            
+            .author-text {
+                font-size: 0.8rem;
+            }
+            
+            .author-avatar {
+                width: 32px;
+                height: 32px;
+            }
+            
+            /* クラシックテーマのタブレット版固定サイズ */
+            .theme-classic .overlay {
+                min-width: 300px;
+                max-width: 380px;
+            }
+            
+            .theme-classic .rank-section {
+                padding: 10px 12px;
+                gap: 10px;
+                min-height: 55px;
+            }
+            
+            .theme-classic .rank-icon {
+                width: 50px;
+                height: 50px;
+            }
+            
+            .theme-classic .rank-details {
+                gap: 3px;
+            }
+            
+            .theme-classic .rank-name-line {
+                gap: 6px;
+            }
+            
+            .theme-classic .rank-name {
+                font-size: 1rem;
+            }
+            
+            .theme-classic .rr {
+                font-size: 0.95rem;
+            }
+            
+            .theme-classic .last-match-section {
+                padding: 10px 12px;
+                min-height: 38px;
+            }
+            
+            .theme-classic .last-match-text {
+                font-size: 0.9rem;
+            }
+        }
+        
+        @media screen and (max-width: 480px) {
+            .header-content {
+                padding: 0 0.75rem;
+                min-height: 52px;
+            }
+            
+            .author-text {
+                font-size: 0.75rem;
+                display: block;
+            }
+            
+            .hamburger-menu {
+                min-width: 36px;
+                min-height: 36px;
+                padding: 6px;
+            }
+            
+            .hamburger-line {
+                width: 20px;
+            }
+            
+            .mobile-nav {
+                padding: 0.75rem;
+            }
+            
+            .mobile-nav .header-button {
+                padding: 0.875rem 1rem;
+                font-size: 0.95rem;
+                min-height: 46px;
+            }
+            
+            /* クラシックテーマのモバイル版固定サイズ */
+            .theme-classic .overlay {
+                min-width: 280px;
+                max-width: 340px;
+            }
+            
+            .theme-classic .rank-section {
+                padding: 8px 10px;
+                gap: 8px;
+                min-height: 50px;
+            }
+            
+            .theme-classic .rank-icon {
+                width: 45px;
+                height: 45px;
+            }
+            
+            .theme-classic .rank-details {
+                gap: 2px;
+            }
+            
+            .theme-classic .rank-name-line {
+                gap: 4px;
+            }
+            
+            .theme-classic .rank-name {
+                font-size: 0.9rem;
+            }
+            
+            .theme-classic .rr {
+                font-size: 0.85rem;
+            }
+            
+            .theme-classic .last-match-section {
+                padding: 8px 10px;
+                min-height: 35px;
+            }
+            
+            .theme-classic .last-match-text {
+                font-size: 0.8rem;
             }
         }
         .mode-container {
@@ -164,51 +504,146 @@
             gap: 5px;
         }
         /* テーマ別スタイル */
-        /* クラシックテーマ（現在のデザイン） */
+        /* クラシックテーマ（スマート自動調整デザイン） */
         .theme-classic .overlay {
             background: var(--overlay-bg-color);
             backdrop-filter: blur(10px);
             border: 1px solid var(--border-color);
             border-radius: 12px;
-            box-shadow: none;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
             width: auto;
             min-width: 300px;
             max-width: 400px;
+            padding: 0;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            position: relative;
         }
 
         .theme-classic .rank-section {
             background: var(--rank-bg-color);
-            padding: 6px 10px;
+            padding: clamp(8px, 2vw, 14px) clamp(10px, 2.5vw, 18px);
+            display: flex;
+            align-items: center;
+            gap: clamp(8px, 2vw, 14px);
+            position: relative;
+            min-height: 60px;
+            width: 100%;
+            box-sizing: border-box;
         }
 
         .theme-classic .rank-icon {
-            width: 60px;
-            height: 60px;
+            width: clamp(45px, 8vw, 65px);
+            height: clamp(45px, 8vw, 65px);
             border: none !important;
             box-shadow: none !important;
             background: none !important;
             outline: none !important;
+            flex-shrink: 0;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+
+        .theme-classic .rank-details {
+            display: flex;
+            flex-direction: column;
+            gap: clamp(2px, 0.5vw, 4px);
+            flex: 1;
+            min-width: 0;
+            justify-content: center;
+            align-items: flex-start;
+        }
+
+        .theme-classic .rank-name-line {
+            display: flex;
+            align-items: baseline;
+            gap: clamp(4px, 1vw, 8px);
+            width: 100%;
+            flex-wrap: wrap;
+            justify-content: flex-start;
         }
 
         .theme-classic .rank-name {
-            font-size: clamp(1rem, 3.5vw, 1.3rem);
+            color: var(--text-color);
+            font-weight: 700;
+            font-size: clamp(0.9rem, 4vw, 1.4rem);
+            line-height: 1.2;
+            letter-spacing: 0.5px;
+            text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.5);
+            white-space: nowrap;
+            overflow: visible;
+            text-overflow: unset;
+            flex-shrink: 0;
+            transition: all 0.3s ease;
         }
 
         .theme-classic .rr {
+            color: var(--rr-color);
+            font-weight: 600;
             font-size: clamp(0.95rem, 3vw, 1.2rem);
+            line-height: 1.2;
+            white-space: nowrap;
+            flex-shrink: 0;
             margin-right: 8px;
         }
 
         .theme-classic .last-match-section {
             background-color: var(--last-match-bg-color);
-            padding: 6px 10px;
+            padding: clamp(8px, 2vw, 12px) clamp(10px, 2.5vw, 18px);
+            position: relative;
+            width: 100%;
+            box-sizing: border-box;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 40px;
         }
 
         .theme-classic .last-match-text {
             color: var(--text-color);
             font-weight: 600;
-            font-size: clamp(0.9rem, 2.5vw, 1rem) !important;
+            font-size: clamp(0.8rem, 3vw, 1.1rem);
             line-height: 1.3;
+            text-align: center;
+            text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.5);
+            white-space: nowrap;
+            overflow: visible;
+            text-overflow: unset;
+            width: 100%;
+            transition: all 0.3s ease;
+        }
+
+        /* 長いテキスト対応 */
+        .theme-classic .rank-name.long-text {
+            font-size: clamp(0.8rem, 3.5vw, 1.2rem);
+            max-width: none;
+        }
+
+        .theme-classic .rr.adjust-size {
+            font-size: clamp(0.85rem, 2.8vw, 1.05rem);
+        }
+
+        .theme-classic .last-match-text.long-text {
+            font-size: clamp(0.75rem, 2.5vw, 0.95rem);
+            white-space: pre-wrap;
+            word-break: break-word;
+            max-width: 100%;
+        }
+
+        /* アニメーション効果 */
+        .theme-classic .rank-section:hover .rank-icon {
+            transform: scale(1.05);
+        }
+
+        .theme-classic .rank-section:hover .rank-name {
+            text-shadow: 
+                2px 2px 4px rgba(0, 0, 0, 0.7),
+                0 0 10px rgba(255, 255, 255, 0.3);
+        }
+
+        .theme-classic .rank-section:hover .rr {
+            /* ホバー時のRR効果を削除してシンプルに */
         }
 
         /* モダンテーマ - カード分割レイアウト */
@@ -627,16 +1062,40 @@
         }
     </style>
 </head>
-<body>
+    <body>
+    <div class="background"></div>
+    
     <header class="app-header">
         <div class="header-content">
             <div class="nav-buttons">
                 <a href="/" id="showOverlayModeLink" class="header-button active">OBSオーバーレイ</a>
                 <a href="./valorant-stats-tracker/" id="showTrackerModeLink" class="header-button">戦績トラッカー</a>
+                <a href="/match-history.html" class="header-button">マッチ履歴</a>
+                <a href="/skins-database.html" class="header-button">スキンDB</a>
+                <a href="/leaderboard.html" class="header-button">ランキング</a>
             </div>
+            
+            <!-- ハンバーガーメニューボタン -->
+            <div class="hamburger-menu" id="hamburgerMenu">
+                <div class="hamburger-line"></div>
+                <div class="hamburger-line"></div>
+                <div class="hamburger-line"></div>
+            </div>
+            
             <div class="author-section">
                 <p class="author-text">Project by にど寝</p>
                 <img src="assets/images/nidone.png" alt="製作者アバター" class="author-avatar">
+            </div>
+        </div>
+        
+        <!-- モバイル用ナビゲーション -->
+        <div class="mobile-nav" id="mobileNav">
+            <div class="mobile-nav-buttons">
+                <a href="/" class="header-button active">OBSオーバーレイ</a>
+                <a href="./valorant-stats-tracker/" class="header-button">戦績トラッカー</a>
+                <a href="/match-history.html" class="header-button">マッチ履歴</a>
+                <a href="/skins-database.html" class="header-button">スキンDB</a>
+                <a href="/leaderboard.html" class="header-button">ランキング</a>
             </div>
         </div>
     </header>
@@ -676,7 +1135,7 @@
                     <img src="assets/images/ranks/ランクなし.png" alt="Rank Icon" class="rank-icon" id="rankIcon">
                     <div class="rank-details">
                         <div class="rank-name-line">
-                            <span class="rank-name" id="rankText">ランクなし</span> <span class="rr" id="rrText">0RR</span>
+                            <span class="rank-name" id="rankText">ランクなし</span><span class="rr" id="rrText">0RR</span>
                         </div>
                         <!-- <span class="win-loss" id="winLossText">0 Win / 0 Loss</span> -->
                     </div>
@@ -834,10 +1293,20 @@
                 setTimeout(addScanLineEffect, 100);
             }
             
+            // クラシックテーマの場合、スマート自動調整を適用
+            if (theme === 'classic') {
+                setTimeout(() => {
+                    applyClassicSmartAdjustments();
+                    handleTextOverflow();
+                }, 150);
+            }
+            
             // テーマ変更後に前回のマッチセクションの幅を調整（プレビュー画面のみ）
             setTimeout(() => {
                 if (theme === 'classic') {
                     resetLastMatchWidthForClassic();
+                    // 追加の調整
+                    setTimeout(applyClassicSmartAdjustments, 100);
                 } else {
                     adjustLastMatchWidth();
                 }
@@ -852,6 +1321,114 @@
                 scanLine.className = 'scan-line';
                 rankSection.appendChild(scanLine);
             }
+        }
+
+        // クラシックテーマのスマート自動調整システム
+        function applyClassicSmartAdjustments() {
+            if (currentTheme !== 'classic') return;
+            
+            // モバイル版では自動調整を無効化
+            if (window.innerWidth <= 768) {
+                console.log('モバイル版のため横幅自動調整をスキップ');
+                return;
+            }
+            
+            const overlay = document.querySelector('.theme-classic .overlay');
+            const rankName = document.querySelector('.theme-classic .rank-name');
+            const rrText = document.querySelector('.theme-classic .rr');
+            const lastMatchText = document.querySelector('.theme-classic .last-match-text');
+            
+            if (!overlay || !rankName || !rrText || !lastMatchText) return;
+            
+                         try {
+                 // 既存のクラスをリセット（横幅調整クラスは除外）
+                 rankName.classList.remove('long-text');
+                 rrText.classList.remove('adjust-size');
+                 lastMatchText.classList.remove('long-text');
+                 
+                 // テキストの長さを測定
+                 const rankTextLength = rankName.textContent.length;
+                 const rrTextLength = rrText.textContent.length;
+                 const lastMatchTextLength = lastMatchText.textContent.length;
+                 
+                 // ランク名の長さに応じた調整
+                 if (rankTextLength > 12) {
+                     rankName.classList.add('long-text');
+                 }
+                 
+                 // RRテキストの長さに応じた調整
+                 if (rrTextLength > 6) {
+                     rrText.classList.add('adjust-size');
+                 }
+                 
+                 // 前回のマッチテキストの長さに応じた調整
+                 if (lastMatchTextLength > 20) {
+                     lastMatchText.classList.add('long-text');
+                 }
+                 
+                 // 特殊文字や非ラテン文字の処理
+                 const hasSpecialChars = /[^\x00-\x7F]/.test(rankName.textContent + lastMatchText.textContent);
+                 if (hasSpecialChars) {
+                     // 日本語や特殊文字がある場合の調整
+                     rankName.style.letterSpacing = '0.3px';
+                     lastMatchText.style.letterSpacing = '0.2px';
+                 }
+                 
+                 console.log(`クラシックテーマ調整: ランク文字数=${rankTextLength}, RR文字数=${rrTextLength}, マッチ文字数=${lastMatchTextLength}`);
+                 
+             } catch (error) {
+                 console.error('クラシックテーマ自動調整エラー:', error);
+             }
+        }
+
+        // テキスト幅測定ヘルパー関数
+        function measureTextWidth(text, fontSize, fontFamily = 'Inter, sans-serif', fontWeight = '400') {
+            const canvas = document.createElement('canvas');
+            const context = canvas.getContext('2d');
+            context.font = `${fontWeight} ${fontSize} ${fontFamily}`;
+            return context.measureText(text).width;
+        }
+
+        // レスポンシブフォントサイズ計算
+        function calculateOptimalFontSize(text, containerWidth, baseFontSize = '1rem') {
+            const maxWidth = containerWidth * 0.9; // 90%の幅を使用
+            const textWidth = measureTextWidth(text, baseFontSize);
+            
+            if (textWidth <= maxWidth) {
+                return baseFontSize;
+            }
+            
+            // 幅に収まるようにフォントサイズを調整
+            const scaleFactor = maxWidth / textWidth;
+            const baseSizeNum = parseFloat(baseFontSize);
+            const adjustedSize = Math.max(baseSizeNum * scaleFactor, 0.7); // 最小0.7rem
+            
+            return `${adjustedSize}rem`;
+        }
+
+        // クラシックテーマの高度な調整（文字が切れる場合の対応）
+        function handleTextOverflow() {
+            if (currentTheme !== 'classic') return;
+            
+            const rankNameElement = document.querySelector('.theme-classic .rank-name');
+            const rrElement = document.querySelector('.theme-classic .rr');
+            const lastMatchElement = document.querySelector('.theme-classic .last-match-text');
+            const overlay = document.querySelector('.theme-classic .overlay');
+            
+            if (!rankNameElement || !rrElement || !lastMatchElement || !overlay) return;
+            
+            // オーバーフロー検出と修正
+            [rankNameElement, rrElement, lastMatchElement].forEach(element => {
+                if (element.scrollWidth > element.clientWidth) {
+                    // テキストがオーバーフローしている場合
+                    const currentFontSize = window.getComputedStyle(element).fontSize;
+                    const currentSizeNum = parseFloat(currentFontSize);
+                    const reducedSize = Math.max(currentSizeNum * 0.9, 10); // 最小10px
+                    
+                    element.style.fontSize = `${reducedSize}px`;
+                    console.log(`テキストオーバーフロー修正: ${element.className} フォントサイズ ${currentFontSize} → ${reducedSize}px`);
+                }
+            });
         }
 
         // カラーピッカーモーダルの表示/非表示
@@ -1355,8 +1932,19 @@
                 }
                 // データがない旨を表示
                 document.getElementById('rankText').textContent = '情報なし';
-                document.getElementById('rrText').textContent = '';
-                document.getElementById('lastMatchSection').style.display = 'none';
+                document.getElementById('rrText').textContent = '0RR';
+                
+                // 前回のマッチセクションも表示
+                const lastMatchSection = document.getElementById('lastMatchSection');
+                const lastMatchText = document.getElementById('lastMatchText');
+                const mmrGaugeFill = lastMatchSection.querySelector('.mmr-gauge-fill');
+                
+                lastMatchText.textContent = '前回のマッチ';
+                mmrGaugeFill.style.width = '0%';
+                mmrGaugeFill.style.backgroundColor = '#4CAF50';
+                mmrGaugeFill.style.left = '0';
+                mmrGaugeFill.style.right = 'auto';
+                lastMatchSection.style.display = 'flex';
             }
 
             // 文字サイズ調整機能を初期化
@@ -1366,6 +1954,8 @@
             setTimeout(() => {
                 if (currentTheme === 'classic') {
                     resetLastMatchWidthForClassic();
+                    // クラシックテーマのスマート自動調整を初期化時に実行
+                    applyClassicSmartAdjustments();
                 } else {
                     adjustLastMatchWidth();
                 }
@@ -1375,6 +1965,8 @@
             setTimeout(() => {
                 if (currentTheme === 'classic') {
                     resetLastMatchWidthForClassic();
+                    applyClassicSmartAdjustments();
+                    setTimeout(handleTextOverflow, 100);
                 } else {
                     adjustLastMatchWidth();
                 }
@@ -1383,6 +1975,7 @@
             setTimeout(() => {
                 if (currentTheme === 'classic') {
                     resetLastMatchWidthForClassic();
+                    applyClassicSmartAdjustments();
                 } else {
                     adjustLastMatchWidth();
                 }
@@ -1657,17 +2250,41 @@
                     } else { // currentRank がない場合 (例: ランクなし)
                         document.getElementById('rankIcon').src = 'assets/images/ranks/ランクなし.png';
                         document.getElementById('rankText').textContent = 'ランクなし';
-                        document.getElementById('rrText').textContent = '';
-                        document.getElementById('lastMatchSection').style.display = 'none';
-                        console.log(`[${new Date().toLocaleTimeString()}] ランク情報なし`);
+                        document.getElementById('rrText').textContent = '0RR';
+                        
+                        // 前回のマッチセクションも表示
+                        const lastMatchSection = document.getElementById('lastMatchSection');
+                        const lastMatchText = document.getElementById('lastMatchText');
+                        const mmrGaugeFill = lastMatchSection.querySelector('.mmr-gauge-fill');
+                        
+                        lastMatchText.textContent = '前回のマッチ';
+                        mmrGaugeFill.style.width = '0%';
+                        mmrGaugeFill.style.backgroundColor = '#4CAF50';
+                        mmrGaugeFill.style.left = '0';
+                        mmrGaugeFill.style.right = 'auto';
+                        lastMatchSection.style.display = 'flex';
+                        
+                        console.log(`[${new Date().toLocaleTimeString()}] ランク情報なし - 0RRで表示`);
                     }
 
                 } else { // stats または stats.data が存在しない場合
                     document.getElementById('rankIcon').src = 'assets/images/ranks/ランクなし.png';
                     document.getElementById('rankText').textContent = 'データなし';
-                    document.getElementById('rrText').textContent = '';
-                    document.getElementById('lastMatchSection').style.display = 'none';
-                    console.log(`[${new Date().toLocaleTimeString()}] API応答にデータが含まれていません`);
+                    document.getElementById('rrText').textContent = '0RR';
+                    
+                    // 前回のマッチセクションも表示
+                    const lastMatchSection = document.getElementById('lastMatchSection');
+                    const lastMatchText = document.getElementById('lastMatchText');
+                    const mmrGaugeFill = lastMatchSection.querySelector('.mmr-gauge-fill');
+                    
+                    lastMatchText.textContent = '前回のマッチ';
+                    mmrGaugeFill.style.width = '0%';
+                    mmrGaugeFill.style.backgroundColor = '#4CAF50';
+                    mmrGaugeFill.style.left = '0';
+                    mmrGaugeFill.style.right = 'auto';
+                    lastMatchSection.style.display = 'flex';
+                    
+                    console.log(`[${new Date().toLocaleTimeString()}] API応答にデータが含まれていません - 0RRで表示`);
                 }
                 
                 // 最終更新時刻を更新
@@ -1677,6 +2294,12 @@
                 setTimeout(() => {
                     adjustTextSize();
                     adjustOverlayWidth();
+                    
+                    // クラシックテーマの場合、スマート自動調整を実行
+                    if (currentTheme === 'classic') {
+                        applyClassicSmartAdjustments();
+                        setTimeout(handleTextOverflow, 100);
+                    }
                 }, 300);
 
             } catch (error) {
@@ -1685,8 +2308,19 @@
                 // エラー発生時も表示をリセット
                 document.getElementById('rankIcon').src = 'assets/images/ranks/ランクなし.png';
                 document.getElementById('rankText').textContent = 'エラー';
-                document.getElementById('rrText').textContent = '';
-                document.getElementById('lastMatchSection').style.display = 'none';
+                document.getElementById('rrText').textContent = '0RR';
+                
+                // 前回のマッチセクションも表示
+                const lastMatchSection = document.getElementById('lastMatchSection');
+                const lastMatchText = document.getElementById('lastMatchText');
+                const mmrGaugeFill = lastMatchSection.querySelector('.mmr-gauge-fill');
+                
+                lastMatchText.textContent = '前回のマッチ';
+                mmrGaugeFill.style.width = '0%';
+                mmrGaugeFill.style.backgroundColor = '#4CAF50';
+                mmrGaugeFill.style.left = '0';
+                mmrGaugeFill.style.right = 'auto';
+                lastMatchSection.style.display = 'flex';
                 
                 // エラー時も最終更新時刻を更新
                 updateAutoUpdateStatus();
@@ -1766,9 +2400,79 @@
             }
         }
 
+        // ハンバーガーメニューの動作（完全統一版）
+        function initializeHamburgerMenu() {
+            const hamburgerMenu = document.getElementById('hamburgerMenu');
+            const mobileNav = document.getElementById('mobileNav');
+            
+            if (!hamburgerMenu || !mobileNav) {
+                console.warn('ハンバーガーメニューまたはモバイルナビが見つかりません');
+                return;
+            }
+            
+            // ハンバーガーメニューのクリックイベント
+            hamburgerMenu.addEventListener('click', function(event) {
+                event.stopPropagation();
+                hamburgerMenu.classList.toggle('active');
+                mobileNav.classList.toggle('active');
+                
+                // アクセシビリティのためのaria属性を更新
+                const isActive = hamburgerMenu.classList.contains('active');
+                hamburgerMenu.setAttribute('aria-expanded', isActive);
+                mobileNav.setAttribute('aria-hidden', !isActive);
+            });
+            
+            // モバイルナビのリンクをクリックしたときにメニューを閉じる
+            const mobileNavLinks = mobileNav.querySelectorAll('.header-button');
+            mobileNavLinks.forEach(link => {
+                link.addEventListener('click', () => {
+                    closeHamburgerMenu();
+                });
+            });
+            
+            // 画面外をクリックしたときにメニューを閉じる
+            document.addEventListener('click', function(event) {
+                if (!hamburgerMenu.contains(event.target) && 
+                    !mobileNav.contains(event.target) && 
+                    mobileNav.classList.contains('active')) {
+                    closeHamburgerMenu();
+                }
+            });
+            
+            // ESCキーでメニューを閉じる
+            document.addEventListener('keydown', function(event) {
+                if (event.key === 'Escape' && mobileNav.classList.contains('active')) {
+                    closeHamburgerMenu();
+                }
+            });
+            
+            // ウィンドウリサイズ時にメニューを閉じる（デスクトップビューに戻った場合）
+            window.addEventListener('resize', function() {
+                if (window.innerWidth > 768 && mobileNav.classList.contains('active')) {
+                    closeHamburgerMenu();
+                }
+            });
+            
+            // メニューを閉じる共通関数
+            function closeHamburgerMenu() {
+                hamburgerMenu.classList.remove('active');
+                mobileNav.classList.remove('active');
+                hamburgerMenu.setAttribute('aria-expanded', false);
+                mobileNav.setAttribute('aria-hidden', true);
+            }
+            
+            // 初期状態のaria属性を設定
+            hamburgerMenu.setAttribute('aria-expanded', false);
+            hamburgerMenu.setAttribute('aria-label', 'メニューを開く');
+            mobileNav.setAttribute('aria-hidden', true);
+            
+            console.log('ハンバーガーメニューが正常に初期化されました');
+        }
+
         // ページ読み込み時の初期化
         window.addEventListener('DOMContentLoaded', function() {
             initializePage();
+            initializeHamburgerMenu();
         });
     </script>
 </body>

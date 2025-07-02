@@ -1,0 +1,1245 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>マッチ履歴 - VALORANT Tracker</title>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        .match-history-container {
+            max-width: 1280px; /* max-w-6xl */
+            margin: 1rem auto;
+            padding: 0 1rem;
+        }
+        
+        .match-card {
+            background: rgba(15, 25, 35, 0.95);
+            border: 1px solid #ff4655;
+            border-radius: 12px;
+            margin: 1rem 0;
+            padding: 1.5rem;
+            backdrop-filter: blur(10px);
+        }
+        
+        .match-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+        
+        .match-result {
+            font-size: 1.2rem;
+            font-weight: bold;
+        }
+        
+        .agent-info {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        
+        .agent-image {
+            width: 50px;
+            height: 50px;
+            border-radius: 8px;
+            object-fit: cover;
+            border: 2px solid #444;
+        }
+        
+        .win { color: #4CAF50; }
+        .loss { color: #f44336; }
+        .draw { color: #ff9800; }
+        
+        .match-details {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 1rem;
+        }
+        
+        .detail-item {
+            text-align: center;
+        }
+        
+        .detail-label {
+            color: #888;
+            font-size: 0.9rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .detail-value {
+            color: #fff;
+            font-size: 1.1rem;
+            font-weight: 600;
+        }
+        
+        .map-info {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        
+        .map-image {
+            width: 80px;
+            height: 45px;
+            border-radius: 8px;
+            object-fit: cover;
+        }
+        
+        .search-section {
+            background: #1f2937; /* bg-gray-800 */
+            border-radius: 12px;
+            padding: 1.5rem 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05); /* shadow-lg */
+        }
+        
+        .search-section h2 {
+            color: #ef4444; /* text-red-500 */
+            font-size: 1.875rem; /* text-3xl */
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            text-align: center;
+            letter-spacing: 0.1em; /* tracking-wider */
+        }
+        
+        .search-section p {
+            color: #9ca3af; /* text-gray-400 */
+            font-size: 0.875rem; /* text-sm */
+            margin-bottom: 1.5rem;
+            text-align: center;
+        }
+        
+        .search-form {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        
+        .search-form input {
+            flex: 1;
+            background: #374151; /* bg-gray-700 */
+            color: white;
+            border: 2px solid #4b5563; /* border-gray-600 */
+            border-radius: 8px;
+            padding: 0.75rem 1rem;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            min-width: 200px;
+        }
+        
+        .search-form input::placeholder {
+            color: #9ca3af; /* placeholder-gray-400 */
+        }
+        
+        .search-form input:focus {
+            outline: none;
+            border-color: #ef4444; /* focus:border-red-500 */
+            box-shadow: 0 0 0 2px rgba(239, 68, 68, 0.2); /* focus:ring-red-500 */
+        }
+        
+        .search-form button {
+            background: #dc2626; /* bg-red-600 */
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 0.75rem 1.5rem;
+            font-weight: 700;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            min-height: 48px;
+        }
+        
+        .search-form button:hover {
+            background: #b91c1c; /* hover:bg-red-700 */
+        }
+        
+        /* レスポンシブ対応 */
+        @media screen and (max-width: 640px) {
+            .search-section {
+                padding: 1rem 1.5rem;
+                margin: 1rem;
+            }
+            
+            .search-section h2 {
+                font-size: 1.5rem; /* text-2xl */
+            }
+            
+            .search-form {
+                flex-direction: column;
+                gap: 0.75rem;
+            }
+            
+            .search-form input {
+                min-width: auto;
+                width: 100%;
+            }
+            
+            .search-form button {
+                width: 100%;
+                padding: 1rem 1.5rem;
+            }
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 2rem;
+            color: #888;
+        }
+        
+        .error {
+            text-align: center;
+            padding: 2rem;
+            color: #f44336;
+        }
+        
+        /* 背景スタイル */
+        body {
+            margin: 0;
+            background: linear-gradient(135deg, #0f1419 0%, #1a252f 50%, #2d3748 100%);
+            min-height: 100vh;
+            color: white;
+            font-family: 'Inter', 'Noto Sans JP', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        }
+        
+        .background {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #0f1419 0%, #1a252f 50%, #2d3748 100%);
+            z-index: -1;
+            overflow: hidden;
+        }
+        
+        .background::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: 
+                radial-gradient(circle at 25% 25%, rgba(255, 70, 85, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 75% 75%, rgba(59, 130, 246, 0.08) 0%, transparent 50%);
+            animation: movePattern 20s ease-in-out infinite;
+        }
+        
+        .background::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                linear-gradient(45deg, transparent 49%, rgba(255, 70, 85, 0.02) 50%, transparent 51%),
+                linear-gradient(-45deg, transparent 49%, rgba(59, 130, 246, 0.02) 50%, transparent 51%);
+            background-size: 60px 60px;
+            animation: pulse 4s ease-in-out infinite;
+        }
+        
+        @keyframes movePattern {
+            0%, 100% { transform: translate(0, 0) rotate(0deg); }
+            50% { transform: translate(-30px, -30px) rotate(180deg); }
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 0.5; }
+            50% { opacity: 1; }
+        }
+        
+        h2, h3 {
+            color: #ff4655;
+        }
+        
+        /* グローバルリセット */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        html, body {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+        
+        /* レスポンシブヘッダー */
+        .app-header {
+            position: sticky;
+            top: 0;
+            left: 0;
+            right: 0;
+            width: 100%;
+            padding: 0.75rem 0;
+            background-color: rgba(15, 25, 35, 0.98);
+            border-bottom: 2px solid #ff4655;
+            backdrop-filter: blur(15px);
+            box-shadow: 0 2px 20px rgba(0, 0, 0, 0.4);
+            z-index: 999;
+            transition: all 0.3s ease;
+        }
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 1rem;
+            width: 100%;
+            min-height: 60px;
+        }
+        
+        .nav-buttons {
+            display: flex;
+            gap: 0.5rem;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        
+        .author-section {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: #fff;
+            flex-shrink: 0;
+        }
+        
+        .author-text {
+            margin: 0;
+            font-size: 0.85rem;
+            font-weight: 600;
+            text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.5);
+            white-space: nowrap;
+            color: #fff;
+            display: block;
+        }
+        
+        .author-avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            border: 2px solid #ff4655;
+            object-fit: cover;
+            flex-shrink: 0;
+        }
+        .app-header button,
+        .app-header a.header-button {
+            background-color: #ff4655;
+            color: white;
+            border: none;
+            padding: 0.6rem 1rem;
+            margin: 0;
+            font-size: 0.9rem;
+            font-weight: 600;
+            cursor: pointer;
+            border-radius: 6px;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            white-space: nowrap;
+            min-height: 40px;
+            box-shadow: 0 2px 8px rgba(255, 70, 85, 0.3);
+        }
+        .app-header button:hover,
+        .app-header a.header-button:hover {
+            background-color: #e0303f;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(255, 70, 85, 0.4);
+        }
+        .app-header button.active,
+        .app-header a.header-button.active {
+            background-color: #22c55e; /* 緑などでアクティブ状態を示す */
+            box-shadow: 0 0 15px rgba(34, 197, 94, 0.5);
+            text-decoration: none; /* アクティブ時も下線を消す */
+        }
+        .hidden {
+            display: none !important;
+        }
+        #showOverlayModeLink {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        #showTrackerModeLink {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .author-section {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: #fff;
+        }
+        .author-text {
+            margin: 0;
+            font-size: 0.9em;
+            font-weight: 600;
+            text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.5);
+        }
+        .author-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            border: 2px solid #ff4655;
+            object-fit: cover;
+        }
+        /* ハンバーガーメニュー */
+        .hamburger-menu {
+            display: none;
+            flex-direction: column;
+            justify-content: center;
+            cursor: pointer;
+            padding: 8px;
+            border-radius: 6px;
+            transition: all 0.3s ease;
+            min-width: 40px;
+            min-height: 40px;
+            background-color: transparent;
+            border: 1px solid transparent;
+        }
+        
+        .hamburger-menu:hover {
+            background-color: rgba(255, 70, 85, 0.1);
+            border-color: rgba(255, 70, 85, 0.3);
+        }
+        
+        .hamburger-line {
+            width: 22px;
+            height: 2px;
+            background-color: #fff;
+            margin: 2px 0;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            border-radius: 2px;
+        }
+        
+        .hamburger-menu.active .hamburger-line:nth-child(1) {
+            transform: rotate(45deg) translate(6px, 6px);
+        }
+        
+        .hamburger-menu.active .hamburger-line:nth-child(2) {
+            opacity: 0;
+        }
+        
+        .hamburger-menu.active .hamburger-line:nth-child(3) {
+            transform: rotate(-45deg) translate(6px, -6px);
+        }
+        
+        .mobile-nav {
+            display: none;
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: rgba(15, 25, 35, 0.98);
+            backdrop-filter: blur(15px);
+            border-top: 1px solid rgba(255, 70, 85, 0.3);
+            padding: 1rem;
+            z-index: 1000;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+            border-bottom: 2px solid rgba(255, 70, 85, 0.5);
+            animation: slideDown 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        .mobile-nav.active {
+            display: block;
+        }
+        
+        .mobile-nav-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+            max-width: 400px;
+            margin: 0 auto;
+        }
+        
+        .mobile-nav .header-button {
+            width: 100%;
+            text-align: center;
+            padding: 1rem 1.5rem;
+            margin: 0;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            background-color: rgba(255, 70, 85, 0.1);
+            border: 1px solid rgba(255, 70, 85, 0.3);
+            transition: all 0.3s ease;
+            min-height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .mobile-nav .header-button:hover {
+            background-color: rgba(255, 70, 85, 0.2);
+            transform: translateY(-1px);
+        }
+        
+        .mobile-nav .header-button.active {
+            background-color: rgba(34, 197, 94, 0.2);
+            border-color: rgba(34, 197, 94, 0.5);
+        }
+        
+        /* 背景スタイル */
+        .background {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #0f1419 0%, #1a252f 50%, #2d3748 100%);
+            z-index: -1;
+            overflow: hidden;
+        }
+        
+        .background::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: 
+                radial-gradient(circle at 25% 25%, rgba(255, 70, 85, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 75% 75%, rgba(59, 130, 246, 0.08) 0%, transparent 50%);
+            animation: movePattern 20s ease-in-out infinite;
+        }
+        
+        .background::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                linear-gradient(45deg, transparent 49%, rgba(255, 70, 85, 0.02) 50%, transparent 51%),
+                linear-gradient(-45deg, transparent 49%, rgba(59, 130, 246, 0.02) 50%, transparent 51%);
+            background-size: 60px 60px;
+            animation: pulse 4s ease-in-out infinite;
+        }
+        
+        @keyframes movePattern {
+            0%, 100% { transform: translate(0, 0) rotate(0deg); }
+            50% { transform: translate(-30px, -30px) rotate(180deg); }
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 0.5; }
+            50% { opacity: 1; }
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        /* レスポンシブブレイクポイント */
+        @media screen and (max-width: 1024px) {
+            .nav-buttons {
+                gap: 0.25rem;
+            }
+            
+            .app-header a.header-button {
+                padding: 0.5rem 0.75rem;
+                font-size: 0.85rem;
+            }
+        }
+        
+        @media screen and (max-width: 768px) {
+            .app-header {
+                padding: 0.5rem 0;
+            }
+            
+            .header-content {
+                padding: 0 1rem;
+                min-height: 56px;
+            }
+            
+            .nav-buttons {
+                display: none;
+            }
+            
+            .hamburger-menu {
+                display: flex;
+            }
+            
+            .author-text {
+                font-size: 0.8rem;
+            }
+            
+            .author-avatar {
+                width: 32px;
+                height: 32px;
+            }
+        }
+        
+        @media screen and (max-width: 480px) {
+            .header-content {
+                padding: 0 0.75rem;
+                min-height: 52px;
+            }
+            
+            .author-text {
+                font-size: 0.75rem;
+                display: block;
+            }
+            
+            .hamburger-menu {
+                min-width: 36px;
+                min-height: 36px;
+                padding: 6px;
+            }
+            
+            .hamburger-line {
+                width: 20px;
+            }
+            
+            .mobile-nav {
+                padding: 0.75rem;
+            }
+            
+            .mobile-nav .header-button {
+                padding: 0.875rem 1rem;
+                font-size: 0.95rem;
+                min-height: 46px;
+            }
+        }
+    </style>
+</head>
+    <body>
+    <div class="background"></div>
+    
+    <header class="app-header">
+        <div class="header-content">
+            <div class="nav-buttons">
+                <a href="/" id="showOverlayModeLink" class="header-button">OBSオーバーレイ</a>
+                <a href="./valorant-stats-tracker/" id="showTrackerModeLink" class="header-button">戦績トラッカー</a>
+                <a href="/match-history.html" class="header-button active">マッチ履歴</a>
+                <a href="/skins-database.html" class="header-button">スキンDB</a>
+                <a href="/leaderboard.html" class="header-button">ランキング</a>
+            </div>
+            
+            <!-- ハンバーガーメニューボタン -->
+            <div class="hamburger-menu" id="hamburgerMenu">
+                <div class="hamburger-line"></div>
+                <div class="hamburger-line"></div>
+                <div class="hamburger-line"></div>
+            </div>
+            
+            <div class="author-section">
+                <p class="author-text">Project by にど寝</p>
+                <img src="assets/images/nidone.png" alt="製作者アバター" class="author-avatar">
+            </div>
+        </div>
+        
+        <!-- モバイル用ナビゲーション -->
+        <div class="mobile-nav" id="mobileNav">
+            <div class="mobile-nav-buttons">
+                <a href="/" class="header-button">OBSオーバーレイ</a>
+                <a href="./valorant-stats-tracker/" class="header-button">戦績トラッカー</a>
+                <a href="/match-history.html" class="header-button active">マッチ履歴</a>
+                <a href="/skins-database.html" class="header-button">スキンDB</a>
+                <a href="/leaderboard.html" class="header-button">ランキング</a>
+            </div>
+        </div>
+    </header>
+    
+    <div class="background"></div>
+    
+    <div class="match-history-container">
+        <div class="search-section">
+            <h2>VALORANT マッチ履歴</h2>
+            <p>プレイヤーの最新マッチデータを取得・表示します</p>
+            <div class="search-form">
+                <input type="text" id="playerName" placeholder="ゲーム名 (例: TenZ)" required>
+                <input type="text" id="playerTag" placeholder="タグライン (例: 1234)" required>
+                <button onclick="searchMatchHistory()">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+                    </svg>
+                    検索
+                </button>
+            </div>
+        </div>
+        
+        <div id="matchHistoryResults">
+            <!-- マッチ履歴がここに表示されます -->
+        </div>
+    </div>
+    
+    <script src="config.js"></script>
+    <script src="js/api.js"></script>
+    <script>
+        // ハンバーガーメニューの動作（完全統一版）
+        function initializeHamburgerMenu() {
+            const hamburgerMenu = document.getElementById('hamburgerMenu');
+            const mobileNav = document.getElementById('mobileNav');
+            
+            if (!hamburgerMenu || !mobileNav) {
+                console.warn('ハンバーガーメニューまたはモバイルナビが見つかりません');
+                return;
+            }
+            
+            // ハンバーガーメニューのクリックイベント
+            hamburgerMenu.addEventListener('click', function(event) {
+                event.stopPropagation();
+                hamburgerMenu.classList.toggle('active');
+                mobileNav.classList.toggle('active');
+                
+                // アクセシビリティのためのaria属性を更新
+                const isActive = hamburgerMenu.classList.contains('active');
+                hamburgerMenu.setAttribute('aria-expanded', isActive);
+                mobileNav.setAttribute('aria-hidden', !isActive);
+            });
+            
+            // モバイルナビのリンクをクリックしたときにメニューを閉じる
+            const mobileNavLinks = mobileNav.querySelectorAll('.header-button');
+            mobileNavLinks.forEach(link => {
+                link.addEventListener('click', () => {
+                    closeHamburgerMenu();
+                });
+            });
+            
+            // 画面外をクリックしたときにメニューを閉じる
+            document.addEventListener('click', function(event) {
+                if (!hamburgerMenu.contains(event.target) && 
+                    !mobileNav.contains(event.target) && 
+                    mobileNav.classList.contains('active')) {
+                    closeHamburgerMenu();
+                }
+            });
+            
+            // ESCキーでメニューを閉じる
+            document.addEventListener('keydown', function(event) {
+                if (event.key === 'Escape' && mobileNav.classList.contains('active')) {
+                    closeHamburgerMenu();
+                }
+            });
+            
+            // ウィンドウリサイズ時にメニューを閉じる（デスクトップビューに戻った場合）
+            window.addEventListener('resize', function() {
+                if (window.innerWidth > 768 && mobileNav.classList.contains('active')) {
+                    closeHamburgerMenu();
+                }
+            });
+            
+            // メニューを閉じる共通関数
+            function closeHamburgerMenu() {
+                hamburgerMenu.classList.remove('active');
+                mobileNav.classList.remove('active');
+                hamburgerMenu.setAttribute('aria-expanded', false);
+                mobileNav.setAttribute('aria-hidden', true);
+            }
+            
+            // 初期状態のaria属性を設定
+            hamburgerMenu.setAttribute('aria-expanded', false);
+            hamburgerMenu.setAttribute('aria-label', 'メニューを開く');
+            mobileNav.setAttribute('aria-hidden', true);
+            
+            console.log('ハンバーガーメニューが正常に初期化されました');
+        }
+
+        // グローバル変数でプレイヤー情報を保存
+        let currentSearchedPlayer = {
+            name: '',
+            tag: ''
+        };
+        
+        async function searchMatchHistory() {
+            const playerName = document.getElementById('playerName').value;
+            const playerTag = document.getElementById('playerTag').value;
+            
+            if (!playerName || !playerTag) {
+                alert('プレイヤー名とタグを入力してください。');
+                return;
+            }
+            
+            const resultsContainer = document.getElementById('matchHistoryResults');
+            resultsContainer.innerHTML = '<div class="loading">マッチ履歴を取得中...</div>';
+            
+            try {
+                // デバッグ情報を表示
+                console.log(`マッチ履歴検索開始: ${playerName}#${playerTag}`);
+                console.log('使用するAPI設定:', {
+                    API_BASE_URL: config.API_BASE_URL,
+                    API_KEY: config.API_KEY ? `${config.API_KEY.substring(0, 10)}...` : 'なし'
+                });
+                
+                // 入力値の検証
+                if (!playerName.trim() || !playerTag.trim()) {
+                    throw new Error('プレイヤー名とタグの両方を入力してください。');
+                }
+                
+                // 検索したプレイヤー情報を保存
+                currentSearchedPlayer.name = playerName.trim();
+                currentSearchedPlayer.tag = playerTag.trim();
+                
+                // プログレス表示を更新
+                resultsContainer.innerHTML = `
+                    <div class="loading">
+                        <p>マッチ履歴を取得中...</p>
+                        <p style="font-size: 0.9rem; color: #ccc;">プレイヤー: ${currentSearchedPlayer.name}#${currentSearchedPlayer.tag}</p>
+                        <p style="font-size: 0.8rem; color: #999;">複数のAPIエンドポイントを試行中...</p>
+                    </div>
+                `;
+                
+                // マッチ履歴API を呼び出します（戦績トラッカーと同じ仕組み）
+                const data = await fetchMatchHistory(currentSearchedPlayer.name, currentSearchedPlayer.tag, 'ap', 'competitive', 15);
+                
+                console.log('API応答データ:', data);
+                
+                if (!data) {
+                    throw new Error('APIからデータを取得できませんでした。プレイヤー名またはタグが正しくない可能性があります。');
+                }
+                
+                // 戦績トラッカーと同じレスポンス構造をチェック
+                if (data.status && data.status !== 200) {
+                    console.error('API応答エラー:', data);
+                    throw new Error(`APIエラー: ${data.status} - ${data.error || data.message || 'Unknown error'}`);
+                }
+                
+                // データの存在確認
+                const matches = data.data || [];
+                const accountData = data.accountData;
+                
+                console.log(`取得したマッチ数: ${matches.length}`);
+                console.log('アカウント情報:', accountData);
+                
+                if (matches.length === 0) {
+                    resultsContainer.innerHTML = `
+                        <div class="error">
+                            <h3>マッチ履歴が見つかりません</h3>
+                            <p>${data.message || 'このプレイヤーのマッチ履歴がないか、最近の試合がない可能性があります。'}</p>
+                            <details style="margin-top: 1rem; color: #888;">
+                                <summary>詳細情報</summary>
+                                <pre style="margin-top: 0.5rem; font-size: 0.8rem; white-space: pre-wrap;">プレイヤー: ${currentSearchedPlayer.name}#${currentSearchedPlayer.tag}
+PUUID: ${accountData ? accountData.puuid : 'N/A'}
+地域: ${accountData ? accountData.region : 'N/A'}
+APIレスポンス: ${JSON.stringify(data, null, 2)}</pre>
+                            </details>
+                        </div>
+                    `;
+                    return;
+                }
+                
+                // マッチ履歴用の簡単なデータ処理
+                const processedMatches = processMatchDataForHistory(matches, accountData.puuid);
+                displayMatchHistory(processedMatches);
+                
+            } catch (error) {
+                console.error('マッチ履歴取得エラー:', error);
+                
+                let errorMessage = 'マッチ履歴の取得に失敗しました。';
+                let suggestionMessage = '';
+                let showAPIKeyGuide = false;
+                
+                if (error.message.includes('APIキーが無効')) {
+                    errorMessage = 'APIキーが無効または期限切れです。';
+                    showAPIKeyGuide = true;
+                } else if (error.message.includes('見つかりません') || error.message.includes('404')) {
+                    errorMessage = 'プレイヤーが見つかりません。';
+                    suggestionMessage = 'プレイヤー名とタグ（例：Player#1234）が正しいか確認してください。VALORANTで最近プレイしているか確認してください。';
+                } else if (error.message.includes('APIエラー')) {
+                    errorMessage = `APIエラーが発生しました: ${error.message}`;
+                    suggestionMessage = 'Henrik-3 APIサーバーに問題がある可能性があります。しばらく待ってから再試行してください。';
+                } else if (error.message.includes('fetch') || error.message.includes('network') || error.message.includes('ネットワーク')) {
+                    errorMessage = 'ネットワークエラーが発生しました。';
+                    suggestionMessage = 'インターネット接続を確認してください。VPNを使用している場合は無効にしてみてください。';
+                } else if (error.message.includes('タイムアウト')) {
+                    errorMessage = 'リクエストがタイムアウトしました。';
+                    suggestionMessage = 'サーバーが混雑している可能性があります。しばらく待ってから再試行してください。';
+                } else if (error.message.includes('レート制限')) {
+                    errorMessage = 'APIレート制限に達しました。';
+                    suggestionMessage = '短時間で多くのリクエストを送信しました。5-10分待ってから再試行してください。';
+                } else if (error.message.includes('入力')) {
+                    errorMessage = error.message;
+                    suggestionMessage = 'プレイヤー名とタグの両方を正しく入力してください。';
+                }
+                
+                resultsContainer.innerHTML = `
+                    <div class="error">
+                        <h3>${showAPIKeyGuide ? '🔑 APIキーエラー' : 'エラーが発生しました'}</h3>
+                        <p><strong>${errorMessage}</strong></p>
+                        ${suggestionMessage ? `<p style="color: #ccc; margin-top: 0.5rem;">${suggestionMessage}</p>` : ''}
+                        
+                        ${showAPIKeyGuide ? `
+                            <div class="api-key-guide" style="background: #1a1a1a; border: 1px solid #333; border-radius: 8px; padding: 1rem; margin: 1rem 0; color: #fff;">
+                                <h4 style="color: #ff4655; margin-bottom: 0.5rem;">💡 APIキー取得方法</h4>
+                                <ol style="margin: 0.5rem 0; padding-left: 1.5rem; line-height: 1.6;">
+                                    <li><strong>Henrik-3 公式リポジトリにアクセス:</strong>
+                                        <br><a href="https://github.com/Henrik-3/unofficial-valorant-api" target="_blank" rel="noopener" style="color: #4CAF50;">→ Henrik-3 API GitHub</a>
+                                    </li>
+                                    <li><strong>Discordサーバーで新しいAPIキーを申請:</strong>
+                                        <ul style="margin: 0.5rem 0; padding-left: 1rem;">
+                                            <li>Basic Key: 即時取得可能（30 requests/minute）</li>
+                                            <li>Advanced Key: 24-48時間で回答（90 requests/minute）</li>
+                                        </ul>
+                                    </li>
+                                    <li><strong>config.jsファイルを更新:</strong>
+                                        <br><code style="background: #333; padding: 0.2rem 0.4rem; border-radius: 4px; color: #4CAF50;">API_KEY: "your-new-api-key-here"</code>
+                                    </li>
+                                </ol>
+                                
+                                <div style="background: #2a2a2a; border-left: 4px solid #ff4655; padding: 0.5rem; margin: 1rem 0;">
+                                    <strong>📋 申請時に必要な情報:</strong>
+                                    <ul style="margin: 0.5rem 0; font-size: 0.9rem;">
+                                        <li>アプリケーションの用途説明</li>
+                                        <li>プライベート/公開使用の明記</li>
+                                        <li>データの適切な使用に同意</li>
+                                    </ul>
+                                </div>
+                                
+                                <div style="color: #888; font-size: 0.9rem; margin-top: 0.5rem;">
+                                    <strong>注意:</strong> Henrik-3 APIでは現在認証が必須となっています。
+                                </div>
+                            </div>
+                        ` : ''}
+                        
+                        <div style="margin-top: 1rem;">
+                            <button onclick="searchMatchHistory()" style="padding: 0.5rem 1rem; background: #ff4655; color: white; border: none; border-radius: 4px; cursor: pointer; margin-right: 0.5rem;">
+                                再試行
+                            </button>
+                            <button onclick="testAPIConnection()" style="padding: 0.5rem 1rem; background: #555; color: white; border: none; border-radius: 4px; cursor: pointer;">
+                                API接続テスト
+                            </button>
+                        </div>
+                        <details style="margin-top: 1rem; color: #888;">
+                            <summary>詳細情報（開発者向け）</summary>
+                            <pre style="margin-top: 0.5rem; font-size: 0.8rem; white-space: pre-wrap;">エラー: ${error.message}
+
+プレイヤー: ${currentSearchedPlayer.name}#${currentSearchedPlayer.tag}
+API設定:
+- ベースURL: ${config.API_BASE_URL}
+- APIキー: ${config.API_KEY ? '設定済み' : '未設定'}
+
+ブラウザ情報:
+- User Agent: ${navigator.userAgent}
+- 現在時刻: ${new Date().toLocaleString()}</pre>
+                        </details>
+                    </div>
+                `;
+            }
+        }
+        
+        // マッチ履歴用のデータ処理関数（戦績トラッカーの簡略版）
+        function processMatchDataForHistory(matches, puuid) {
+            console.log("processMatchDataForHistory received matches:", matches.length);
+            console.log("processMatchDataForHistory received puuid:", puuid);
+
+            if (!matches || matches.length === 0) {
+                return [];
+            }
+
+            const processedMatches = matches.map((match, index) => {
+                console.log(`Processing match ${index + 1}:`, match);
+
+                if (!match || !match.metadata || !match.players || !match.teams) {
+                    console.warn("Skipping match due to missing fundamental data structure:", match);
+                    return null;
+                }
+
+                // プレイヤーを見つける
+                const player = match.players.find(p => p.puuid === puuid);
+                if (!player || !player.stats || !player.agent) {
+                    console.warn("Player not found in match:", match, "for puuid:", puuid);
+                    return null;
+                }
+
+                // プレイヤーのチーム情報を取得
+                const playerTeamData = match.teams.find(t => t.team_id.toLowerCase() === player.team_id.toLowerCase());
+                if (!playerTeamData || typeof playerTeamData.won !== 'boolean') {
+                    console.warn("Player team data not found:", match, "for team_id:", player.team_id);
+                    return null;
+                }
+
+                const won = playerTeamData.won;
+                const roundsWon = playerTeamData.rounds ? playerTeamData.rounds.won : 0;
+                const roundsLost = playerTeamData.rounds ? playerTeamData.rounds.lost : 0;
+
+                // 統計計算
+                const kills = player.stats.kills || 0;
+                const deaths = player.stats.deaths || 0;
+                const assists = player.stats.assists || 0;
+                const headshots = player.stats.headshots || 0;
+                const bodyshots = player.stats.bodyshots || 0;
+                const legshots = player.stats.legshots || 0;
+
+                const totalShots = headshots + bodyshots + legshots;
+                const headshotRate = totalShots > 0 ? ((headshots / totalShots) * 100).toFixed(1) : "0.0";
+                const kd = deaths > 0 ? (kills / deaths).toFixed(2) : kills.toFixed(2);
+
+                // エージェント情報
+                const agentName = player.agent.name || 'Unknown';
+                let agentIconUrl = getAgentImageUrl(agentName);
+
+                // ランク情報
+                const rankName = player.tier && player.tier.name ? player.tier.name : "Unranked";
+                let rankIconUrl = getRankImageUrl(rankName);
+
+                // 継続時間（ミリ秒から分に変換）
+                const duration = match.metadata.game_length || 0;
+                const durationMinutes = Math.round(duration / 60000) || 0;
+
+                return {
+                    matchId: match.metadata.match_id,
+                    map: match.metadata.map ? match.metadata.map.name : '不明なマップ',
+                    agentName: agentName,
+                    agentIcon: agentIconUrl,
+                    result: won ? '勝利' : '敗北',
+                    resultColor: won ? 'win' : 'loss',
+                    score: `${roundsWon} - ${roundsLost}`,
+                    kills: kills,
+                    deaths: deaths,
+                    assists: assists,
+                    kda: `${kills}/${deaths}/${assists}`,
+                    kd: kd,
+                    headshotRate: headshotRate,
+                    rankName: rankName,
+                    rankIcon: rankIconUrl,
+                    gameMode: match.metadata.queue ? match.metadata.queue.name : 'Unknown',
+                    duration: durationMinutes,
+                    date: match.metadata.game_start ? new Date(match.metadata.game_start).toLocaleDateString() : 'Unknown'
+                };
+            }).filter(Boolean);
+
+            console.log("processMatchDataForHistory returning:", processedMatches.length, "processed matches");
+            return processedMatches;
+        }
+
+        // API接続テスト関数を追加
+        async function testAPIConnection() {
+            const resultsContainer = document.getElementById('matchHistoryResults');
+            resultsContainer.innerHTML = '<div class="loading">API接続をテスト中...</div>';
+            
+            try {
+                // 基本的な接続テスト
+                const testUrls = [
+                    `${config.API_BASE_URL}/v1/status`,
+                    `${config.API_BASE_URL}/status`,
+                    config.API_BASE_URL
+                ];
+                
+                const results = [];
+                
+                for (const url of testUrls) {
+                    try {
+                        console.log(`[テスト] ${url} にアクセス中...`);
+                        const response = await fetch(url, {
+                            method: 'GET',
+                            headers: {
+                                'Accept': 'application/json'
+                            }
+                        });
+                        
+                        const isAuthError = response.status === 401;
+                        results.push({
+                            url: url,
+                            status: response.status,
+                            statusText: response.statusText,
+                            success: response.ok,
+                            isAuthError: isAuthError,
+                            message: isAuthError ? 'APIキー認証エラー' : response.statusText
+                        });
+                        
+                        if (response.ok) {
+                            break; // 成功したら終了
+                        }
+                    } catch (err) {
+                        results.push({
+                            url: url,
+                            error: err.message,
+                            success: false
+                        });
+                    }
+                }
+                
+                const successfulTests = results.filter(r => r.success);
+                const failedTests = results.filter(r => !r.success);
+                
+                resultsContainer.innerHTML = `
+                    <div class="error">
+                        <h3>API接続テスト結果</h3>
+                        ${successfulTests.length > 0 ? `
+                            <div style="color: #4CAF50; margin: 0.5rem 0;">
+                                <strong>✅ 成功した接続:</strong>
+                                ${successfulTests.map(r => `<br>• ${r.url} (${r.status})`).join('')}
+                            </div>
+                        ` : ''}
+                        ${failedTests.length > 0 ? `
+                            <div style="color: #f44336; margin: 0.5rem 0;">
+                                <strong>❌ 失敗した接続:</strong>
+                                ${failedTests.map(r => `<br>• ${r.url} ${r.error ? `(${r.error})` : `(${r.status}${r.isAuthError ? ' - APIキー認証エラー' : ''})`}`).join('')}
+                            </div>
+                        ` : ''}
+                        ${failedTests.some(r => r.isAuthError) ? `
+                            <div style="background: #2a1a1a; border: 1px solid #ff4655; border-radius: 6px; padding: 0.8rem; margin: 1rem 0; color: #fff;">
+                                <strong style="color: #ff4655;">🔑 認証エラーが検出されました</strong>
+                                <p style="margin: 0.5rem 0; font-size: 0.9rem;">現在のAPIキーが無効です。新しいAPIキーの取得が必要です。</p>
+                                <a href="https://github.com/Henrik-3/unofficial-valorant-api" target="_blank" rel="noopener" style="color: #4CAF50; text-decoration: underline;">
+                                    Henrik-3 API GitHub で詳細を確認 →
+                                </a>
+                            </div>
+                        ` : ''}
+                        <p style="margin-top: 1rem; color: #ccc;">
+                            ${successfulTests.length > 0 ? 
+                                'APIサーバーへの基本接続は成功していますが、マッチ履歴エンドポイントに問題がある可能性があります。' :
+                                'APIサーバーへの接続ができません。ネットワーク設定またはAPIサーバーの状態を確認してください。'
+                            }
+                        </p>
+                        <button onclick="searchMatchHistory()" style="margin-top: 1rem; padding: 0.5rem 1rem; background: #ff4655; color: white; border: none; border-radius: 4px; cursor: pointer;">
+                            マッチ履歴検索に戻る
+                        </button>
+                    </div>
+                `;
+                
+            } catch (error) {
+                console.error('API接続テストエラー:', error);
+                resultsContainer.innerHTML = `
+                    <div class="error">
+                        <h3>API接続テスト失敗</h3>
+                        <p>接続テストの実行中にエラーが発生しました: ${error.message}</p>
+                        <button onclick="searchMatchHistory()" style="margin-top: 1rem; padding: 0.5rem 1rem; background: #ff4655; color: white; border: none; border-radius: 4px; cursor: pointer;">
+                            マッチ履歴検索に戻る
+                        </button>
+                    </div>
+                `;
+            }
+        }
+        
+        function displayMatchHistory(matches) {
+            const resultsContainer = document.getElementById('matchHistoryResults');
+            
+            if (!matches || matches.length === 0) {
+                resultsContainer.innerHTML = `
+                    <div class="error">
+                        <h3>マッチ履歴が見つかりません</h3>
+                        <p>このプレイヤーのマッチ履歴がないか、最近の試合がない可能性があります。</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            console.log('表示するマッチデータ:', matches);
+            
+            const matchesHTML = matches.map((match, index) => {
+                console.log(`マッチ ${index + 1}:`, match);
+                
+                return `
+                    <div class="match-card">
+                        <div class="match-header">
+                            <div class="match-result ${match.resultColor}">${match.result}</div>
+                            <div class="agent-info">
+                                <img src="${match.agentIcon}" alt="${match.agentName}" class="agent-image" 
+                                     onerror="this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNTAiIGhlaWdodD0iNTAiIHZpZXdCb3g9IjAgMCA1MCA1MCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHJlY3Qgd2lkdGg9IjUwIiBoZWlnaHQ9IjUwIiBmaWxsPSIjNDQ0Ii8+Cjx0ZXh0IHg9IjI1IiB5PSIyNSIgZmlsbD0iIzg4OCIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZm9udC1zaXplPSI4Ij5BR0VOVDwvdGV4dD4KPC9zdmc+'">
+                                <span style="color: #ccc; font-size: 0.9rem;">${match.agentName}</span>
+                            </div>
+                        </div>
+                        
+                        <div class="match-details">
+                            <div class="detail-item">
+                                <div class="detail-label">マップ</div>
+                                <div class="detail-value">${match.map}</div>
+                            </div>
+                            
+                            <div class="detail-item">
+                                <div class="detail-label">スコア</div>
+                                <div class="detail-value">${match.score}</div>
+                            </div>
+                            
+                            <div class="detail-item">
+                                <div class="detail-label">K/D/A</div>
+                                <div class="detail-value">${match.kda}</div>
+                            </div>
+                            
+                            <div class="detail-item">
+                                <div class="detail-label">K/D率</div>
+                                <div class="detail-value">${match.kd}</div>
+                            </div>
+                            
+                            <div class="detail-item">
+                                <div class="detail-label">HS率</div>
+                                <div class="detail-value">${match.headshotRate}%</div>
+                            </div>
+                            
+                            <div class="detail-item">
+                                <div class="detail-label">モード</div>
+                                <div class="detail-value">${match.gameMode}</div>
+                            </div>
+                            
+                            ${match.duration > 0 ? `
+                                <div class="detail-item">
+                                    <div class="detail-label">時間</div>
+                                    <div class="detail-value">${match.duration}分</div>
+                                </div>
+                            ` : ''}
+                        </div>
+                    </div>
+                `;
+            }).join('');
+            
+            resultsContainer.innerHTML = matchesHTML;
+        }
+        
+        // Enterキーでの検索機能
+        function initializeSearchForm() {
+            const playerNameInput = document.getElementById('playerName');
+            const playerTagInput = document.getElementById('playerTag');
+            
+            // Enterキーでの検索
+            [playerNameInput, playerTagInput].forEach(input => {
+                input.addEventListener('keypress', function(event) {
+                    if (event.key === 'Enter') {
+                        event.preventDefault();
+                        searchMatchHistory();
+                    }
+                });
+                
+                // フォーカス時のアニメーション
+                input.addEventListener('focus', function() {
+                    this.style.transform = 'translateY(-1px)';
+                });
+                
+                input.addEventListener('blur', function() {
+                    this.style.transform = 'translateY(0)';
+                });
+            });
+            
+            // 検索ボタンのキーボードアクセシビリティ
+            const searchButton = document.querySelector('.search-form button');
+            searchButton.addEventListener('keypress', function(event) {
+                if (event.key === 'Enter' || event.key === ' ') {
+                    event.preventDefault();
+                    searchMatchHistory();
+                }
+            });
+        }
+        
+        // ページ読み込み時にハンバーガーメニューと検索フォームを初期化
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeHamburgerMenu();
+            initializeSearchForm();
+        });
+    </script>
+</body>
+</html> 
