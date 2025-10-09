@@ -1,12 +1,14 @@
-async function fetchPlayerStats(name, tag, retryCount = 3) {
+async function fetchPlayerStats(name, tag, region = 'ap', retryCount = 3) {
     for (let attempt = 1; attempt <= retryCount; attempt++) {
         try {
             console.log(`[API] fetchPlayerStats リクエスト送信中 (試行 ${attempt}/${retryCount})`);
-            
+            console.log(`[API] URL: ${config.API_BASE_URL}/v2/mmr/${region}/${encodeURIComponent(name)}/${encodeURIComponent(tag)}`);
+
             const controller = new AbortController();
             const timeoutId = setTimeout(() => controller.abort(), 8000); // 8秒タイムアウト
 
-            const response = await fetch(`${config.API_BASE_URL}/v1/mmr/ap/${name}/${tag}?api_key=${config.API_KEY}`, {
+            // CORS対応のためクエリパラメータ方式でAPIキーを送信
+            const response = await fetch(`${config.API_BASE_URL}/v2/mmr/${region}/${encodeURIComponent(name)}/${encodeURIComponent(tag)}?api_key=${config.API_KEY}`, {
                 signal: controller.signal
             });
 
@@ -55,15 +57,17 @@ async function fetchPlayerStats(name, tag, retryCount = 3) {
     return null;
 }
 
-async function fetchPlayerProfile(name, tag, retryCount = 3) {
+async function fetchPlayerProfile(name, tag, region = 'ap', retryCount = 3) {
     for (let attempt = 1; attempt <= retryCount; attempt++) {
         try {
             console.log(`[API] fetchPlayerProfile リクエスト送信中 (試行 ${attempt}/${retryCount})`);
-            
+            console.log(`[API] URL: ${config.API_BASE_URL}/v2/account/${encodeURIComponent(name)}/${encodeURIComponent(tag)}`);
+
             const controller = new AbortController();
             const timeoutId = setTimeout(() => controller.abort(), 8000); // 8秒タイムアウト
 
-            const response = await fetch(`${config.API_BASE_URL}/v1/profile/ap/${name}/${tag}?api_key=${config.API_KEY}`, {
+            // CORS対応のためクエリパラメータ方式でAPIキーを送信
+            const response = await fetch(`${config.API_BASE_URL}/v2/account/${encodeURIComponent(name)}/${encodeURIComponent(tag)}?api_key=${config.API_KEY}`, {
                 signal: controller.signal
             });
 

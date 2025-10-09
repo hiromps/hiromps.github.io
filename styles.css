@@ -1,12 +1,13 @@
 :root {
+    /* Color System */
     --valorant-red: #ff4655;
     --valorant-dark: #0f1923;
     --valorant-light: #ffffff;
     --valorant-grey: #3a444e;
     --valorant-green: #4CAF50;
     --valorant-red-bg: #F44336;
-    --overlay-bg-color: rgba(58, 68, 78, 0.9); /* オーバーレイの背景色のデフォルト値（透明度付き） */
-    --last-match-bg-color: var(--valorant-red-bg); /* ラストマッチセクションの背景色 */
+    --overlay-bg-color: rgba(58, 68, 78, 0.9);
+    --last-match-bg-color: var(--valorant-red-bg);
     --rank-bg-color: var(--valorant-grey);
     --border-color: #ff4655;
     --text-color: #ffffff;
@@ -14,6 +15,609 @@
     --win-color: var(--valorant-green);
     --loss-color: var(--valorant-red-bg);
     --win-loss-text-color: var(--text-color);
+
+    /* Spacing System */
+    --spacing-xs: 4px;
+    --spacing-sm: 8px;
+    --spacing-md: 12px;
+    --spacing-lg: 20px;
+    --spacing-xl: 30px;
+
+    /* Sizing System */
+    --size-icon-sm: 40px;
+    --size-icon-md: 70px;
+    --size-icon-lg: 120px;
+
+    /* Border Radius */
+    --radius-sm: 6px;
+    --radius-md: 8px;
+    --radius-lg: 12px;
+    --radius-xl: 16px;
+    --radius-round: 50%;
+
+    /* Transitions */
+    --transition-fast: 0.15s ease;
+    --transition-normal: 0.3s ease;
+    --transition-slow: 0.5s ease;
+
+    /* Shadows */
+    --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.15);
+    --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.2);
+    --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.3);
+    --shadow-glow-red: 0 0 20px rgba(255, 70, 85, 0.3);
+    --shadow-glow-green: 0 0 15px rgba(34, 197, 94, 0.5);
+}
+
+/* ═══════════════════════════════════════════════════
+   GLOBAL STYLES
+   ═══════════════════════════════════════════════════ */
+
+/* Global Reset */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html, body {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    min-height: 100vh;
+    overflow-x: hidden;
+}
+
+/* ═══════════════════════════════════════════════════
+   HEADER & NAVIGATION
+   ═══════════════════════════════════════════════════ */
+
+.app-header {
+    position: sticky;
+    top: 0;
+    left: 0;
+    right: 0;
+    width: 100%;
+    padding: 0.75rem 0;
+    background-color: rgba(15, 25, 35, 0.98);
+    border-bottom: 2px solid var(--border-color);
+    backdrop-filter: blur(15px);
+    box-shadow: var(--shadow-md);
+    z-index: 999;
+    transition: var(--transition-normal);
+}
+
+.header-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 0 1rem;
+    width: 100%;
+    min-height: 60px;
+}
+
+.nav-buttons {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+.app-header button,
+.app-header a.header-button {
+    background-color: var(--valorant-red);
+    color: white;
+    border: none;
+    padding: 0.6rem 1rem;
+    margin: 0;
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    border-radius: var(--radius-md);
+    transition: var(--transition-normal);
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    white-space: nowrap;
+    min-height: 40px;
+    box-shadow: var(--shadow-glow-red);
+}
+
+.app-header button:hover,
+.app-header a.header-button:hover {
+    background-color: #e0303f;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(255, 70, 85, 0.4);
+}
+
+.app-header button.active,
+.app-header a.header-button.active {
+    background-color: #22c55e;
+    box-shadow: var(--shadow-glow-green);
+    text-decoration: none;
+}
+
+/* Hamburger Menu */
+.hamburger-menu {
+    display: none;
+    flex-direction: column;
+    justify-content: center;
+    cursor: pointer;
+    padding: var(--spacing-sm);
+    border-radius: var(--radius-md);
+    transition: var(--transition-normal);
+    min-width: 40px;
+    min-height: 40px;
+    background-color: transparent;
+    border: 1px solid transparent;
+}
+
+.hamburger-menu:hover {
+    background-color: rgba(255, 70, 85, 0.1);
+    border-color: rgba(255, 70, 85, 0.3);
+}
+
+.hamburger-line {
+    width: 22px;
+    height: 2px;
+    background-color: #fff;
+    margin: 2px 0;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    border-radius: 2px;
+}
+
+.hamburger-menu.active .hamburger-line:nth-child(1) {
+    transform: rotate(45deg) translate(6px, 6px);
+}
+
+.hamburger-menu.active .hamburger-line:nth-child(2) {
+    opacity: 0;
+}
+
+.hamburger-menu.active .hamburger-line:nth-child(3) {
+    transform: rotate(-45deg) translate(6px, -6px);
+}
+
+.mobile-nav {
+    display: none;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: rgba(15, 25, 35, 0.98);
+    backdrop-filter: blur(15px);
+    border-top: 1px solid rgba(255, 70, 85, 0.3);
+    padding: 1rem;
+    z-index: 1000;
+    box-shadow: var(--shadow-lg);
+    border-bottom: 2px solid rgba(255, 70, 85, 0.5);
+    animation: slideDown 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.mobile-nav.active {
+    display: block;
+}
+
+.mobile-nav-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    max-width: 400px;
+    margin: 0 auto;
+}
+
+.mobile-nav .header-button {
+    width: 100%;
+    text-align: center;
+    padding: 1rem 1.5rem;
+    margin: 0;
+    border-radius: var(--radius-md);
+    font-size: 1rem;
+    font-weight: 600;
+    background-color: rgba(255, 70, 85, 0.1);
+    border: 1px solid rgba(255, 70, 85, 0.3);
+    transition: var(--transition-normal);
+    min-height: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.mobile-nav .header-button:hover {
+    background-color: rgba(255, 70, 85, 0.2);
+    transform: translateY(-1px);
+}
+
+.mobile-nav .header-button.active {
+    background-color: rgba(34, 197, 94, 0.2);
+    border-color: rgba(34, 197, 94, 0.5);
+}
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* ═══════════════════════════════════════════════════
+   MAIN CONTENT LAYOUT
+   ═══════════════════════════════════════════════════ */
+
+/* Main Content Wrapper */
+.main-content-wrapper {
+    width: 100%;
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: var(--spacing-lg) 0;
+}
+
+/* Left and Right Sections */
+.left-section,
+.right-section {
+    flex: 1;
+    min-width: 300px;
+}
+
+.right-section {
+    display: flex;
+    flex-direction: column;
+}
+
+/* Content Cards */
+.content-card {
+    background-color: rgba(31, 31, 31, 0.95);
+    backdrop-filter: blur(10px);
+    border-radius: var(--radius-lg);
+    border: 1px solid var(--border-color);
+    box-shadow: var(--shadow-lg), var(--shadow-glow-red);
+    transition: var(--transition-normal);
+    overflow: hidden;
+}
+
+.content-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4), 0 0 30px rgba(255, 70, 85, 0.2);
+}
+
+/* Card Header */
+.card-header {
+    padding: var(--spacing-lg) var(--spacing-xl);
+    background: linear-gradient(135deg, rgba(255, 70, 85, 0.1), rgba(255, 70, 85, 0.05));
+    border-bottom: 1px solid rgba(255, 70, 85, 0.2);
+}
+
+.card-header h2 {
+    margin: 0;
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--valorant-light);
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-md);
+}
+
+/* Header Icons */
+.header-icon {
+    font-size: 1.3em;
+    filter: drop-shadow(0 0 8px rgba(255, 70, 85, 0.5));
+}
+
+/* Card Body */
+.card-body {
+    padding: var(--spacing-xl);
+}
+
+/* Input Group */
+.input-group {
+    display: flex;
+    gap: var(--spacing-md);
+    margin-bottom: var(--spacing-lg);
+}
+
+.input-wrapper {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-sm);
+}
+
+.input-wrapper label {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: rgba(255, 255, 255, 0.9);
+}
+
+.input-wrapper input {
+    padding: 12px 16px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: var(--radius-md);
+    background-color: rgba(42, 42, 42, 0.8);
+    color: white;
+    font-size: 14px;
+    transition: var(--transition-normal);
+}
+
+.input-wrapper input:focus {
+    outline: none;
+    border-color: var(--valorant-red);
+    box-shadow: 0 0 0 3px rgba(255, 70, 85, 0.2);
+}
+
+.input-wrapper input::placeholder {
+    color: rgba(255, 255, 255, 0.4);
+}
+
+/* Generate Button */
+.generate-button {
+    width: 100%;
+    padding: 14px 24px;
+    background: linear-gradient(135deg, var(--valorant-red), #e0303f);
+    color: white;
+    border: none;
+    border-radius: var(--radius-md);
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: var(--transition-normal);
+    box-shadow: var(--shadow-glow-red);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--spacing-sm);
+}
+
+.generate-button:hover {
+    background: linear-gradient(135deg, #e0303f, var(--valorant-red));
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(255, 70, 85, 0.4);
+}
+
+.generate-button:active {
+    transform: translateY(0);
+}
+
+/* Button Icons */
+.button-icon {
+    font-size: 1.2em;
+    filter: drop-shadow(0 0 4px rgba(255, 255, 255, 0.3));
+}
+
+/* URL Section */
+.url-section {
+    margin-top: var(--spacing-lg);
+}
+
+.url-label {
+    display: block;
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: rgba(255, 255, 255, 0.9);
+    margin-bottom: var(--spacing-sm);
+}
+
+.url-output-wrapper {
+    display: flex;
+    gap: var(--spacing-sm);
+}
+
+.url-output-wrapper input {
+    flex: 1;
+    padding: 12px 16px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: var(--radius-md);
+    background-color: rgba(42, 42, 42, 0.8);
+    color: white;
+    font-size: 14px;
+    font-family: 'Courier New', monospace;
+}
+
+.url-output-wrapper input:focus {
+    outline: none;
+    border-color: var(--valorant-red);
+    box-shadow: 0 0 0 2px rgba(255, 70, 85, 0.2);
+}
+
+/* Copy Button */
+.copy-button {
+    padding: 12px 16px;
+    background-color: var(--valorant-grey);
+    color: white;
+    border: none;
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    transition: var(--transition-normal);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 50px;
+}
+
+.copy-button:hover {
+    background-color: #5a646e;
+    transform: translateY(-1px);
+}
+
+.copy-icon {
+    font-size: 1.2em;
+}
+
+/* Preview Area - OBS風の透過背景 */
+.preview-area {
+    min-height: 200px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: transparent; /* 背景を透過 */
+    border-radius: var(--radius-md);
+    padding: var(--spacing-xl);
+    position: relative; /* 子要素の配置基準 */
+}
+
+.preview-card {
+    height: 100%;
+}
+
+/* Customize Section */
+.customize-section {
+    margin-top: var(--spacing-lg);
+    text-align: center;
+}
+
+.customize-button {
+    padding: 12px 24px;
+    background-color: var(--valorant-grey);
+    color: var(--valorant-light);
+    border: none;
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    transition: var(--transition-normal);
+    font-weight: 600;
+    font-size: 14px;
+    box-shadow: var(--shadow-sm);
+    display: inline-flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+}
+
+.customize-button:hover {
+    background-color: #5a646e;
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+}
+
+/* Tutorial Container */
+.tutorial-container {
+    width: 100%;
+    max-width: 1200px;
+    margin: var(--spacing-xl) auto;
+    padding: 0 1rem;
+}
+
+/* Responsive: Mobile */
+@media screen and (max-width: 768px) {
+    .main-content-wrapper {
+        padding: var(--spacing-md) 0;
+    }
+
+    .input-group {
+        flex-direction: column;
+    }
+
+    .card-header {
+        padding: var(--spacing-md) var(--spacing-lg);
+    }
+
+    .card-header h2 {
+        font-size: 1.2rem;
+    }
+
+    .card-body {
+        padding: var(--spacing-lg);
+    }
+
+    .url-output-wrapper {
+        flex-direction: column;
+    }
+
+    .copy-button {
+        width: 100%;
+    }
+}
+
+/* ═══════════════════════════════════════════════════
+   COMPONENT STYLES (FROM INDEX.HTML)
+   ═══════════════════════════════════════════════════ */
+
+/* OBS Overlay Styles */
+.obs-overlay {
+    display: none;
+    flex-direction: column;
+    background: var(--overlay-bg-color);
+    backdrop-filter: blur(10px);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-lg);
+    color: var(--text-color);
+    overflow: hidden;
+    width: 300px;
+    height: auto;
+    box-shadow: var(--shadow-lg);
+}
+
+body.obs-mode .obs-overlay {
+    backdrop-filter: none !important;
+}
+
+/* Customize Note */
+.customize-note {
+    margin: 15px 20px 20px 20px;
+    padding: var(--spacing-md) 16px;
+    background-color: rgba(255, 193, 7, 0.1);
+    border: 1px solid rgba(255, 193, 7, 0.3);
+    border-radius: var(--radius-md);
+    font-size: 0.85rem;
+}
+
+.note-text {
+    margin: 0;
+    color: #ffc107;
+    line-height: 1.4;
+}
+
+.note-text strong {
+    color: #fff;
+}
+
+/* Theme Selector */
+.theme-selector {
+    display: flex;
+    gap: 0.5rem;
+    margin-top: 0.5rem;
+}
+
+.theme-button {
+    padding: 0.5rem 1rem;
+    border: 2px solid #374151;
+    background: transparent;
+    color: #9ca3af;
+    border-radius: 0.5rem;
+    cursor: pointer;
+    transition: var(--transition-normal);
+    font-size: 0.875rem;
+    font-weight: 500;
+}
+
+.theme-button:hover {
+    border-color: #6b7280;
+    color: #d1d5db;
+}
+
+.theme-button.active {
+    border-color: var(--border-color);
+    background: var(--border-color);
+    color: white;
+}
+
+/* Utility Classes */
+.mode-container {
+    /* display: none; */ /* JS で制御 */
+}
+
+.hidden {
+    display: none !important;
+}
+
+#showOverlayModeLink,
+#showTrackerModeLink {
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 /* 背景アニメーション用のスタイル */
@@ -92,13 +696,10 @@ body {
 }
 
 .overlay {
-    position: fixed;
-    top: 20px;
-    right: 20px;
+    position: relative;
     display: flex;
     flex-direction: column;
     background: var(--overlay-bg-color); /* 変数を適用 */
-    /* background-color: transparent; */
     backdrop-filter: blur(10px);
     border: 1px solid var(--border-color); /* 変数を適用 */
     border-radius: 12px; /* 角丸を統一 */
@@ -108,12 +709,10 @@ body {
     height: auto;
     transition: transform 0.3s ease, box-shadow 0.3s ease;
     box-shadow: 0 4px 24px rgba(0, 0, 0, 0.3);
+    margin: 0 auto;
 }
 
-/* OBSモード専用 - 全ての背景を完全に透明に */
-body.obs-mode .overlay {
-    backdrop-filter: none !important;
-}
+/* OBSモード専用 - プレビューと同じデザインを維持 */
 
 .overlay:hover {
     transform: translateY(-2px);
@@ -232,23 +831,36 @@ body.obs-mode .overlay {
     justify-content: center;
     position: relative; /* 子要素の絶対配置のために必要 */
     overflow: hidden; /* ゲージがはみ出さないように隠す */
-    background-color: var(--last-match-bg-color); /* カスタマイズ可能な背景色 */
+    background: transparent; /* 2層ゲージシステムのため透明に */
     width: 100%; /* 親要素の全幅を使用 */
 }
 
+/* 赤い背景ゲージ (100RRまでの残り部分) */
+.mmr-gauge-background {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: var(--valorant-red-bg);
+    z-index: 0;
+}
+
+/* 緑のゲージ (現在のRR) */
 .mmr-gauge-fill {
     position: absolute;
     top: 0;
     left: 0;
-    height: 100%;
+    bottom: 0;
     width: 0; /* 初期幅は0 */
-    background-color: var(--valorant-green); /* デフォルト緑 */
+    background-color: var(--valorant-green); /* 緑色 */
     transition: width 0.5s ease; /* アニメーション */
+    z-index: 1;
 }
 
 .last-match-text {
     position: relative; /* ゲージの上に表示 */
-    z-index: 1; /* ゲージより前面に */
+    z-index: 2; /* ゲージより前面に */
     color: var(--text-color);
 }
 
@@ -667,7 +1279,7 @@ body.obs-mode .overlay {
     position: relative;
     overflow: hidden;
     box-sizing: border-box;
-    background: var(--last-match-bg-color);
+    background: transparent;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -684,105 +1296,332 @@ body.obs-mode .overlay {
     text-align: center;
 }
 
+.theme-classic .mmr-gauge-background {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: var(--valorant-red-bg);
+    z-index: 0;
+}
+
 .theme-classic .mmr-gauge-fill {
     position: absolute;
     top: 0;
     left: 0;
-    height: 100%;
+    bottom: 0;
     width: 0;
     background-color: var(--valorant-green);
     transition: width 0.5s ease;
-    max-width: 100%;
+    z-index: 1;
+}
+
+/* ═══════════════════════════════════════════════════
+   MODERN テーマ - カードスタイル
+   ═══════════════════════════════════════════════════ */
+.theme-modern .overlay {
+    display: flex;
+    flex-direction: column;
+    width: auto !important;
+    min-width: 350px !important;
+    max-width: 450px !important;
+    border-radius: 16px;
+    overflow: hidden;
+    background: linear-gradient(135deg, rgba(58, 68, 78, 0.95), rgba(31, 41, 55, 0.95));
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.4), 0 0 1px rgba(255, 70, 85, 0.5);
+    transition: all 0.3s ease;
+}
+
+.theme-modern .rank-section {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    padding: 20px;
+    background: linear-gradient(135deg, rgba(255, 70, 85, 0.1), transparent);
+    border-bottom: 2px solid rgba(255, 70, 85, 0.3);
+}
+
+.theme-modern .rank-icon {
+    width: 100px;
+    height: 100px;
+    margin-right: 16px;
+    filter: drop-shadow(0 4px 8px rgba(255, 70, 85, 0.4));
+}
+
+.theme-modern .rank-details {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.theme-modern .rank-name {
+    font-size: 1.8em;
+    font-weight: 700;
+    color: var(--text-color);
+    letter-spacing: 0.5px;
+}
+
+.theme-modern .rr {
+    font-size: 1.5em;
+    font-weight: 700;
+    color: var(--rr-color);
+    text-shadow: 0 0 10px rgba(255, 70, 85, 0.5);
+}
+
+.theme-modern .last-match-section {
+    width: 100%;
+    padding: 16px 20px;
+    position: relative;
+    overflow: hidden;
+    background: transparent;
+}
+
+.theme-modern .last-match-text {
+    font-size: 1em;
+    font-weight: 600;
+    position: relative;
+    z-index: 2;
+    text-align: center;
+}
+
+.theme-modern .mmr-gauge-background {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: var(--valorant-red-bg);
     z-index: 0;
 }
 
-/* 他のテーマのスタイル */
-.theme-modern .overlay,
-.theme-shadcn .overlay,
-.theme-neon .overlay {
-    transition: width 0.3s ease, min-width 0.3s ease, max-width 0.3s ease;
-    width: auto !important;
-    min-width: 300px !important;
-    max-width: 450px !important;
+.theme-modern .mmr-gauge-fill {
+    position: absolute;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    width: 0;
+    background-color: var(--valorant-green);
+    transition: width 0.5s ease;
+    z-index: 1;
 }
 
-.theme-modern .rank-section,
-.theme-shadcn .rank-section,
+/* ═══════════════════════════════════════════════════
+   SHADCN/CYBER テーマ - サイバーパンクスタイル
+   ═══════════════════════════════════════════════════ */
+.theme-shadcn .overlay {
+    display: flex;
+    flex-direction: column;
+    width: auto !important;
+    min-width: 350px !important;
+    max-width: 450px !important;
+    border-radius: 8px;
+    overflow: hidden;
+    background: linear-gradient(135deg, rgba(15, 25, 35, 0.98), rgba(20, 30, 45, 0.98));
+    border: 1px solid rgba(0, 255, 255, 0.3);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.6), 0 0 20px rgba(0, 255, 255, 0.2);
+    transition: all 0.3s ease;
+}
+
+.theme-shadcn .rank-section {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    padding: 16px;
+    background: linear-gradient(90deg, rgba(0, 255, 255, 0.1), transparent);
+    border-bottom: 1px solid rgba(0, 255, 255, 0.4);
+}
+
+.theme-shadcn .rank-icon {
+    width: 90px;
+    height: 90px;
+    margin-right: 14px;
+    filter: drop-shadow(0 0 12px rgba(0, 255, 255, 0.6));
+}
+
+.theme-shadcn .rank-details {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.theme-shadcn .rank-name {
+    font-size: 1.7em;
+    font-weight: 700;
+    color: #00ffff;
+    font-family: 'Rajdhani', sans-serif;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    text-shadow: 0 0 10px rgba(0, 255, 255, 0.5);
+}
+
+.theme-shadcn .rr {
+    font-size: 1.4em;
+    font-weight: 700;
+    color: #ff00ff;
+    font-family: 'Rajdhani', sans-serif;
+    text-shadow: 0 0 10px rgba(255, 0, 255, 0.5);
+}
+
+.theme-shadcn .last-match-section {
+    width: 100%;
+    padding: 14px 16px;
+    position: relative;
+    overflow: hidden;
+    background: transparent;
+    border-top: 1px solid rgba(0, 255, 255, 0.2);
+}
+
+.theme-shadcn .last-match-text {
+    font-size: 0.95em;
+    font-weight: 600;
+    font-family: 'Rajdhani', sans-serif;
+    position: relative;
+    z-index: 2;
+    text-align: center;
+    letter-spacing: 0.5px;
+}
+
+.theme-shadcn .mmr-gauge-background {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: var(--valorant-red-bg);
+    z-index: 0;
+}
+
+.theme-shadcn .mmr-gauge-fill {
+    position: absolute;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    width: 0;
+    background: linear-gradient(90deg, #00ffff, #00ff88);
+    transition: width 0.5s ease;
+    z-index: 1;
+    box-shadow: 0 0 10px rgba(0, 255, 255, 0.5);
+}
+
+/* ═══════════════════════════════════════════════════
+   NEON テーマ - ネオンスタイル
+   ═══════════════════════════════════════════════════ */
+.theme-neon .overlay {
+    display: flex;
+    flex-direction: column;
+    width: auto !important;
+    min-width: 350px !important;
+    max-width: 450px !important;
+    border-radius: 20px;
+    overflow: hidden;
+    background: radial-gradient(circle at top, rgba(30, 15, 50, 0.95), rgba(10, 5, 20, 0.98));
+    border: 2px solid #ff00ff;
+    box-shadow:
+        0 0 20px rgba(255, 0, 255, 0.6),
+        0 0 40px rgba(255, 0, 255, 0.4),
+        0 8px 32px rgba(0, 0, 0, 0.8);
+    transition: all 0.3s ease;
+}
+
 .theme-neon .rank-section {
     display: flex;
     align-items: center;
     justify-content: flex-start;
-    width: max-content;
-    min-width: 0;
-    padding: 10px;
+    padding: 18px;
+    background: linear-gradient(135deg, rgba(255, 0, 255, 0.15), rgba(0, 255, 255, 0.1));
+    border-bottom: 2px solid rgba(255, 0, 255, 0.5);
+    box-shadow: 0 2px 10px rgba(255, 0, 255, 0.3);
 }
 
-.theme-modern .rank-details,
-.theme-shadcn .rank-details,
+.theme-neon .rank-icon {
+    width: 95px;
+    height: 95px;
+    margin-right: 15px;
+    filter: drop-shadow(0 0 15px rgba(255, 0, 255, 0.8));
+    animation: neonPulse 2s ease-in-out infinite;
+}
+
+@keyframes neonPulse {
+    0%, 100% {
+        filter: drop-shadow(0 0 15px rgba(255, 0, 255, 0.8));
+    }
+    50% {
+        filter: drop-shadow(0 0 25px rgba(255, 0, 255, 1));
+    }
+}
+
 .theme-neon .rank-details {
     display: flex;
     flex-direction: column;
-    min-width: 0;
-    width: max-content;
+    gap: 3px;
 }
 
-.theme-modern .rank-name-line,
-.theme-shadcn .rank-name-line,
-.theme-neon .rank-name-line {
-    display: flex;
-    align-items: baseline;
-    gap: 5px;
-    width: max-content;
-    min-width: 0;
-}
-
-.theme-modern .rank-name,
-.theme-shadcn .rank-name,
 .theme-neon .rank-name {
-    white-space: nowrap;
-    width: max-content;
+    font-size: 1.75em;
+    font-weight: 800;
+    color: #ff00ff;
+    font-family: 'Orbitron', sans-serif;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    text-shadow:
+        0 0 10px rgba(255, 0, 255, 0.8),
+        0 0 20px rgba(255, 0, 255, 0.6),
+        0 0 30px rgba(255, 0, 255, 0.4);
 }
 
-.theme-modern .rr,
-.theme-shadcn .rr,
 .theme-neon .rr {
-    white-space: nowrap;
-    width: max-content;
+    font-size: 1.45em;
+    font-weight: 800;
+    color: #00ffff;
+    font-family: 'Orbitron', sans-serif;
+    text-shadow:
+        0 0 10px rgba(0, 255, 255, 0.8),
+        0 0 20px rgba(0, 255, 255, 0.6);
 }
 
-.theme-modern .last-match-section,
-.theme-shadcn .last-match-section,
 .theme-neon .last-match-section {
     width: 100%;
-    min-width: 100%;
-    margin: 0 auto;
+    padding: 15px 18px;
     position: relative;
     overflow: hidden;
-    box-sizing: border-box;
+    background: transparent;
+    border-top: 2px solid rgba(0, 255, 255, 0.3);
 }
 
-.theme-modern .last-match-text,
-.theme-shadcn .last-match-text,
 .theme-neon .last-match-text {
-    white-space: nowrap;
-    width: 100%;
-    text-align: center;
+    font-size: 0.98em;
+    font-weight: 700;
+    font-family: 'Orbitron', sans-serif;
     position: relative;
-    z-index: 1;
+    z-index: 2;
+    text-align: center;
+    letter-spacing: 1px;
+    text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
 }
 
-.theme-modern .mmr-gauge-fill,
-.theme-shadcn .mmr-gauge-fill,
+.theme-neon .mmr-gauge-background {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: var(--valorant-red-bg);
+    z-index: 0;
+}
+
 .theme-neon .mmr-gauge-fill {
     position: absolute;
     top: 0;
     left: 0;
-    height: 100%;
+    bottom: 0;
     width: 0;
-    background-color: var(--valorant-green);
+    background: linear-gradient(90deg, #00ffff, #ff00ff);
     transition: width 0.5s ease;
-    max-width: 100%;
-    z-index: 0;
+    z-index: 1;
+    box-shadow:
+        0 0 10px rgba(0, 255, 255, 0.6),
+        0 0 20px rgba(255, 0, 255, 0.4);
 }
 
 /* PCレイアウト */
@@ -1102,46 +1941,93 @@ body.obs-mode .background {
     display: none !important;
 }
 
-/* OBSモードでのクラシックテーマの黒い背景削除 */
-body.obs-mode .theme-classic .rank-section {
+/* OBSモードでのテーマ適用 - プレビューと完全に同じデザイン */
+/* 位置調整のみ行い、デザインはそのまま維持 */
+body.obs-mode .overlay {
+    position: relative !important;
+    top: auto !important;
+    left: auto !important;
+    right: auto !important;
+    transform: none !important;
+    margin: 0 auto !important;
+    /* width, min-width, max-widthはテーマのスタイルを継承 */
+}
+
+/* OBSモードでヘッダーとチュートリアルを非表示 */
+body.obs-mode .app-header,
+body.obs-mode .tutorial-container,
+body.obs-mode .ad-container {
+    display: none !important;
+}
+
+/* OBSモードでmain-content-wrapperは表示するが透過 */
+body.obs-mode .main-content-wrapper {
+    background: transparent !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    width: 100vw !important;
+    height: 100vh !important;
+    max-width: none !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+}
+
+/* OBSモードでmain-content-containerを中央配置 */
+body.obs-mode .main-content-container {
+    width: 100% !important;
+    height: 100% !important;
+    max-width: none !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+}
+
+/* OBSモードで左側セクションを非表示 */
+body.obs-mode .left-section {
+    display: none !important;
+}
+
+/* OBSモードで右側セクションを透過・中央配置 */
+body.obs-mode .right-section {
+    width: 100% !important;
+    height: 100% !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
     background: transparent !important;
 }
 
-body.obs-mode .overlay {
-    position: absolute !important;
-    top: 50% !important;
-    left: 50% !important;
-    right: auto !important; /* 右固定を解除 */
-    transform: translate(-50%, -50%) !important; /* 中央寄せ */
-    margin: 0 !important; /* マージンをリセット */
-    width: auto !important; /* 自動幅 */
-    min-width: unset !important; /* 最小幅制限を解除 */
-    max-width: unset !important; /* 最大幅制限を解除 */
-    scale: 1; /* 初期スケール */
+/* OBSモードでプレビューカードを透過 */
+body.obs-mode .preview-card {
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+    height: auto !important;
+    width: auto !important;
 }
 
-/* ヘッダーナビゲーションを非表示 */
-body.obs-mode .app-header {
+body.obs-mode .card-header {
     display: none !important;
 }
 
-/* 入力フォームも非表示 */
-body.obs-mode .input-section {
-    display: none !important;
+body.obs-mode .card-body {
+    padding: 0 !important;
+    background: transparent !important;
 }
 
+body.obs-mode .preview-area {
+    background: transparent !important;
+    padding: 0 !important;
+    min-height: 0 !important;
+}
+
+body.obs-mode .customize-section,
+body.obs-mode .customize-note,
 body.obs-mode .customize-button-container {
-    display: none !important; /* OBSモードでは非表示 */
-}
-
-body.obs-mode .ad-container {
-    display: none !important; /* OBSモードでは非表示 */
-}
-
-
-
-body.obs-mode .tutorial-section {
-    display: none !important; /* OBSモードでは非表示 */
+    display: none !important;
 }
 
 /* 入力フォームも非表示 */
