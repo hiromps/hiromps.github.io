@@ -1,0 +1,215 @@
+/*
+ * Accessibility Enhancements
+ * WCAG 2.1 AA Compliance
+ */
+
+/* === Focus Indicators === */
+*:focus {
+    outline: 2px solid var(--valorant-red);
+    outline-offset: 2px;
+}
+
+button:focus,
+a:focus,
+input:focus,
+select:focus,
+textarea:focus {
+    outline: 2px solid var(--valorant-red);
+    outline-offset: 2px;
+}
+
+/* === Skip to Content Link === */
+.skip-link {
+    position: absolute;
+    top: -40px;
+    left: 0;
+    background: var(--valorant-red);
+    color: var(--valorant-light);
+    padding: var(--spacing-sm) var(--spacing-lg);
+    text-decoration: none;
+    border-radius: 0 0 var(--radius-md) 0;
+    z-index: 10000;
+    font-weight: 600;
+}
+
+.skip-link:focus {
+    top: 0;
+}
+
+/* === Screen Reader Only Content === */
+.sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border-width: 0;
+}
+
+/* === Reduced Motion === */
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+        scroll-behavior: auto !important;
+    }
+}
+
+/* === High Contrast Mode === */
+@media (prefers-contrast: high) {
+    .app-header {
+        border-bottom-width: 3px;
+    }
+
+    button,
+    a.header-button,
+    .region-button,
+    .search-form button {
+        border: 2px solid var(--valorant-light);
+    }
+
+    .player-row,
+    .match-card,
+    .skin-card {
+        border: 2px solid rgba(255, 255, 255, 0.3);
+    }
+}
+
+/* === Dark Mode Support === */
+@media (prefers-color-scheme: dark) {
+    :root {
+        --text-color: #ffffff;
+        --bg-color: #0f1923;
+    }
+}
+
+@media (prefers-color-scheme: light) {
+    :root {
+        --text-color: #0f1923;
+        --bg-color: #ffffff;
+    }
+}
+
+/* === Touch Target Sizes === */
+@media (pointer: coarse) {
+    button,
+    a.header-button,
+    .region-button,
+    input,
+    select {
+        min-height: 44px;
+        min-width: 44px;
+    }
+
+    .hamburger-menu {
+        min-width: 48px;
+        min-height: 48px;
+    }
+}
+
+/* === Keyboard Navigation === */
+.keyboard-focus:focus-visible {
+    outline: 3px solid var(--valorant-red);
+    outline-offset: 3px;
+    box-shadow: 0 0 0 5px rgba(255, 70, 85, 0.2);
+}
+
+/* === ARIA Live Regions === */
+[aria-live="polite"],
+[aria-live="assertive"] {
+    position: relative;
+}
+
+/* === Improved Color Contrast === */
+.detail-label,
+.player-tag,
+.author-text {
+    color: #c0c0c0;
+}
+
+/* === Focus Trap for Modals === */
+.modal-open {
+    overflow: hidden;
+}
+
+/* === Better Link Styling === */
+a:not(.header-button) {
+    color: var(--valorant-red);
+    text-decoration: underline;
+    text-underline-offset: 2px;
+}
+
+a:not(.header-button):hover {
+    text-decoration-thickness: 2px;
+}
+
+a:not(.header-button):focus {
+    text-decoration-thickness: 2px;
+    outline-offset: 4px;
+}
+
+/* === Form Labels === */
+label {
+    display: block;
+    margin-bottom: var(--spacing-xs);
+    font-weight: 600;
+    color: var(--valorant-light);
+}
+
+/* === Error States === */
+input:invalid:not(:placeholder-shown),
+select:invalid {
+    border-color: var(--loss-color);
+}
+
+input:invalid:focus,
+select:invalid:focus {
+    box-shadow: 0 0 0 2px rgba(244, 67, 54, 0.2);
+}
+
+/* === Success States === */
+input:valid:not(:placeholder-shown) {
+    border-color: var(--win-color);
+}
+
+/* === Loading States === */
+[aria-busy="true"] {
+    opacity: 0.6;
+    pointer-events: none;
+}
+
+/* === Disabled States === */
+button:disabled,
+input:disabled,
+select:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+/* === Print Styles === */
+@media print {
+    .app-header,
+    .hamburger-menu,
+    .mobile-nav,
+    .background,
+    button,
+    .search-form {
+        display: none !important;
+    }
+
+    body {
+        background: white;
+        color: black;
+    }
+
+    .player-row,
+    .match-card {
+        page-break-inside: avoid;
+    }
+}

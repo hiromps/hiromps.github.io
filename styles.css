@@ -1,0 +1,1334 @@
+:root {
+    /* Color Palette */
+    --valorant-red: #ff4655;
+    --valorant-dark: #0f1923;
+    --valorant-light: #ffffff;
+    --valorant-grey: #3a444e;
+    --valorant-green: #4CAF50;
+    --valorant-red-bg: #F44336;
+
+    /* Component Colors */
+    --overlay-bg-color: rgba(58, 68, 78, 0.9);
+    --last-match-bg-color: var(--valorant-red-bg);
+    --rank-bg-color: var(--valorant-grey);
+    --border-color: #ff4655;
+    --text-color: #ffffff;
+    --rr-color: #ff4655;
+    --win-color: var(--valorant-green);
+    --loss-color: var(--valorant-red-bg);
+    --win-loss-text-color: var(--text-color);
+
+    /* Border Radius Scale */
+    --radius-sm: 4px;
+    --radius-md: 8px;
+    --radius-lg: 12px;
+    --radius-xl: 16px;
+
+    /* Spacing Scale */
+    --spacing-xs: 4px;
+    --spacing-sm: 8px;
+    --spacing-md: 12px;
+    --spacing-lg: 16px;
+    --spacing-xl: 20px;
+    --spacing-2xl: 24px;
+    --spacing-3xl: 32px;
+}
+
+/* 背景アニメーション用のスタイル */
+.background {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: -1;
+    background: linear-gradient(45deg, var(--valorant-dark), #1a2634);
+    overflow: hidden;
+}
+
+.background::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: 
+        radial-gradient(circle at 20% 20%, rgba(255, 70, 85, 0.1) 0%, transparent 50%),
+        radial-gradient(circle at 80% 80%, rgba(255, 70, 85, 0.1) 0%, transparent 50%);
+    animation: pulse 8s ease-in-out infinite;
+}
+
+.background::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: 
+        linear-gradient(45deg, transparent 48%, var(--valorant-red) 49%, var(--valorant-red) 51%, transparent 52%),
+        linear-gradient(-45deg, transparent 48%, var(--valorant-red) 49%, var(--valorant-red) 51%, transparent 52%);
+    background-size: 60px 60px;
+    opacity: 0.05;
+    animation: movePattern 20s linear infinite;
+}
+
+/* アニメーションの定義 */
+@keyframes pulse {
+    0%, 100% {
+        transform: scale(1);
+        opacity: 0.5;
+    }
+    50% {
+        transform: scale(1.1);
+        opacity: 0.7;
+    }
+}
+
+@keyframes movePattern {
+    0% {
+        background-position: 0 0;
+    }
+    100% {
+        background-position: 60px 60px;
+    }
+}
+
+body {
+    margin: 0;
+    padding: 0;
+    font-family: 'Arial', sans-serif;
+    background-color: transparent !important; /* 強制的に透明にする */
+    overflow-x: hidden; /* 横スクロールのみ無効 */
+    overflow-y: auto; /* 縦スクロールを有効に */
+    min-height: 100vh;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.overlay {
+    position: fixed;
+    top: var(--spacing-xl);
+    right: var(--spacing-xl);
+    display: flex;
+    flex-direction: column;
+    background: var(--overlay-bg-color);
+    backdrop-filter: blur(10px);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-lg);
+    color: var(--text-color);
+    overflow: hidden;
+    width: 300px;
+    height: auto;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.3);
+}
+
+/* OBSモード専用 - 全ての背景を完全に透明に */
+body.obs-mode .overlay {
+    backdrop-filter: none !important;
+}
+
+.overlay:hover {
+    transform: translateY(-2px);
+}
+
+.player-info {
+    display: flex;
+    align-items: center;
+    margin-bottom: 15px;
+}
+
+.agent-icon {
+    width: 80px;
+    height: 80px;
+    margin-right: 20px;
+    border-radius: 50%;
+    border: 2px solid var(--valorant-red);
+    object-fit: cover;
+}
+
+.player-details {
+    flex-grow: 1;
+}
+
+.player-name {
+    margin: 0;
+    font-size: 1.4em;
+    color: var(--valorant-light);
+}
+
+.player-rank {
+    margin: 5px 0 0;
+    font-size: 1.1em;
+    color: var(--valorant-red);
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.rank-section {
+    display: flex;
+    align-items: center;
+    padding: 0;
+    background: var(--rank-bg-color);
+}
+
+.rank-icon {
+    width: 80px;
+    height: 80px;
+    object-fit: contain;
+    margin-right: 10px;
+    flex-shrink: 0;
+    border: none !important;
+    box-shadow: none !important;
+    background: none !important;
+    outline: none !important;
+}
+
+.rank-details {
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+    justify-content: center;
+    gap: 3px;
+    min-width: 0; /* テキストのオーバーフローを防ぐ */
+}
+
+.rank-name-line {
+    display: flex;
+    align-items: baseline;
+    gap: 5px;
+    min-width: 0; /* テキストのオーバーフローを防ぐ */
+}
+
+.rank-name {
+    font-size: 1.6em; /* デフォルトサイズ */
+    font-weight: bold;
+    color: var(--text-color);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    min-width: 0; /* テキストのオーバーフローを防ぐ */
+}
+
+.rr {
+    font-size: 1.4em; /* デフォルトサイズ */
+    color: var(--rr-color);
+    font-weight: bold;
+}
+
+.win-loss {
+    font-size: 1em;
+    color: var(--win-loss-text-color);
+    opacity: 0.8;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    font-weight: bold;
+}
+
+
+.last-match-section {
+    padding: 5px 10px;
+    text-align: center;
+    font-weight: bold;
+    font-size: 1em;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative; /* 子要素の絶対配置のために必要 */
+    overflow: hidden; /* ゲージがはみ出さないように隠す */
+    background-color: var(--last-match-bg-color); /* カスタマイズ可能な背景色 */
+    width: 100%; /* 親要素の全幅を使用 */
+}
+
+.mmr-gauge-fill {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: 0; /* 初期幅は0 */
+    background-color: var(--valorant-green); /* デフォルト緑 */
+    transition: width 0.5s ease; /* アニメーション */
+}
+
+.last-match-text {
+    position: relative; /* ゲージの上に表示 */
+    z-index: 1; /* ゲージより前面に */
+    color: var(--text-color);
+}
+
+.last-match-section[style*="background-color: rgb(76, 175, 80)"] {
+    /* 緑色の背景 */
+    background-color: var(--valorant-green) !important;
+}
+
+.last-match-section[style*="background-color: rgb(244, 67, 54)"] {
+    /* 赤色の背景 */
+    background-color: var(--valorant-red-bg) !important;
+}
+
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 15px;
+    margin-top: 20px;
+}
+
+.stat-item {
+    text-align: center;
+    padding: var(--spacing-md);
+    background: rgba(255, 70, 85, 0.1);
+    border-radius: var(--radius-md);
+}
+
+.stat-label {
+    display: block;
+    font-size: 0.9em;
+    color: var(--valorant-light);
+    margin-bottom: 8px;
+}
+
+.stat-value {
+    display: block;
+    font-size: 1.3em;
+    color: var(--valorant-red);
+    font-weight: bold;
+}
+
+/* 入力セクションとチュートリアルセクションを横並びにするためのコンテナ */
+.main-content-container {
+    display: flex;
+    gap: 30px; /* ギャップを少し広げて見やすく */
+    max-width: 1200px;
+    width: 100%;
+    margin: 1rem auto 2rem auto; /* 上部の余白を減らす */
+    align-items: flex-start;
+    padding: 0 1rem; /* 左右に余白を追加 */
+    box-sizing: border-box;
+}
+
+.input-section {
+    max-width: 600px;
+    width: 100%;
+    margin: 0;
+    padding: var(--spacing-2xl);
+    background-color: rgba(31, 31, 31, 0.95);
+    backdrop-filter: blur(10px);
+    border-radius: var(--radius-lg);
+    color: white;
+    border: 1px solid var(--border-color);
+    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.3), 0 0 20px rgba(255, 70, 85, 0.15);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    box-sizing: border-box;
+    flex: 1;
+    position: relative;
+    z-index: 1;
+}
+
+.input-section:hover {
+    transform: translateY(-2px);
+}
+
+.input-section h2 {
+    text-align: center;
+    margin-bottom: 20px;
+    color: #ff4655;
+}
+
+.input-form {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 15px;
+    flex-wrap: wrap;
+}
+
+.input-form input {
+    flex: 1;
+    min-width: 200px;
+    padding: var(--spacing-md) var(--spacing-lg);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: var(--radius-md);
+    background-color: rgba(42, 42, 42, 0.8);
+    color: white;
+    box-sizing: border-box;
+    transition: all 0.3s ease;
+    font-size: 14px;
+}
+
+.input-form input:focus {
+    outline: none;
+    border-color: var(--valorant-red);
+    box-shadow: 0 0 0 2px rgba(255, 70, 85, 0.2);
+}
+
+.input-form button {
+    padding: var(--spacing-md) var(--spacing-2xl);
+    background-color: var(--valorant-red);
+    color: var(--valorant-light);
+    border: none;
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    transition: all 0.3s ease;
+    white-space: nowrap;
+    font-weight: 600;
+    font-size: 14px;
+    box-shadow: 0 2px 8px rgba(255, 70, 85, 0.3);
+}
+
+.input-form button:hover {
+    background-color: #ff2d3f;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(255, 70, 85, 0.4);
+}
+
+.url-output {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.url-output input {
+    flex: 1;
+    min-width: 200px;
+    padding: var(--spacing-sm) var(--spacing-md);
+    border: 1px solid #333;
+    border-radius: var(--radius-sm);
+    background-color: #2a2a2a;
+    color: var(--valorant-light);
+    box-sizing: border-box;
+}
+
+.url-output button {
+    padding: var(--spacing-sm) var(--spacing-xl);
+    background-color: var(--valorant-dark);
+    color: var(--valorant-light);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    transition: background-color 0.3s;
+    white-space: nowrap;
+}
+
+.url-output button:hover {
+    background-color: #1a2634;
+}
+
+/* OBSチュートリアルセクション */
+.tutorial-section {
+    max-width: 400px; /* 幅をコンパクトに */
+    margin: 30px auto 40px auto; /* 上下の余白を調整 */
+    background-color: transparent; /* 背景を透明に */
+    border-radius: 12px; /* 角丸を統一 */
+    border: none; /* ボーダーを削除 */
+    box-shadow: none; /* シャドウを削除 */
+    flex: 1; /* フレックスアイテムとして伸縮 */
+}
+
+.tutorial-toggle {
+    width: 100%;
+    padding: var(--spacing-md) var(--spacing-xl);
+    background: linear-gradient(135deg, var(--valorant-red), #e0303f);
+    color: var(--valorant-light);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-lg);
+    cursor: pointer;
+    font-size: 1em;
+    font-weight: 600;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    transition: all 0.3s ease;
+    text-align: left;
+    box-shadow: 0 4px 16px rgba(255, 70, 85, 0.3);
+}
+
+/* 展開時のトグルボタンのスタイル */
+.tutorial-toggle:has(+ .tutorial-content.expanded) {
+    border-radius: 12px 12px 0 0; /* 展開時は下の角を直角に */
+}
+
+.tutorial-toggle:hover {
+    background: linear-gradient(135deg, #e0303f, var(--valorant-red));
+    transform: translateY(-1px);
+}
+
+.tutorial-content {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.3s ease, padding 0.3s ease;
+    background-color: transparent; /* 閉じた状態では透明 */
+    border-radius: 0 0 8px 8px;
+    padding: 0; /* 閉じた状態ではパディングなし */
+    border: none; /* 閉じた状態ではボーダーなし */
+}
+
+.tutorial-content.expanded {
+    max-height: 320px; /* 高さをより制限してコンパクトに */
+    padding: 20px; /* パディングを調整 */
+    overflow-y: auto; /* 縦スクロールを有効にする */
+    background-color: rgba(15, 25, 35, 0.95); /* より濃い背景色 */
+    border: 1px solid var(--border-color); /* 開いた状態でのみボーダー */
+    border-top: none; /* 上のボーダーは削除してトグルボタンと繋げる */
+    backdrop-filter: blur(10px);
+    border-radius: 0 0 12px 12px; /* 下の角丸を統一 */
+}
+
+/* チュートリアルコンテンツのスクロールバーのスタイル */
+.tutorial-content.expanded::-webkit-scrollbar {
+    width: 8px;
+}
+
+.tutorial-content.expanded::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 4px;
+}
+
+.tutorial-content.expanded::-webkit-scrollbar-thumb {
+    background: var(--valorant-red);
+    border-radius: 4px;
+}
+
+.tutorial-content.expanded::-webkit-scrollbar-thumb:hover {
+    background: #e0303f;
+}
+
+.tutorial-step {
+    margin-bottom: 15px; /* マージンを縮小 */
+    padding: 12px; /* パディングを縮小 */
+    background-color: rgba(255, 255, 255, 0.05);
+    border-radius: 6px;
+    border-left: 4px solid var(--valorant-red);
+}
+
+.tutorial-step:last-child {
+    margin-bottom: 0;
+}
+
+.tutorial-step h4 {
+    color: var(--valorant-light);
+    margin: 0 0 8px 0; /* マージンを縮小 */
+    font-size: 1em; /* フォントサイズを縮小 */
+}
+
+.tutorial-step p,
+.tutorial-step li {
+    color: #d0d0d0;
+    line-height: 1.4; /* 行間を縮小 */
+    margin: 6px 0; /* マージンを縮小 */
+    font-size: 0.9em; /* フォントサイズを縮小 */
+}
+
+.tutorial-step ol,
+.tutorial-step ul {
+    margin: 8px 0; /* マージンを縮小 */
+    padding-left: 16px; /* パディングを縮小 */
+}
+
+.tutorial-step strong {
+    color: var(--valorant-red);
+    font-weight: bold;
+}
+
+.tutorial-note {
+    margin-top: 15px; /* マージンを縮小 */
+    padding: 12px; /* パディングを縮小 */
+    background-color: rgba(255, 193, 7, 0.1);
+    border: 1px solid rgba(255, 193, 7, 0.3);
+    border-radius: 6px;
+}
+
+.tutorial-note h4 {
+    color: #ffc107;
+    margin: 0 0 8px 0; /* マージンを縮小 */
+    font-size: 1em; /* フォントサイズを縮小 */
+}
+
+.tutorial-note ul {
+    margin: 8px 0; /* マージンを縮小 */
+    padding-left: 16px; /* パディングを縮小 */
+}
+
+.tutorial-note li {
+    color: #e0e0e0;
+    margin: 6px 0; /* マージンを縮小 */
+    line-height: 1.4; /* 行間を縮小 */
+    font-size: 0.9em; /* フォントサイズを縮小 */
+}
+
+#tutorialArrow {
+    transition: transform 0.3s ease;
+    font-size: 0.9em;
+}
+
+#tutorialArrow.rotated {
+    transform: rotate(180deg);
+}
+
+/* カスタマイズボタンのコンテナ */
+.customize-button-container {
+    text-align: center; /* ボタンを中央寄せ */
+    margin-top: 20px; /* 上に余白 */
+    margin-bottom: 20px; /* 下に余白 */
+}
+
+.customize-button-container button {
+    padding: 12px 24px; /* パディングを統一 */
+    background-color: var(--valorant-grey); /* VALORANT風のグレー */
+    color: var(--valorant-light); /* VALORANT風のライトカラー */
+    border: none;
+    border-radius: 8px; /* 角丸を統一 */
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-weight: 600;
+    font-size: 14px;
+    box-shadow: 0 2px 8px rgba(58, 68, 78, 0.3);
+}
+
+.customize-button-container button:hover {
+    background-color: #5a646e; /* ホバー時の色 */
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(58, 68, 78, 0.4);
+}
+
+/* 全テーマ共通の最小幅調整スタイル */
+/* クラシックテーマ専用スタイル（再構築版） */
+.theme-classic .overlay {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    width: fit-content !important;
+    min-width: 300px !important;
+    max-width: none !important;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+    transition: all 0.3s ease;
+}
+
+.theme-classic .rank-section {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    width: 100%;
+    min-width: 0;
+    padding: 12px;
+    background: var(--rank-bg-color);
+    box-sizing: border-box;
+    flex-shrink: 0;
+}
+
+.theme-classic .rank-icon {
+    width: 120px;
+    height: 120px;
+    margin-right: 12px;
+    flex-shrink: 0;
+}
+
+.theme-classic .rank-details {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    flex-grow: 1;
+}
+
+.theme-classic .rank-name-line {
+    display: flex;
+    align-items: baseline;
+    width: 100%;
+    min-width: 0;
+}
+
+.theme-classic .rank-name {
+    font-size: 2.2em;
+    font-weight: bold;
+    color: var(--text-color);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    flex-grow: 1;
+    min-width: 0;
+}
+
+.theme-classic .rr {
+    font-size: 2em;
+    font-weight: bold;
+    color: var(--rr-color);
+    white-space: nowrap;
+    flex-shrink: 0;
+}
+
+.theme-classic .win-loss {
+    font-size: 1em;
+    color: var(--text-color);
+    opacity: 0.8;
+    margin-top: 4px;
+}
+
+.theme-classic .last-match-section {
+    width: 100%;
+    min-width: 0;
+    margin: 0;
+    padding: 12px;
+    position: relative;
+    overflow: hidden;
+    box-sizing: border-box;
+    background: var(--last-match-bg-color);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.theme-classic .last-match-text {
+    font-size: 1.1em;
+    font-weight: 600;
+    color: var(--text-color);
+    white-space: nowrap;
+    position: relative;
+    z-index: 1;
+    text-align: center;
+}
+
+.theme-classic .mmr-gauge-fill {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: 0;
+    background-color: var(--valorant-green);
+    transition: width 0.5s ease;
+    max-width: 100%;
+    z-index: 0;
+}
+
+/* 他のテーマのスタイル */
+.theme-modern .overlay,
+.theme-shadcn .overlay,
+.theme-neon .overlay {
+    transition: width 0.3s ease, min-width 0.3s ease, max-width 0.3s ease;
+    width: auto !important;
+    min-width: 300px !important;
+    max-width: 450px !important;
+}
+
+.theme-modern .rank-section,
+.theme-shadcn .rank-section,
+.theme-neon .rank-section {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    width: max-content;
+    min-width: 0;
+    padding: 10px;
+}
+
+.theme-modern .rank-details,
+.theme-shadcn .rank-details,
+.theme-neon .rank-details {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    width: max-content;
+}
+
+.theme-modern .rank-name-line,
+.theme-shadcn .rank-name-line,
+.theme-neon .rank-name-line {
+    display: flex;
+    align-items: baseline;
+    gap: 5px;
+    width: max-content;
+    min-width: 0;
+}
+
+.theme-modern .rank-name,
+.theme-shadcn .rank-name,
+.theme-neon .rank-name {
+    white-space: nowrap;
+    width: max-content;
+}
+
+.theme-modern .rr,
+.theme-shadcn .rr,
+.theme-neon .rr {
+    white-space: nowrap;
+    width: max-content;
+}
+
+.theme-modern .last-match-section,
+.theme-shadcn .last-match-section,
+.theme-neon .last-match-section {
+    width: 100%;
+    min-width: 100%;
+    margin: 0 auto;
+    position: relative;
+    overflow: hidden;
+    box-sizing: border-box;
+}
+
+.theme-modern .last-match-text,
+.theme-shadcn .last-match-text,
+.theme-neon .last-match-text {
+    white-space: nowrap;
+    width: 100%;
+    text-align: center;
+    position: relative;
+    z-index: 1;
+}
+
+.theme-modern .mmr-gauge-fill,
+.theme-shadcn .mmr-gauge-fill,
+.theme-neon .mmr-gauge-fill {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: 0;
+    background-color: var(--valorant-green);
+    transition: width 0.5s ease;
+    max-width: 100%;
+    z-index: 0;
+}
+
+/* PCレイアウト */
+@media screen and (min-width: 769px) {
+    body {
+        display: flex;
+        flex-direction: column;
+        align-items: center; /* 中央寄せに変更 */
+        padding: 0 20px 40px 20px; /* 上は0、横と下に余白 */
+    }
+
+    .main-content-container {
+        margin: 40px auto 30px auto; /* 上下のマージンを調整 */
+        padding: 0 30px; /* 左右の余白も追加 */
+    }
+
+    /* 2段目のコンテナ（カスタマイズボタンとチュートリアル） */
+    .second-row-container {
+        display: flex;
+        gap: 20px;
+        max-width: 1200px;
+        width: 100%;
+        margin: 0 0 20px 0;
+        align-items: flex-start;
+    }
+
+    /* PCでのチュートリアルセクションの高さ制限 */
+    .tutorial-content.expanded {
+        max-height: 280px; /* PCでもよりコンパクトに */
+    }
+
+    /* PCでのオーバーレイ位置調整 */
+    .overlay {
+        position: relative;
+        top: 0;
+        right: 0;
+        margin: 0 auto 20px auto; /* 中央寄せにして下にマージン */
+        align-self: flex-start; /* 左寄せ（プレイヤー情報カードと同じ位置） */
+        margin-left: 0; /* 左マージンを0に */
+    }
+
+    /* PCでの右側カラム */
+    .right-column {
+        display: flex;
+        flex-direction: column;
+        flex: 1;
+        align-items: flex-start;
+    }
+
+    /* PCでのカスタマイズボタン位置調整 */
+    .right-column .customize-button-container {
+        width: 100%;
+        margin: 10px 0 0 0;
+        text-align: left;
+        max-width: 400px; /* オーバーレイの幅に合わせる */
+    }
+
+    .input-section {
+        width: 100%;
+        max-width: 550px;
+        margin: 0;
+    }
+
+    /* PCでのチュートリアルセクション位置調整 */
+    .tutorial-section {
+        width: 100%;
+        margin: 40px auto 50px auto; /* 上下の余白を調整 */
+        max-width: 800px; /* よりコンパクトに */
+    }
+
+    .input-form {
+        flex-wrap: wrap; /* 狭い場合は折り返す */
+    }
+
+    .input-form input {
+        flex: 1 1 200px; /* flex-grow, flex-shrink, flex-basis */
+        min-width: 0; /* 最小幅を解除して縮小可能にする */
+    }
+
+    .input-form button {
+        flex: 0 0 auto; /* 縮小・拡大せずコンテンツ幅を維持 */
+        white-space: nowrap;
+    }
+
+    .url-output {
+        flex-wrap: wrap; /* 狭い場合は折り返す */
+    }
+
+    .url-output input {
+        flex: 1 1 200px; /* flex-grow, flex-shrink, flex-basis */
+        min-width: 0; /* 最小幅を解除して縮小可能にする */
+    }
+
+    .url-output button {
+        flex: 0 0 auto; /* 縮小・拡大せずコンテンツ幅を維持 */
+        white-space: nowrap;
+    }
+
+
+
+    .ad-container {
+        display: block; /* PCでは表示 */
+        width: 728px; /* 広告ユニットの推奨サイズに合わせるか適宜調整 */
+        margin: 20px auto; /* 上下にマージン、左右中央寄せ */
+        text-align: center; /* 広告ユニット内の要素を中央寄せ */
+    }
+}
+
+/* レスポンシブデザイン対応 */
+@media screen and (max-width: 768px) {
+    body {
+        padding: 10px; /* 画面端に少し余白 */
+        display: flex; /* 子要素をflexboxで配置 */
+        flex-direction: column; /* 子要素を縦に並べる */
+        align-items: center; /* 子要素を中央寄せ */
+    }
+
+    /* モバイルでは縦並びに */
+    .main-content-container {
+        flex-direction: column;
+        align-items: center;
+        margin: 10px auto;
+        max-width: 95%;
+    }
+
+    /* モバイルでの右側カラム */
+    .right-column {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        width: 100%;
+    }
+
+    .overlay {
+        width: 90%;
+        max-width: 350px;
+        position: relative; /* 標準フローで配置 */
+        top: auto; /* 固定位置を解除 */
+        left: auto; /* 固定位置を解除 */
+        right: auto;
+        transform: none; /* 中央寄せtransformを解除 */
+        margin: 10px auto; /* 上下にマージン、左右中央寄せ */
+        order: 1; /* 2番目に表示 */
+    }
+
+    .rank-section {
+        padding: 4px;
+    }
+
+    .rank-icon {
+        width: 100px;
+        height: 100px;
+        margin-right: 8px;
+    }
+
+    .rank-name {
+        font-size: 1.8em;
+    }
+
+    .rr {
+        font-size: 1.6em;
+    }
+
+    .win-loss {
+        font-size: 0.9em;
+    }
+
+    .last-match-section {
+        padding: 4px 8px;
+    }
+
+    .input-section {
+        width: 90%;
+        margin: 10px auto; /* 上下にマージン、左右中央寄せ */
+        padding: 15px;
+        max-width: 350px; /* オーバーレイの幅に合わせる */
+        order: 0; /* 1番目に表示 */
+        flex: none; /* モバイルではflexを無効に */
+    }
+
+    .input-section h2 {
+        font-size: 1.3em; /* モバイルでは少し小さく */
+        white-space: nowrap; /* 改行を防ぐ */
+        overflow: hidden;
+        text-overflow: ellipsis; /* 必要に応じて省略記号 */
+    }
+
+    .customize-button-container {
+        width: 90%;
+        margin: 10px auto; /* 上下にマージン、左右中央寄せ */
+        order: -1; /* 任意: 例えば入力セクションの上に表示したい場合 */
+        /* order: 1; /* 入力セクションの下、オーバーレイの上に表示したい場合 */
+        order: 2; /* オーバーレイの下、author-sectionの上に表示 */
+    }
+
+    /* モバイルでのカスタマイズボタン（right-column内） */
+    .right-column .customize-button-container {
+        width: 100%;
+        margin: 10px auto;
+        text-align: center;
+        max-width: 350px;
+        order: unset;
+    }
+
+    .input-form {
+        flex-direction: column;
+    }
+
+    .input-form input,
+    .input-form button {
+        width: 100%;
+        min-width: unset;
+    }
+
+    .url-output {
+        flex-direction: column;
+    }
+
+    .url-output input,
+    .url-output button {
+        width: 100%;
+        min-width: unset;
+    }
+
+
+
+    .ad-container {
+        order: 4; /* 最後に表示 */
+        margin: 10px auto; /* 上下にマージン、左右中央寄せ */
+        width: 90%;
+        max-width: 350px; /* 他の要素の幅に合わせる */
+    }
+
+
+
+    .tutorial-section {
+        width: 90%;
+        margin: 10px auto;
+        order: 1.5; /* 入力セクションとオーバーレイの間に配置 */
+        flex: none; /* モバイルではflexを無効に */
+        max-width: 350px; /* 他の要素との統一 */
+    }
+
+    .tutorial-toggle {
+        font-size: 1em;
+        padding: 12px 15px;
+    }
+
+    .tutorial-content.expanded {
+        padding: 15px;
+    }
+
+    .tutorial-step {
+        padding: 12px;
+        margin-bottom: 15px;
+    }
+
+    .tutorial-step h4 {
+        font-size: 1em;
+    }
+
+    .tutorial-step p,
+    .tutorial-step li {
+        font-size: 0.9em;
+    }
+}
+
+@media screen and (max-width: 480px) {
+    .overlay {
+        width: 95%;
+    }
+
+    .rank-section {
+        padding: 0;
+    }
+
+    .rank-icon {
+        width: 110px;
+        height: 110px;
+    }
+
+    .rank-name {
+        font-size: 1.8em;
+    }
+
+    .rr {
+        font-size: 1.6em;
+        font-weight: bold;
+    }
+
+    .win-loss {
+        font-size: 0.8em;
+    }
+
+    .last-match-section {
+        padding: 3px 6px;
+    }
+}
+
+/* タッチデバイス対応 */
+@media (hover: none) {
+    .input-form button,
+    .url-output button {
+        padding: 12px 20px; /* タッチターゲットを大きく */
+    }
+}
+
+/* OBS用スタイル */
+/* URLに '?obs' パラメータが含まれている場合に適用 */
+/* bodyにobs-modeクラスが付与されている場合に適用 */
+body.obs-mode {
+    background-color: transparent !important;
+    overflow: hidden !important; /* OBSモードではスクロールを無効に */
+}
+
+body.obs-mode .background {
+    display: none !important;
+}
+
+/* OBSモードでのクラシックテーマの黒い背景削除 */
+body.obs-mode .theme-classic .rank-section {
+    background: transparent !important;
+}
+
+body.obs-mode .overlay {
+    position: absolute !important;
+    top: 50% !important;
+    left: 50% !important;
+    right: auto !important; /* 右固定を解除 */
+    transform: translate(-50%, -50%) !important; /* 中央寄せ */
+    margin: 0 !important; /* マージンをリセット */
+    width: auto !important; /* 自動幅 */
+    min-width: unset !important; /* 最小幅制限を解除 */
+    max-width: unset !important; /* 最大幅制限を解除 */
+    scale: 1; /* 初期スケール */
+}
+
+/* ヘッダーナビゲーションを非表示 */
+body.obs-mode .app-header {
+    display: none !important;
+}
+
+/* 入力フォームも非表示 */
+body.obs-mode .input-section {
+    display: none !important;
+}
+
+body.obs-mode .customize-button-container {
+    display: none !important; /* OBSモードでは非表示 */
+}
+
+body.obs-mode .ad-container {
+    display: none !important; /* OBSモードでは非表示 */
+}
+
+
+
+body.obs-mode .tutorial-section {
+    display: none !important; /* OBSモードでは非表示 */
+}
+
+/* 入力フォームも非表示 */
+body:has(input[id="generatedURL"][value*="obs"]) .input-section {
+    display: none !important;
+}
+
+body:has(input[id="generatedURL"][value*="obs"]) .customize-button-container {
+    display: none !important; /* OBSモードでは非表示 */
+}
+
+body:has(input[id="generatedURL"][value*="obs"]) .ad-container {
+    display: none !important; /* OBSモードでは非表示 */
+}
+
+/* 製作者紹介セクション */
+.author-section {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: var(--valorant-light); /* テキスト色 */
+}
+
+.author-text {
+    margin: 0;
+    font-size: 0.9em;
+    font-weight: 600;
+    text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.5); /* 読みやすく影を追加 */
+}
+
+.author-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%; /* 丸くする */
+    border: 2px solid var(--border-color); /* 変数を適用 */
+    object-fit: cover; /* 画像の表示方法 */
+}
+
+/* Google AdSense広告ユニット */
+.ad-container {
+    display: none; /* デフォルトでは非表示 */
+}
+
+/* カラーピッカーモーダル */
+.color-picker-modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.7);
+    z-index: 1000;
+    justify-content: center;
+    align-items: center;
+}
+
+.color-picker-content {
+    background-color: var(--valorant-dark);
+    padding: 20px;
+    border-radius: 8px;
+    border: 1px solid var(--valorant-red);
+    min-width: 300px;
+    max-width: 90vw;
+    max-height: 90vh;
+    overflow-y: auto;
+    margin: 20px;
+    box-sizing: border-box;
+}
+
+.color-picker-content h3 {
+    color: var(--valorant-light);
+    margin-top: 0;
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+.color-picker-section {
+    margin-bottom: 15px;
+}
+
+.color-picker-section label {
+    display: block;
+    color: var(--valorant-light);
+    margin-bottom: 5px;
+}
+
+.color-picker-section input[type="color"] {
+    width: 100%;
+    height: 40px;
+    border: none;
+    border-radius: 4px;
+    margin-bottom: 5px;
+}
+
+.color-picker-section input[type="range"] {
+    width: 100%;
+    margin: 10px 0;
+}
+
+.color-picker-section span {
+    color: var(--valorant-light);
+    font-size: 0.9em;
+}
+
+.color-picker-buttons {
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
+    margin-top: 20px;
+}
+
+.color-picker-buttons button {
+    flex: 1;
+    padding: 10px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.color-picker-buttons button:first-child {
+    background-color: var(--valorant-red);
+    color: white;
+}
+
+.color-picker-buttons button:last-child {
+    background-color: var(--valorant-grey);
+    color: var(--valorant-light);
+}
+
+.color-picker-buttons button:nth-child(3) { /* リセットボタンのスタイル */
+    background-color: #5a646e; /* デフォルトとは異なるグレーなど */
+    color: var(--valorant-light);
+}
+
+.color-picker-buttons button:hover {
+    opacity: 0.9;
+}
+
+/* OBSモードでのカラーピッカー非表示 */
+body.obs-mode .color-picker-modal {
+    display: none !important;
+}
+
+/* モバイル対応のカラーピッカーモーダル */
+@media screen and (max-width: 768px) {
+    .color-picker-modal {
+        padding: 10px;
+        box-sizing: border-box;
+    }
+    
+    .color-picker-content {
+        max-width: 95vw;
+        max-height: 85vh;
+        min-width: 280px;
+        margin: 10px;
+        padding: 15px;
+    }
+    
+    .color-picker-section {
+        margin-bottom: 12px;
+    }
+    
+    .color-picker-buttons {
+        flex-direction: column;
+        gap: 8px;
+        position: sticky;
+        bottom: 0;
+        background-color: var(--valorant-dark);
+        padding-top: 10px;
+        margin-top: 15px;
+    }
+    
+    .color-picker-buttons button {
+        width: 100%;
+        min-height: 44px; /* タッチターゲットサイズ確保 */
+        margin: 0;
+    }
+} 
