@@ -1232,7 +1232,7 @@
             </div>
             <div class="overlay" id="previewOverlay">
                 <div class="rank-section">
-                    <img src="assets/images/ranks/ランクなし.png" alt="Rank Icon" class="rank-icon" id="rankIcon">
+                    <img src="assets/images/ranks/unranked.png" alt="Rank Icon" class="rank-icon" id="rankIcon">
                     <div class="rank-details">
                         <div class="rank-name-line">
                             <span class="rank-name" id="rankText">ランクなし</span><span class="rr" id="rrText">0RR</span>
@@ -2339,7 +2339,7 @@
                         console.log(`[${new Date().toLocaleTimeString()}] ランク情報更新: ${currentRank} ${rankingInTier}RR`);
 
                     } else { // currentRank がない場合 (例: ランクなし)
-                        document.getElementById('rankIcon').src = 'assets/images/ranks/ランクなし.png';
+                        document.getElementById('rankIcon').src = 'assets/images/ranks/unranked.png';
                         document.getElementById('rankText').textContent = 'ランクなし';
                         document.getElementById('rrText').textContent = '0RR';
                         
@@ -2359,7 +2359,7 @@
                     }
 
                 } else { // stats または stats.data が存在しない場合
-                    document.getElementById('rankIcon').src = 'assets/images/ranks/ランクなし.png';
+                    document.getElementById('rankIcon').src = 'assets/images/ranks/unranked.png';
                     document.getElementById('rankText').textContent = 'データなし';
                     document.getElementById('rrText').textContent = '0RR';
                     
@@ -2397,7 +2397,7 @@
                 console.error(`[${new Date().toLocaleTimeString()}] Error updating player info:`, error);
                 
                 // エラー発生時も表示をリセット
-                document.getElementById('rankIcon').src = 'assets/images/ranks/ランクなし.png';
+                document.getElementById('rankIcon').src = 'assets/images/ranks/unranked.png';
                 document.getElementById('rankText').textContent = 'エラー';
                 document.getElementById('rrText').textContent = '0RR';
                 
@@ -2557,9 +2557,8 @@
                 if (playerData.images && playerData.images.large) {
                     rankIcon.src = playerData.images.large;
                 } else {
-                    // フォールバック：ローカル画像
-                    const rankImagePath = `assets/images/ranks/${rankName}.png`;
-                    rankIcon.src = rankImagePath;
+                    // フォールバック：ローカル画像（英語ランク名→ファイル名の変換が必要）
+                    rankIcon.src = getRankImageUrl(rankName);
                 }
                 rankIcon.alt = rankName;
 
@@ -2599,7 +2598,7 @@
             const rrText = document.getElementById('rrText');
             const lastMatchSection = document.getElementById('lastMatchSection');
 
-            rankIcon.src = 'assets/images/ranks/ランクなし.png';
+            rankIcon.src = 'assets/images/ranks/unranked.png';
             rankIcon.alt = 'ランクなし';
             rankText.textContent = 'ランクなし';
             rrText.textContent = '0RR';

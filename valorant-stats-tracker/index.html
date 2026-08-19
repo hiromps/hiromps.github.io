@@ -587,6 +587,36 @@
         const RAW_MATCH_COUNT_TO_FETCH = 30; // シーズン判定のために取得する試合数 (APIのsize上限も考慮)
         // const MATCH_COUNT = 5; // 表示する試合数はシーズンフィルタリング後に決定されるため、この定数は直接使わなくなる
 
+        // ランク名 → ローカル画像ファイル名のマッピング（processMatchData と renderResults の両方から参照）
+        const rankNameMapping = {
+            "Iron 1": "iron1",
+            "Iron 2": "iron2",
+            "Iron 3": "iron3",
+            "Bronze 1": "bronze1",
+            "Bronze 2": "bronze2",
+            "Bronze 3": "bronze3",
+            "Silver 1": "silver1",
+            "Silver 2": "silver2",
+            "Silver 3": "silver3",
+            "Gold 1": "gold1",
+            "Gold 2": "gold2",
+            "Gold 3": "gold3",
+            "Platinum 1": "platinum1",
+            "Platinum 2": "platinum2",
+            "Platinum 3": "platinum3",
+            "Diamond 1": "diamond1",
+            "Diamond 2": "diamond2",
+            "Diamond 3": "diamond3",
+            "Ascendant 1": "ascendant1",
+            "Ascendant 2": "ascendant2",
+            "Ascendant 3": "ascendant3",
+            "Immortal 1": "immortal1",
+            "Immortal 2": "immortal2",
+            "Immortal 3": "immortal3",
+            "Radiant": "radiant",
+            "Unranked": "unranked"
+        };
+
         // --- DOM ELEMENTS ---
         const gameNameInput = document.getElementById('gameNameInput');
         const tagLineInput = document.getElementById('tagLineInput');
@@ -1021,35 +1051,6 @@
                     agentIconUrl = `../assets/images/agents/${formattedAgentName}.png`;
                 }
 
-                const rankNameMapping = {
-                    "Iron 1": "アイアン1",
-                    "Iron 2": "アイアン2",
-                    "Iron 3": "アイアン3",
-                    "Bronze 1": "ブロンズ1",
-                    "Bronze 2": "ブロンズ2",
-                    "Bronze 3": "ブロンズ3",
-                    "Silver 1": "シルバー1",
-                    "Silver 2": "シルバー2",
-                    "Silver 3": "シルバー3",
-                    "Gold 1": "ゴールド1",
-                    "Gold 2": "ゴールド2",
-                    "Gold 3": "ゴールド3",
-                    "Platinum 1": "プラチナ1",
-                    "Platinum 2": "プラチナ2",
-                    "Platinum 3": "プラチナ3",
-                    "Diamond 1": "ダイヤ1",
-                    "Diamond 2": "ダイヤ2",
-                    "Diamond 3": "ダイヤ3",
-                    "Ascendant 1": "アセンダント1",
-                    "Ascendant 2": "アセンダント2",
-                    "Ascendant 3": "アセンダント3",
-                    "Immortal 1": "イモータル1",
-                    "Immortal 2": "イモータル2",
-                    "Immortal 3": "イモータル3",
-                    "Radiant": "レディアント",
-                    "Unranked": "ランクなし"
-                };
-
                 let rankIconUrl = 'https://placehold.co/48x48/1f2937/7f1d1d?text=R';
                 let apiRankName = player.tier && player.tier.name ? player.tier.name : "Unranked";
                 let displayRankName = apiRankName; // This will be the name shown alongside the icon in the match row
@@ -1059,8 +1060,8 @@
                 console.log(`[Debug] Match ${match.metadata.match_id} - Initial rankIconUrl for player ${player.game_name}: ${rankIconUrl}`);
 
                 if (rankNameMapping[apiRankName]) {
-                    const japaneseFileName = rankNameMapping[apiRankName];
-                    rankIconUrl = `../assets/images/ranks/${japaneseFileName}.png`;
+                    const rankFileName = rankNameMapping[apiRankName];
+                    rankIconUrl = `../assets/images/ranks/${rankFileName}.png`;
                     // ★ デバッグログ: マッピング成功時のアイコンURL
                     console.log(`[Debug] Match ${match.metadata.match_id} - Rank Mapped for player ${player.game_name}. New rankIconUrl: ${rankIconUrl}`);
                 } else {
@@ -1131,8 +1132,8 @@
                 } else {
                      // images.largeがない場合でも、rankNameMapping を使ってローカルアセットを参照する試みは残す
                      if (rankNameMapping[currentRankName]) {
-                         const japaneseFileName = rankNameMapping[currentRankName];
-                         rankIconFromMmr = `../assets/images/ranks/${japaneseFileName}.png`;
+                         const rankFileName = rankNameMapping[currentRankName];
+                         rankIconFromMmr = `../assets/images/ranks/${rankFileName}.png`;
                      }
                 }
                 
@@ -1187,8 +1188,8 @@
                     if (historyEntry.currenttier_patched) {
                         match.rankName = historyEntry.currenttier_patched;
                         if (rankNameMapping[match.rankName]) {
-                            const japaneseFileName = rankNameMapping[match.rankName];
-                            match.rankIcon = `../assets/images/ranks/${japaneseFileName}.png`;
+                            const rankFileName = rankNameMapping[match.rankName];
+                            match.rankIcon = `../assets/images/ranks/${rankFileName}.png`;
                         } else {
                              match.rankIcon = 'https://placehold.co/48x48/1f2937/7f1d1d?text=R';
                         }
