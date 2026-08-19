@@ -573,6 +573,8 @@
         });
     </script>
     <script type="module">
+        import { RANK_FILES, rankImageUrl } from '../shared/ranks.js';
+
         // --- ★★★ 重要 ★★★ ---
         // Riot Developer Portal (https://developer.riotgames.com/) から
         // 新しい開発用APIキーを取得してください。
@@ -586,36 +588,6 @@
         // --- CONFIGURATION ---
         const RAW_MATCH_COUNT_TO_FETCH = 30; // シーズン判定のために取得する試合数 (APIのsize上限も考慮)
         // const MATCH_COUNT = 5; // 表示する試合数はシーズンフィルタリング後に決定されるため、この定数は直接使わなくなる
-
-        // ランク名 → ローカル画像ファイル名のマッピング（processMatchData と renderResults の両方から参照）
-        const rankNameMapping = {
-            "Iron 1": "iron1",
-            "Iron 2": "iron2",
-            "Iron 3": "iron3",
-            "Bronze 1": "bronze1",
-            "Bronze 2": "bronze2",
-            "Bronze 3": "bronze3",
-            "Silver 1": "silver1",
-            "Silver 2": "silver2",
-            "Silver 3": "silver3",
-            "Gold 1": "gold1",
-            "Gold 2": "gold2",
-            "Gold 3": "gold3",
-            "Platinum 1": "platinum1",
-            "Platinum 2": "platinum2",
-            "Platinum 3": "platinum3",
-            "Diamond 1": "diamond1",
-            "Diamond 2": "diamond2",
-            "Diamond 3": "diamond3",
-            "Ascendant 1": "ascendant1",
-            "Ascendant 2": "ascendant2",
-            "Ascendant 3": "ascendant3",
-            "Immortal 1": "immortal1",
-            "Immortal 2": "immortal2",
-            "Immortal 3": "immortal3",
-            "Radiant": "radiant",
-            "Unranked": "unranked"
-        };
 
         // --- DOM ELEMENTS ---
         const gameNameInput = document.getElementById('gameNameInput');
@@ -1059,9 +1031,8 @@
                 console.log(`[Debug] Match ${match.metadata.match_id} - Resolved apiRankName for icon: ${apiRankName}`);
                 console.log(`[Debug] Match ${match.metadata.match_id} - Initial rankIconUrl for player ${player.game_name}: ${rankIconUrl}`);
 
-                if (rankNameMapping[apiRankName]) {
-                    const rankFileName = rankNameMapping[apiRankName];
-                    rankIconUrl = `../assets/images/ranks/${rankFileName}.png`;
+                if (RANK_FILES[apiRankName]) {
+                    rankIconUrl = rankImageUrl(apiRankName);
                     // ★ デバッグログ: マッピング成功時のアイコンURL
                     console.log(`[Debug] Match ${match.metadata.match_id} - Rank Mapped for player ${player.game_name}. New rankIconUrl: ${rankIconUrl}`);
                 } else {
@@ -1131,9 +1102,8 @@
                     rankIconFromMmr = mmrData.current_data.images.large;
                 } else {
                      // images.largeがない場合でも、rankNameMapping を使ってローカルアセットを参照する試みは残す
-                     if (rankNameMapping[currentRankName]) {
-                         const rankFileName = rankNameMapping[currentRankName];
-                         rankIconFromMmr = `../assets/images/ranks/${rankFileName}.png`;
+                     if (RANK_FILES[currentRankName]) {
+                         rankIconFromMmr = rankImageUrl(currentRankName);
                      }
                 }
                 
@@ -1187,9 +1157,8 @@
                     // MMR履歴からランク名とアイコンを更新 (もしあれば)
                     if (historyEntry.currenttier_patched) {
                         match.rankName = historyEntry.currenttier_patched;
-                        if (rankNameMapping[match.rankName]) {
-                            const rankFileName = rankNameMapping[match.rankName];
-                            match.rankIcon = `../assets/images/ranks/${rankFileName}.png`;
+                        if (RANK_FILES[match.rankName]) {
+                            match.rankIcon = rankImageUrl(match.rankName);
                         } else {
                              match.rankIcon = 'https://placehold.co/48x48/1f2937/7f1d1d?text=R';
                         }
