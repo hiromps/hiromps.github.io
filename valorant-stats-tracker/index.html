@@ -1026,6 +1026,23 @@
         }
 
         // --- RENDERING ---
+        // createElement ヘルパー: className と textContent を同時指定(API由来文字列は必ず textContent で挿入する)
+        function el(tag, className, textContent) {
+            const node = document.createElement(tag);
+            if (className) node.className = className;
+            if (textContent !== undefined) node.textContent = textContent;
+            return node;
+        }
+
+        // 画像読み込み失敗時のフォールバック({once:true} で旧 this.onerror=null 相当の無限ループ防止)
+        function createImg(src, alt, className, fallbackUrl) {
+            const img = el('img', className);
+            img.alt = alt;
+            img.addEventListener('error', function () { img.src = fallbackUrl; }, { once: true });
+            img.src = src;
+            return img;
+        }
+
         function renderResults(processedMatchHistory, name, tag, accountData, mmrData, mmrHistory) {
             // Player Info
             document.getElementById('playerName').textContent = name;
@@ -1052,43 +1069,44 @@
                      }
                 }
                 
-                let lastMatchRRChangeString = "";
+                const rankWrap = el('div', 'flex flex-col items-center justify-center mt-1');
+                rankWrap.appendChild(createImg(rankIconFromMmr, currentRankName, 'w-20 h-20 object-contain mb-2', 'https://placehold.co/80x80/1f2937/7f1d1d?text=R'));
+
+                const rankTextWrap = el('div', 'flex flex-col items-center text-center');
+                rankTextWrap.appendChild(el('span', 'text-xl font-bold', currentRankName));
+                rankTextWrap.appendChild(el('span', 'text-2xl text-red-400 font-bold', `${currentRR} RR`));
                 if (mmrChange !== undefined && mmrChange !== null) {
                     const sign = mmrChange >= 0 ? '+' : '';
-                    lastMatchRRChangeString = `<span class="text-sm ${mmrChange >= 0 ? 'text-green-400' : 'text-red-400'} font-semibold">前回のマッチ: ${sign}${mmrChange} RR</span>`;
+                    rankTextWrap.appendChild(el('span', `text-sm ${mmrChange >= 0 ? 'text-green-400' : 'text-red-400'} font-semibold`, `前回のマッチ: ${sign}${mmrChange} RR`));
                 }
-
-                playerRankSection.innerHTML = `
-                    <div class="flex flex-col items-center justify-center mt-1">
-                        <img src="${rankIconFromMmr}" alt="${currentRankName}" class="w-20 h-20 object-contain mb-2" onerror="this.onerror=null; this.src='https://placehold.co/80x80/1f2937/7f1d1d?text=R';">
-                        <div class="flex flex-col items-center text-center"> 
-                            <span class="text-xl font-bold">${currentRankName}</span>
-                            <span class="text-2xl text-red-400 font-bold">${currentRR} RR</span>
-                            ${lastMatchRRChangeString}
-                        </div>
-                    </div>
-                `;
+                rankWrap.appendChild(rankTextWrap);
+                playerRankSection.appendChild(rankWrap);
             } else if (playerRankSection) { // mmrDataがないか、ランク情報がない場合
-                 playerRankSection.innerHTML = `
-                    <div class="flex flex-col items-center justify-center mt-1">
-                        <img src="https://placehold.co/80x80/1f2937/7f1d1d?text=R" alt="Unranked" class="w-20 h-20 object-contain mb-2">
-                        <div class="flex flex-col items-center text-center">
-                            <span class="text-xl font-bold">ランク情報なし</span>
-                            <span class="text-lg text-gray-400">-- RR</span>
-                        </div>
-                    </div>
-                `;
+                const rankWrap = el('div', 'flex flex-col items-center justify-center mt-1');
+                const placeholderImg = el('img', 'w-20 h-20 object-contain mb-2');
+                placeholderImg.alt = 'Unranked';
+                placeholderImg.src = 'https://placehold.co/80x80/1f2937/7f1d1d?text=R';
+                rankWrap.appendChild(placeholderImg);
+
+                const rankTextWrap = el('div', 'flex flex-col items-center text-center');
+                rankTextWrap.appendChild(el('span', 'text-xl font-bold', 'ランク情報なし'));
+                rankTextWrap.appendChild(el('span', 'text-lg text-gray-400', '-- RR'));
+                rankWrap.appendChild(rankTextWrap);
+                playerRankSection.appendChild(rankWrap);
             }
             
             // Calculate and render Tracker Score (これは processedMatchHistory を使う)
             renderPlayerOverallStats(processedMatchHistory);
 
             // Render Match History (これも processedMatchHistory を使う)
+            // 行/カードは DocumentFragment に貯めてループ後に一括 append する(ループ内 innerHTML += の O(n²) 回避)
             const matchHistoryBody = document.getElementById('matchHistoryBody');
             const matchHistoryMobile = document.getElementById('matchHistoryMobile');
-            matchHistoryBody.innerHTML = ''; 
+            matchHistoryBody.innerHTML = '';
             matchHistoryMobile.innerHTML = '';
-            
+            const desktopFragment = document.createDocumentFragment();
+            const mobileFragment = document.createDocumentFragment();
+
             processedMatchHistory.forEach(match => {
                 let matchRankPoints = "-- RR"; // デフォルト
                 const historyEntry = mmrHistory.find(h => h.match_id === match.matchId); 
@@ -1111,82 +1129,79 @@
                 }
 
                 // デスクトップ用テーブル行
-                const row = `
-                    <tr class="hover:bg-gray-700/50 transition-colors">
-                        <td class="p-4 font-semibold">${match.map}</td>
-                        <td class="p-4">
-                            <div class="flex items-center gap-3">
-                                <img src="${match.agentIcon}" alt="${match.agentName}" class="w-8 h-8 rounded-full object-contain" onerror="this.onerror=null; this.src='https://placehold.co/32x32/1f2937/7f1d1d?text=?';">
-                                <span>${match.agentName}</span>
-                            </div>
-                        </td>
-                        <td class="p-2"> 
-                            <div class="flex items-center"> 
-                                <img src="${match.rankIcon}" alt="${match.rankName}" class="w-16 h-16 object-contain" onerror="this.onerror=null; this.src='https://placehold.co/64x64/1f2937/7f1d1d?text=R';">
-                                <div class="flex flex-col ml-1 text-xs"> 
-                                    <span>${match.rankName}</span> 
-                                    <span class="text-gray-400">${matchRankPoints}</span>
-                                </div>
-                            </div>
-                        </td>
-                        <td class="p-4 font-bold ${match.resultColor}">${match.result} (${match.score})</td>
-                        <td class="p-4">${match.kda}</td>
-                        <td class="p-4">${match.kd}</td>
-                        <td class="p-4">${match.hs}%</td>
-                        <td class="p-4 font-bold text-red-400">${match.acs}</td>
-                    </tr>
-                `;
-                matchHistoryBody.innerHTML += row;
+                const row = el('tr', 'hover:bg-gray-700/50 transition-colors');
+                row.appendChild(el('td', 'p-4 font-semibold', match.map));
+
+                const agentCell = el('td', 'p-4');
+                const agentWrap = el('div', 'flex items-center gap-3');
+                agentWrap.appendChild(createImg(match.agentIcon, match.agentName, 'w-8 h-8 rounded-full object-contain', 'https://placehold.co/32x32/1f2937/7f1d1d?text=?'));
+                agentWrap.appendChild(el('span', '', match.agentName));
+                agentCell.appendChild(agentWrap);
+                row.appendChild(agentCell);
+
+                const rankCell = el('td', 'p-2');
+                const rankCellWrap = el('div', 'flex items-center');
+                rankCellWrap.appendChild(createImg(match.rankIcon, match.rankName, 'w-16 h-16 object-contain', 'https://placehold.co/64x64/1f2937/7f1d1d?text=R'));
+                const rankCellText = el('div', 'flex flex-col ml-1 text-xs');
+                rankCellText.appendChild(el('span', '', match.rankName));
+                rankCellText.appendChild(el('span', 'text-gray-400', matchRankPoints));
+                rankCellWrap.appendChild(rankCellText);
+                rankCell.appendChild(rankCellWrap);
+                row.appendChild(rankCell);
+
+                row.appendChild(el('td', `p-4 font-bold ${match.resultColor}`, `${match.result} (${match.score})`));
+                row.appendChild(el('td', 'p-4', match.kda));
+                row.appendChild(el('td', 'p-4', match.kd));
+                row.appendChild(el('td', 'p-4', `${match.hs}%`));
+                row.appendChild(el('td', 'p-4 font-bold text-red-400', `${match.acs}`));
+                desktopFragment.appendChild(row);
 
                 // モバイル用カード
-                const card = `
-                    <div class="match-card p-4 rounded-xl shadow-lg">
-                        <div class="flex items-center justify-between mb-3">
-                            <div class="flex items-center gap-3">
-                                <img src="${match.agentIcon}" alt="${match.agentName}" class="w-10 h-10 rounded-full object-contain" onerror="this.onerror=null; this.src='https://placehold.co/32x32/1f2937/7f1d1d?text=?';">
-                                <div>
-                                    <div class="font-bold text-sm">${match.agentName}</div>
-                                    <div class="text-gray-400 text-xs">${match.map}</div>
-                                </div>
-                            </div>
-                            <div class="text-right">
-                                <div class="font-bold ${match.resultColor} text-sm">${match.result}</div>
-                                <div class="text-gray-400 text-xs">${match.score}</div>
-                            </div>
-                        </div>
-                        
-                        <div class="grid grid-cols-2 gap-3 mb-3">
-                            <div class="bg-gray-700/50 rounded-lg p-2 text-center">
-                                <div class="text-xs text-gray-400 mb-1">KDA</div>
-                                <div class="font-semibold text-sm">${match.kda}</div>
-                            </div>
-                            <div class="bg-gray-700/50 rounded-lg p-2 text-center">
-                                <div class="text-xs text-gray-400 mb-1">K/D</div>
-                                <div class="font-semibold text-sm">${match.kd}</div>
-                            </div>
-                            <div class="bg-gray-700/50 rounded-lg p-2 text-center">
-                                <div class="text-xs text-gray-400 mb-1">HS%</div>
-                                <div class="font-semibold text-sm">${match.hs}%</div>
-                            </div>
-                            <div class="bg-gray-700/50 rounded-lg p-2 text-center">
-                                <div class="text-xs text-gray-400 mb-1">ACS</div>
-                                <div class="font-semibold text-sm text-red-400">${match.acs}</div>
-                            </div>
-                        </div>
-                        
-                        <div class="flex items-center justify-between pt-2 border-t border-gray-700/50">
-                            <div class="flex items-center gap-2">
-                                <img src="${match.rankIcon}" alt="${match.rankName}" class="w-8 h-8 object-contain" onerror="this.onerror=null; this.src='https://placehold.co/32x32/1f2937/7f1d1d?text=R';">
-                                <div class="text-xs">
-                                    <div class="font-medium">${match.rankName}</div>
-                                    <div class="text-gray-400">${matchRankPoints}</div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                `;
-                matchHistoryMobile.innerHTML += card;
+                const card = el('div', 'match-card p-4 rounded-xl shadow-lg');
+
+                const cardHeader = el('div', 'flex items-center justify-between mb-3');
+                const cardAgentWrap = el('div', 'flex items-center gap-3');
+                cardAgentWrap.appendChild(createImg(match.agentIcon, match.agentName, 'w-10 h-10 rounded-full object-contain', 'https://placehold.co/32x32/1f2937/7f1d1d?text=?'));
+                const cardAgentText = el('div');
+                cardAgentText.appendChild(el('div', 'font-bold text-sm', match.agentName));
+                cardAgentText.appendChild(el('div', 'text-gray-400 text-xs', match.map));
+                cardAgentWrap.appendChild(cardAgentText);
+                cardHeader.appendChild(cardAgentWrap);
+                const cardResult = el('div', 'text-right');
+                cardResult.appendChild(el('div', `font-bold ${match.resultColor} text-sm`, match.result));
+                cardResult.appendChild(el('div', 'text-gray-400 text-xs', match.score));
+                cardHeader.appendChild(cardResult);
+                card.appendChild(cardHeader);
+
+                const statsGrid = el('div', 'grid grid-cols-2 gap-3 mb-3');
+                [
+                    { label: 'KDA', value: match.kda, valueClass: 'font-semibold text-sm' },
+                    { label: 'K/D', value: match.kd, valueClass: 'font-semibold text-sm' },
+                    { label: 'HS%', value: `${match.hs}%`, valueClass: 'font-semibold text-sm' },
+                    { label: 'ACS', value: `${match.acs}`, valueClass: 'font-semibold text-sm text-red-400' }
+                ].forEach(stat => {
+                    const statBox = el('div', 'bg-gray-700/50 rounded-lg p-2 text-center');
+                    statBox.appendChild(el('div', 'text-xs text-gray-400 mb-1', stat.label));
+                    statBox.appendChild(el('div', stat.valueClass, stat.value));
+                    statsGrid.appendChild(statBox);
+                });
+                card.appendChild(statsGrid);
+
+                const cardFooter = el('div', 'flex items-center justify-between pt-2 border-t border-gray-700/50');
+                const cardRankWrap = el('div', 'flex items-center gap-2');
+                cardRankWrap.appendChild(createImg(match.rankIcon, match.rankName, 'w-8 h-8 object-contain', 'https://placehold.co/32x32/1f2937/7f1d1d?text=R'));
+                const cardRankText = el('div', 'text-xs');
+                cardRankText.appendChild(el('div', 'font-medium', match.rankName));
+                cardRankText.appendChild(el('div', 'text-gray-400', matchRankPoints));
+                cardRankWrap.appendChild(cardRankText);
+                cardFooter.appendChild(cardRankWrap);
+                card.appendChild(cardFooter);
+
+                mobileFragment.appendChild(card);
             });
+
+            matchHistoryBody.appendChild(desktopFragment);
+            matchHistoryMobile.appendChild(mobileFragment);
 
             // Render ACS Chart (これも processedMatchHistory を使う)
             updateStatsChart();
