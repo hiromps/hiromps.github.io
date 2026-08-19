@@ -273,8 +273,21 @@
             }
         }
 
+        /* 他ページ(index.html等)と同じ中間ブレークポイント */
+        @media screen and (max-width: 1024px) {
+            .nav-buttons {
+                gap: 0.25rem;
+            }
+
+            .app-header a.header-button {
+                padding: 0.5rem 0.75rem;
+                font-size: 0.85rem;
+            }
+        }
+
         /* モバイル用マッチカードスタイル */
-        @media (max-width: 768px) {
+        /* Tailwindのmd:(min-width:768px)と境界を揃えるため767px以下をモバイル扱いにする */
+        @media (max-width: 767px) {
             .match-table-desktop {
                 display: none;
             }
@@ -284,22 +297,22 @@
             .app-header {
                 position: relative;
             }
-            
+
             .header-content {
                 justify-content: space-between;
                 padding: 0 20px;
             }
-            
+
             .nav-buttons {
                 display: none;
             }
-            
+
             .hamburger-menu {
                 display: flex;
             }
         }
-        
-        @media (min-width: 769px) {
+
+        @media (min-width: 768px) {
             .match-table-desktop {
                 display: block;
             }
@@ -399,7 +412,7 @@
                         </div>
 
                         <!-- 右側: 詳細統計カード群 -->
-                        <div id="additionalStatsContainer" class="grid grid-cols-2 gap-2 sm:gap-3 md:gap-4 lg:w-2/3 w-full mt-4 lg:mt-0">
+                        <div id="additionalStatsContainer" class="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-3 md:gap-4 lg:w-2/3 w-full mt-4 lg:mt-0">
                             <!-- 平均ACSカード -->
                             <div id="statCardAvgAcs" class="p-2 sm:p-3 rounded-lg shadow-md flex flex-col items-center justify-center">
                                 <span class="block text-xs font-medium mb-1">平均ACS</span>
@@ -440,7 +453,9 @@
                         <button data-type="hs" class="chart-type-button bg-gray-600 hover:bg-gray-500 text-white px-2 sm:px-3 py-1 rounded-md text-xs sm:text-sm">HS%</button>
                     </div>
                 </div>
-                <canvas id="statsChart"></canvas>
+                <div class="relative h-64 sm:h-80">
+                    <canvas id="statsChart"></canvas>
+                </div>
             </div>
 
             <!-- Match History -->
