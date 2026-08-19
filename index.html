@@ -1064,9 +1064,20 @@
 
         /* OBS Mode - Transparent Background */
         body.obs-mode,
-        body.obs-mode html {
+        html.obs-mode {
             background: transparent !important;
             background-color: transparent !important;
+        }
+
+        /* 入力フォームありモード(name+tagパラメータ付き)では入力欄を隠す */
+        body.has-player .input-section {
+            display: none;
+        }
+
+        /* 通常表示(OBSモードでない)でプレイヤー情報がある場合はオーバーレイを中央に */
+        body.has-player:not(.obs-mode) .overlay {
+            top: 50%;
+            transform: translateY(-50%);
         }
 
         body.obs-mode .background {
@@ -1161,6 +1172,20 @@
     </style>
 </head>
     <body>
+    <script>
+        // FOUC防止: module scriptの実行を待たず、DOM構築直後に obs-mode / has-player クラスを付与する。
+        // 実際の表示制御は全てCSS側(このファイルのinline styleとstyles.css)で行う。
+        (function () {
+            var params = new URLSearchParams(window.location.search);
+            if (params.has('obs')) {
+                document.documentElement.classList.add('obs-mode');
+                document.body.classList.add('obs-mode');
+            }
+            if (params.get('name') && params.get('tag')) {
+                document.body.classList.add('has-player');
+            }
+        })();
+    </script>
     <div class="background"></div>
     
     <header class="app-header">

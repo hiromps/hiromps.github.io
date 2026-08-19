@@ -142,34 +142,6 @@ body.obs-mode .overlay {
     margin-bottom: 15px;
 }
 
-.agent-icon {
-    width: 80px;
-    height: 80px;
-    margin-right: 20px;
-    border-radius: 50%;
-    border: 2px solid var(--valorant-red);
-    object-fit: cover;
-}
-
-.player-details {
-    flex-grow: 1;
-}
-
-.player-name {
-    margin: 0;
-    font-size: 1.4em;
-    color: var(--valorant-light);
-}
-
-.player-rank {
-    margin: 5px 0 0;
-    font-size: 1.1em;
-    color: var(--valorant-red);
-    display: flex;
-    align-items: center;
-    gap: 15px;
-}
-
 .rank-section {
     display: flex;
     align-items: center;
@@ -260,44 +232,6 @@ body.obs-mode .overlay {
     position: relative; /* ゲージの上に表示 */
     z-index: 1; /* ゲージより前面に */
     color: var(--text-color);
-}
-
-.last-match-section[style*="background-color: rgb(76, 175, 80)"] {
-    /* 緑色の背景 */
-    background-color: var(--valorant-green) !important;
-}
-
-.last-match-section[style*="background-color: rgb(244, 67, 54)"] {
-    /* 赤色の背景 */
-    background-color: var(--valorant-red-bg) !important;
-}
-
-.stats-grid {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 15px;
-    margin-top: 20px;
-}
-
-.stat-item {
-    text-align: center;
-    padding: var(--spacing-md);
-    background: rgba(255, 70, 85, 0.1);
-    border-radius: var(--radius-md);
-}
-
-.stat-label {
-    display: block;
-    font-size: 0.9em;
-    color: var(--valorant-light);
-    margin-bottom: 8px;
-}
-
-.stat-value {
-    display: block;
-    font-size: 1.3em;
-    color: var(--valorant-red);
-    font-weight: bold;
 }
 
 /* 入力セクションとチュートリアルセクションを横並びにするためのコンテナ */
@@ -983,8 +917,6 @@ body.obs-mode .overlay {
     .customize-button-container {
         width: 90%;
         margin: 10px auto; /* 上下にマージン、左右中央寄せ */
-        order: -1; /* 任意: 例えば入力セクションの上に表示したい場合 */
-        /* order: 1; /* 入力セクションの下、オーバーレイの上に表示したい場合 */
         order: 2; /* オーバーレイの下、author-sectionの上に表示 */
     }
 
@@ -1151,19 +1083,6 @@ body.obs-mode .ad-container {
 
 
 body.obs-mode .tutorial-section {
-    display: none !important; /* OBSモードでは非表示 */
-}
-
-/* 入力フォームも非表示 */
-body:has(input[id="generatedURL"][value*="obs"]) .input-section {
-    display: none !important;
-}
-
-body:has(input[id="generatedURL"][value*="obs"]) .customize-button-container {
-    display: none !important; /* OBSモードでは非表示 */
-}
-
-body:has(input[id="generatedURL"][value*="obs"]) .ad-container {
     display: none !important; /* OBSモードでは非表示 */
 }
 
