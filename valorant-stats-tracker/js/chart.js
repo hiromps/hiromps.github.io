@@ -88,6 +88,7 @@ export function updateStatsChart() {
         },
         options: {
             responsive: true,
+            maintainAspectRatio: false, // 親要素(.relative.h-64.sm:h-80)の高さに追従させる
             scales: {
                 y: {
                     beginAtZero: false, // HS%やDDΔは0始まりでない方が見やすい場合がある
