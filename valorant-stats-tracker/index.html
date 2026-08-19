@@ -575,19 +575,11 @@
     <script type="module">
         import { RANK_FILES, rankImageUrl } from '../shared/ranks.js';
 
-        // --- ★★★ 重要 ★★★ ---
-        // Riot Developer Portal (https://developer.riotgames.com/) から
-        // 新しい開発用APIキーを取得してください。
-        // プロジェクトルートに config.js ファイルを作成し、
-        // const RIOT_API_KEY = "YOUR_RIOT_API_KEY_HERE"; の形式でキーを記述してください。
-        // このキーは24時間で有効期限が切れるため、定期的な更新が必要です。
-        // 重要: config.js ファイルは .gitignore に追加して、リポジトリに含めないようにしてください。
-        const API_KEY = RIOT_API_KEY; 
-        console.log("API Key loaded:", API_KEY ? `Yes, length: ${API_KEY.length}` : "No, API_KEY is not set or empty");
-        
+        // APIキーはルートの config.js (classic script) が定義するグローバル RIOT_API_KEY から取得
+        const API_KEY = RIOT_API_KEY;
+
         // --- CONFIGURATION ---
         const RAW_MATCH_COUNT_TO_FETCH = 30; // シーズン判定のために取得する試合数 (APIのsize上限も考慮)
-        // const MATCH_COUNT = 5; // 表示する試合数はシーズンフィルタリング後に決定されるため、この定数は直接使わなくなる
 
         // --- DOM ELEMENTS ---
         const gameNameInput = document.getElementById('gameNameInput');
@@ -647,7 +639,7 @@
         async function handleSearch() {
             // APIキーが設定されているかチェックします。
             if (!API_KEY || API_KEY === "YOUR_RIOT_API_KEY_HERE") {
-                showError('APIキーが設定されていません。config.js ファイルに有効な Riot API キーを記述し、コメントの指示に従って更新してください。');
+                showError('APIキーが設定されていません。ルートの config.js に有効な Riot API キーを設定してください。');
                 return;
             }
             const gameName = gameNameInput.value.trim();
@@ -845,22 +837,6 @@
             if (!data.status || data.status !== 200 || !data.data || !data.data.puuid || !data.data.region) {
                 throw new Error('PUUIDまたはリージョンの取得に失敗しました (HenrikDev API)。レスポンス: ' + JSON.stringify(data));
             }
-
-            // ★★★ デバッグ用ログを削除 ★★★
-            // console.log("API response for card data:", JSON.stringify(data.data.card, null, 2));
-
-            // アイコン設定ロジックを削除
-            // let iconUrl = 'https://placehold.co/96x96/1f2937/7f1d1d?text=?'; // デフォルト
-            // if (data.data.card) {
-            //     if (data.data.card.wide) {
-            //         iconUrl = data.data.card.wide;
-            //     } else if (data.data.card.large) {
-            //         iconUrl = data.data.card.large;
-            //     } else if (data.data.card.small) {
-            //         iconUrl = data.data.card.small;
-            //     }
-            // }
-            // document.getElementById('playerIcon').src = iconUrl;
             return data.data; // PUUIDだけでなく、リージョン情報も含むdata.data全体を返す
         }
 
@@ -905,13 +881,10 @@
             // PUUIDベースのエンドポイントも利用可能:
             // const baseUrl = `https://api.henrikdev.xyz/valorant/v2/by-puuid/mmr/${region}/${puuid}`;
             const data = await apiFetch(baseUrl);
-            // デバッグ用ログはコメントアウトまたは削除
-            // console.log("getMmrData API response:", JSON.stringify(data, null, 2)); 
             if (!data.status || data.status !== 200 || !data.data) {
                 console.warn('MMRデータの取得に失敗しました (HenrikDev API)。レスポンス: ' + JSON.stringify(data));
                 return null; // エラーの場合はnullを返すなどして後続処理で対応
             }
-            // console.log("MMR Data fetched (data.data part only):", JSON.stringify(data.data, null, 2)); 
             return data.data;
         }
 
@@ -923,7 +896,6 @@
                     console.warn('MMR履歴の取得に失敗しました (HenrikDev API)。レスポンス: ' + JSON.stringify(data));
                     return []; // エラーの場合は空配列を返す
                 }
-                console.log("MMR History fetched:", JSON.stringify(data.data, null, 2));
                 return data.data; // MMR履歴データの配列
             } catch (error) {
                 console.error("Error fetching MMR history:", error);
@@ -934,8 +906,6 @@
 
         // --- DATA PROCESSING ---
         function processMatchData(matches, puuid) {
-            console.log("processMatchData received matches (before season filter):", JSON.stringify(matches, null, 2));
-            console.log("processMatchData received puuid:", puuid);
 
             if (!matches || matches.length === 0) {
                 return [];
@@ -958,7 +928,6 @@
             }
 
             const processedMatches = matches.map(match => {
-                console.log("Processing match:", JSON.stringify(match, null, 2)); 
 
                 if (!match || !match.metadata || !match.players || !match.teams || !match.rounds) {
                     console.warn("Skipping match due to missing fundamental data structure (metadata, players, teams, or rounds):", match);
@@ -978,20 +947,13 @@
                 }
 
                 const player = match.players.find(p => p.puuid === puuid);
-                // console.log("Found player in match:", JSON.stringify(player, null, 2)); 
 
                 if (!player || !player.stats || !player.agent) { 
                     console.warn("Player not found, or player missing stats/agent in match:", match, "for puuid:", puuid);
                     return null;
                 }
-                 // ★★★ KAST, DDΔ調査用ログを追加 ★★★
-                // console.log(`Player stats for match ${match.metadata.match_id}:`, JSON.stringify(player.stats, null, 2)); // 確認したのでコメントアウト
-
-                // ★ デバッグログ: player.tier の内容を確認
-                console.log(`[Debug] Match ${match.metadata.match_id} - Raw player.tier from match details:`, player.tier);
 
                 const playerTeamData = match.teams.find(t => t.team_id.toLowerCase() === player.team_id.toLowerCase());
-                console.log("Found playerTeamData:", JSON.stringify(playerTeamData, null, 2)); 
 
                 if (!playerTeamData || typeof playerTeamData.won !== 'boolean' || !playerTeamData.rounds) {
                      console.warn("Player team data not found or incomplete:", match, "for team_id:", player.team_id);
@@ -1010,7 +972,6 @@
                 const acs = (roundsPlayed > 0 && player.stats && player.stats.score !== undefined)
                     ? Math.round(player.stats.score / roundsPlayed)
                     : 0;
-                // console.log(`ACS calculation: score=${player.stats.score}, roundsPlayed=${roundsPlayed}, acs=${acs}`); 
                 
                 // KAST, Damage Dealt, Damage Received の取得試行
                 const damageDealtValue = (player.stats.damage && typeof player.stats.damage.dealt === 'number') ? player.stats.damage.dealt : 0;
@@ -1027,17 +988,11 @@
                 let apiRankName = player.tier && player.tier.name ? player.tier.name : "Unranked";
                 let displayRankName = apiRankName; // This will be the name shown alongside the icon in the match row
 
-                // ★ デバッグログ: 解決されたランク名と、マッピング試行前のアイコンURL
-                console.log(`[Debug] Match ${match.metadata.match_id} - Resolved apiRankName for icon: ${apiRankName}`);
-                console.log(`[Debug] Match ${match.metadata.match_id} - Initial rankIconUrl for player ${player.game_name}: ${rankIconUrl}`);
-
                 if (RANK_FILES[apiRankName]) {
                     rankIconUrl = rankImageUrl(apiRankName);
-                    // ★ デバッグログ: マッピング成功時のアイコンURL
-                    console.log(`[Debug] Match ${match.metadata.match_id} - Rank Mapped for player ${player.game_name}. New rankIconUrl: ${rankIconUrl}`);
                 } else {
-                    // マッピングに失敗した場合
-                    console.warn(`[Debug] Match ${match.metadata.match_id} - Rank name "${apiRankName}" for player ${player.game_name} not found in rankNameMapping or "Unranked" mapping issue. Using placeholder. Final rankIconUrl: ${rankIconUrl}`);
+                    // マッピングに失敗した場合はプレースホルダのまま表示する
+                    console.warn(`Match ${match.metadata.match_id} - Rank name "${apiRankName}" for player ${player.game_name} not found in RANK_FILES. Using placeholder.`);
                 }
 
                 const rankPoints = "-- RR"; // これは renderResults で MMR 履歴とマージして上書きされる
@@ -1065,9 +1020,8 @@
                     damageReceived: damageReceivedValue, // 被ダメージ
                     roundsPlayed: roundsPlayed // ラウンド数
                 };
-            }).filter(Boolean); 
+            }).filter(Boolean);
 
-            console.log("processMatchData returning (after season filter):", JSON.stringify(processedMatches, null, 2));
             return processedMatches;
         }
 
@@ -1078,15 +1032,6 @@
             document.getElementById('playerTag').textContent = `#${tag}`;
             
             lastProcessedMatchHistory = processedMatchHistory;
-
-            // デバッグ用ログはコメントアウトまたは削除
-            // console.log("renderResults received mmrData:", JSON.stringify(mmrData, null, 2));
-            // if (mmrData) {
-            //     console.log("mmrData.current_data.currenttierpatched in renderResults:", mmrData.current_data ? mmrData.current_data.currenttierpatched : 'N/A');
-            //     console.log("mmrData.current_data.images in renderResults:", mmrData.current_data ? mmrData.current_data.images : 'N/A');
-            //     console.log("mmrData.current_data.ranking_in_tier in renderResults:", mmrData.current_data ? mmrData.current_data.ranking_in_tier : 'N/A');
-            //     console.log("mmrData.current_data.mmr_change_to_last_game in renderResults:", mmrData.current_data ? mmrData.current_data.mmr_change_to_last_game : 'N/A');
-            // }
 
             const playerRankSection = document.getElementById('playerRankSection');
             playerRankSection.innerHTML = ''; // 初期化
@@ -1101,7 +1046,7 @@
                 if (mmrData.current_data.images && mmrData.current_data.images.large) {
                     rankIconFromMmr = mmrData.current_data.images.large;
                 } else {
-                     // images.largeがない場合でも、rankNameMapping を使ってローカルアセットを参照する試みは残す
+                     // images.largeがない場合でも、RANK_FILES を使ってローカルアセットを参照する試みは残す
                      if (RANK_FILES[currentRankName]) {
                          rankIconFromMmr = rankImageUrl(currentRankName);
                      }
