@@ -44,49 +44,16 @@ function initializePage() {
     }
 
     if (name && tag) {
-        // URLパラメータがある場合は入力フォームを非表示
-        document.getElementById('inputSection').style.display = 'none';
+        // 入力フォーム非表示・OBSモードの背景透過/ヘッダー非表示/オーバーレイ中央配置・
+        // 通常表示でのオーバーレイ中央配置は全て body.obs-mode / body.has-player の
+        // CSSルール(<body>直後のbootスクリプトでクラス付与)で処理する
 
         if (isOBS) {
-            // OBSモードの場合のスタイル調整
-            document.documentElement.style.backgroundColor = 'transparent';
-            document.body.style.backgroundColor = 'transparent';
-            document.body.style.overflow = 'hidden';
-            // bodyにOBSモードクラスを追加
-            document.body.classList.add('obs-mode');
-
-            // ヘッダーナビゲーションを非表示
-            const headerElement = document.querySelector('.app-header');
-            if (headerElement) {
-                headerElement.style.display = 'none';
-            }
-
-            // 背景アニメーション要素を非表示
-            const backgroundElement = document.querySelector('.background');
-            if (backgroundElement) {
-                backgroundElement.style.display = 'none';
-            }
-
-            // オーバーレイのOBS向け位置調整（中央に配置）
-            const overlayElement = document.querySelector('.overlay');
-            if (overlayElement) {
-                overlayElement.style.position = 'absolute';
-                overlayElement.style.top = '50%';
-                overlayElement.style.left = '50%';
-                overlayElement.style.right = 'auto';
-                overlayElement.style.transform = 'translate(-50%, -50%)';
-
-                // OBSブラウザソースサイズに応じてスケール調整
-                adjustOBSScale();
-            }
+            // OBSブラウザソースサイズに応じたスケール調整はCSSでは表現できないためJSで実行
+            adjustOBSScale();
 
             // OBSモードでは自動更新を開始
             console.log(`OBSモードで自動更新を有効化（${updateFreq}秒間隔）`);
-
-        } else {
-            // 通常のブラウザ表示でのオーバーレイ位置調整
-            document.querySelector('.overlay').style.top = '50%';
-            document.querySelector('.overlay').style.transform = 'translateY(-50%)';
         }
 
         // プレイヤー情報を更新（初回）
@@ -105,21 +72,8 @@ function initializePage() {
         });
     } else if (isOBS) {
         // name, tag パラメータがないが OBS モードの場合
-        document.getElementById('inputSection').style.display = 'none';
+        // 入力フォーム・ヘッダー・背景の非表示は body.obs-mode CSS ルールで処理済み
 
-        // ヘッダーナビゲーションを非表示
-        const headerElement = document.querySelector('.app-header');
-        if (headerElement) {
-            headerElement.style.display = 'none';
-        }
-
-        // bodyにOBSモードクラスを追加
-        document.body.classList.add('obs-mode');
-
-        const backgroundElement = document.querySelector('.background');
-        if (backgroundElement) {
-            backgroundElement.style.display = 'none';
-        }
         // データがない旨を表示
         document.getElementById('rankText').textContent = '情報なし';
         document.getElementById('rrText').textContent = '0RR';
