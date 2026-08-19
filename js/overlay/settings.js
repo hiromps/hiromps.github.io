@@ -1,8 +1,31 @@
 // カラーカスタマイズ・URL生成層 (ES Module)
-// NOTE: hexToRgba の重複解消とデータ駆動化(COLOR_SETTINGS)は C7 で行う。ここでは挙動を変えず移設のみ。
 import { state } from './state.js';
 import { applyTheme } from './theme.js';
 import { resetLastMatchWidthForClassic, adjustLastMatchWidth } from './layout.js';
+
+// 8色設定を一元管理するテーブル。apply/reset/load/URL適用/generateURL の5経路がこれをループする。
+// pairPicker: true のフィールドは loadSavedSettings のピッカー復元時に color/opacity を対で扱う。
+// border だけ false で、色と不透明度を独立に復元する(元コードの非対称挙動をそのまま温存)。
+export const COLOR_SETTINGS = [
+    { param: 'rankBgColor', opacityParam: 'rankBgOpacity', lsColor: 'customRankBgColor', lsOpacity: 'customRankBgOpacity', inputId: 'rankBgColorPicker', sliderId: 'rankBgOpacitySlider', valueId: 'rankBgOpacityValue', cssVar: '--rank-bg-color', defColor: '#3a444e', defOpacity: '100', pairPicker: true },
+    { param: 'lastMatchBgColor', opacityParam: 'lastMatchBgOpacity', lsColor: 'customLastMatchBgColor', lsOpacity: 'customLastMatchBgOpacity', inputId: 'lastMatchBgColorPicker', sliderId: 'lastMatchBgOpacitySlider', valueId: 'lastMatchBgOpacityValue', cssVar: '--last-match-bg-color', defColor: '#F44336', defOpacity: '100', pairPicker: true },
+    { param: 'textColor', opacityParam: null, lsColor: 'customTextColor', lsOpacity: null, inputId: 'textColorPicker', sliderId: null, valueId: null, cssVar: '--text-color', defColor: '#ffffff', defOpacity: null, pairPicker: true },
+    { param: 'rrColor', opacityParam: null, lsColor: 'customRrColor', lsOpacity: null, inputId: 'rrColorPicker', sliderId: null, valueId: null, cssVar: '--rr-color', defColor: '#ff4655', defOpacity: null, pairPicker: true },
+    { param: 'borderColor', opacityParam: 'borderOpacity', lsColor: 'customBorderColor', lsOpacity: 'customBorderOpacity', inputId: 'borderColorPicker', sliderId: 'borderOpacitySlider', valueId: 'borderOpacityValue', cssVar: '--border-color', defColor: '#ff4655', defOpacity: '100', pairPicker: false }
+];
+
+// hex(#rrggbb) + 不透明度(0-100) → rgba() 文字列。旧コードは同じ変換を4箇所(9回)に手書きコピーしていた。
+function hexToRgba(hex, opacityPct) {
+    const r = parseInt(hex.slice(1, 3), 16);
+    const g = parseInt(hex.slice(3, 5), 16);
+    const b = parseInt(hex.slice(5, 7), 16);
+    return `rgba(${r}, ${g}, ${b}, ${opacityPct / 100})`;
+}
+
+// opacityParam を持つ設定は rgba に変換、持たない設定(text/rr)はそのまま色文字列を使う
+function cssValue(entry, color, opacity) {
+    return entry.opacityParam ? hexToRgba(color, opacity) : color;
+}
 
 // カラーピッカーモーダルの表示/非表示
 export function showColorPicker() {
@@ -26,49 +49,17 @@ export function closeColorPicker() {
 
 // カスタムカラーの適用
 export function applyCustomColors() {
-    const rankBgColor = document.getElementById('rankBgColorPicker').value;
-    const rankBgOpacity = document.getElementById('rankBgOpacitySlider').value;
-    const lastMatchBgColor = document.getElementById('lastMatchBgColorPicker').value;
-    const lastMatchBgOpacity = document.getElementById('lastMatchBgOpacitySlider').value;
-    const textColor = document.getElementById('textColorPicker').value;
-    const rrColor = document.getElementById('rrColorPicker').value;
-    const borderColor = document.getElementById('borderColorPicker').value;
-    const borderOpacity = document.getElementById('borderOpacitySlider').value;
+    COLOR_SETTINGS.forEach(entry => {
+        const color = document.getElementById(entry.inputId).value;
+        const opacity = entry.sliderId ? document.getElementById(entry.sliderId).value : null;
 
-    // ランク背景色をrgba形式に変換
-    const rankR = parseInt(rankBgColor.slice(1, 3), 16);
-    const rankG = parseInt(rankBgColor.slice(3, 5), 16);
-    const rankB = parseInt(rankBgColor.slice(5, 7), 16);
-    const rgbaRankBgColor = `rgba(${rankR}, ${rankG}, ${rankB}, ${rankBgOpacity / 100})`;
+        document.documentElement.style.setProperty(entry.cssVar, cssValue(entry, color, opacity));
 
-    // 前回のマッチ背景色をrgba形式に変換
-    const lastMatchR = parseInt(lastMatchBgColor.slice(1, 3), 16);
-    const lastMatchG = parseInt(lastMatchBgColor.slice(3, 5), 16);
-    const lastMatchB = parseInt(lastMatchBgColor.slice(5, 7), 16);
-    const rgbaLastMatchBgColor = `rgba(${lastMatchR}, ${lastMatchG}, ${lastMatchB}, ${lastMatchBgOpacity / 100})`;
-
-    // 境界線色をrgba形式に変換
-    const borderR = parseInt(borderColor.slice(1, 3), 16);
-    const borderG = parseInt(borderColor.slice(3, 5), 16);
-    const borderB = parseInt(borderColor.slice(5, 7), 16);
-    const rgbaBorderColor = `rgba(${borderR}, ${borderG}, ${borderB}, ${borderOpacity / 100})`;
-
-    // CSS変数を更新
-    document.documentElement.style.setProperty('--rank-bg-color', rgbaRankBgColor);
-    document.documentElement.style.setProperty('--last-match-bg-color', rgbaLastMatchBgColor);
-    document.documentElement.style.setProperty('--text-color', textColor);
-    document.documentElement.style.setProperty('--rr-color', rrColor);
-    document.documentElement.style.setProperty('--border-color', rgbaBorderColor);
-
-    // 設定を保存
-    localStorage.setItem('customRankBgColor', rankBgColor);
-    localStorage.setItem('customRankBgOpacity', rankBgOpacity);
-    localStorage.setItem('customLastMatchBgColor', lastMatchBgColor);
-    localStorage.setItem('customLastMatchBgOpacity', lastMatchBgOpacity);
-    localStorage.setItem('customTextColor', textColor);
-    localStorage.setItem('customRrColor', rrColor);
-    localStorage.setItem('customBorderColor', borderColor);
-    localStorage.setItem('customBorderOpacity', borderOpacity);
+        localStorage.setItem(entry.lsColor, color);
+        if (entry.lsOpacity) {
+            localStorage.setItem(entry.lsOpacity, opacity);
+        }
+    });
 
     closeColorPicker();
 
@@ -84,35 +75,23 @@ export function applyCustomColors() {
 
 // カスタムカラーをリセット
 export function resetCustomColors() {
-    // デフォルト値に戻す
-    document.getElementById('rankBgColorPicker').value = '#3a444e';
-    document.getElementById('rankBgOpacitySlider').value = '100';
-    document.getElementById('rankBgOpacityValue').textContent = '100%';
-    document.getElementById('lastMatchBgColorPicker').value = '#F44336';
-    document.getElementById('lastMatchBgOpacitySlider').value = '100';
-    document.getElementById('lastMatchBgOpacityValue').textContent = '100%';
-    document.getElementById('textColorPicker').value = '#ffffff';
-    document.getElementById('rrColorPicker').value = '#ff4655';
-    document.getElementById('borderColorPicker').value = '#ff4655';
-    document.getElementById('borderOpacitySlider').value = '100';
-    document.getElementById('borderOpacityValue').textContent = '100%';
+    COLOR_SETTINGS.forEach(entry => {
+        // デフォルト値に戻す
+        document.getElementById(entry.inputId).value = entry.defColor;
+        if (entry.sliderId) {
+            document.getElementById(entry.sliderId).value = entry.defOpacity;
+            document.getElementById(entry.valueId).textContent = entry.defOpacity + '%';
+        }
 
-    // CSS変数をリセット
-    document.documentElement.style.setProperty('--rank-bg-color', 'rgba(58, 68, 78, 1)');
-    document.documentElement.style.setProperty('--last-match-bg-color', 'rgba(244, 67, 54, 1)');
-    document.documentElement.style.setProperty('--text-color', '#ffffff');
-    document.documentElement.style.setProperty('--rr-color', '#ff4655');
-    document.documentElement.style.setProperty('--border-color', 'rgba(255, 70, 85, 1)');
+        // CSS変数をリセット
+        document.documentElement.style.setProperty(entry.cssVar, cssValue(entry, entry.defColor, entry.defOpacity));
 
-    // localStorageからカスタム設定を削除
-    localStorage.removeItem('customRankBgColor');
-    localStorage.removeItem('customRankBgOpacity');
-    localStorage.removeItem('customLastMatchBgColor');
-    localStorage.removeItem('customLastMatchBgOpacity');
-    localStorage.removeItem('customTextColor');
-    localStorage.removeItem('customRrColor');
-    localStorage.removeItem('customBorderColor');
-    localStorage.removeItem('customBorderOpacity');
+        // localStorageからカスタム設定を削除
+        localStorage.removeItem(entry.lsColor);
+        if (entry.lsOpacity) {
+            localStorage.removeItem(entry.lsOpacity);
+        }
+    });
 
     // テーマをクラシックに戻す
     applyTheme('classic');
@@ -126,67 +105,50 @@ export function resetCustomColors() {
 
 // 保存された設定を読み込む
 export function loadSavedSettings() {
-    const savedRankBgColor = localStorage.getItem('customRankBgColor');
-    const savedRankBgOpacity = localStorage.getItem('customRankBgOpacity');
-    const savedLastMatchBgColor = localStorage.getItem('customLastMatchBgColor');
-    const savedLastMatchBgOpacity = localStorage.getItem('customLastMatchBgOpacity');
-    const savedTextColor = localStorage.getItem('customTextColor');
-    const savedRrColor = localStorage.getItem('customRrColor');
-    const savedBorderColor = localStorage.getItem('customBorderColor');
-    const savedBorderOpacity = localStorage.getItem('customBorderOpacity');
+    const saved = {};
+    COLOR_SETTINGS.forEach(entry => {
+        saved[entry.param] = {
+            color: localStorage.getItem(entry.lsColor),
+            opacity: entry.lsOpacity ? localStorage.getItem(entry.lsOpacity) : null
+        };
+    });
     const savedTheme = localStorage.getItem('selectedTheme');
 
-    if (savedRankBgColor && savedRankBgOpacity && savedTextColor) {
-        // ランク背景色の設定
-        const rankR = parseInt(savedRankBgColor.slice(1, 3), 16);
-        const rankG = parseInt(savedRankBgColor.slice(3, 5), 16);
-        const rankB = parseInt(savedRankBgColor.slice(5, 7), 16);
-        const rgbaRankBgColor = `rgba(${rankR}, ${rankG}, ${rankB}, ${savedRankBgOpacity / 100})`;
+    const rank = saved.rankBgColor;
+    const text = saved.textColor;
 
-        // 前回のマッチ背景色の設定
-        if (savedLastMatchBgColor && savedLastMatchBgOpacity) {
-            const lastMatchR = parseInt(savedLastMatchBgColor.slice(1, 3), 16);
-            const lastMatchG = parseInt(savedLastMatchBgColor.slice(3, 5), 16);
-            const lastMatchB = parseInt(savedLastMatchBgColor.slice(5, 7), 16);
-            const rgbaLastMatchBgColor = `rgba(${lastMatchR}, ${lastMatchG}, ${lastMatchB}, ${savedLastMatchBgOpacity / 100})`;
-            document.documentElement.style.setProperty('--last-match-bg-color', rgbaLastMatchBgColor);
-        }
+    // 3キーゲート: rankBgColor && rankBgOpacity && textColor が揃った時のみ復元する
+    if (rank.color && rank.opacity && text.color) {
+        COLOR_SETTINGS.forEach(entry => {
+            const s = saved[entry.param];
+            const hasPair = entry.opacityParam ? (s.color && s.opacity) : !!s.color;
 
-        // 境界線色の設定
-        if (savedBorderColor && savedBorderOpacity) {
-            const borderR = parseInt(savedBorderColor.slice(1, 3), 16);
-            const borderG = parseInt(savedBorderColor.slice(3, 5), 16);
-            const borderB = parseInt(savedBorderColor.slice(5, 7), 16);
-            const rgbaBorderColor = `rgba(${borderR}, ${borderG}, ${borderB}, ${savedBorderOpacity / 100})`;
-            document.documentElement.style.setProperty('--border-color', rgbaBorderColor);
-        }
+            // CSS変数の復元(rank/textは3キーゲートで既に確定、lastMatch/borderはペア条件、rrは単独条件)
+            if (hasPair) {
+                document.documentElement.style.setProperty(entry.cssVar, cssValue(entry, s.color, s.opacity));
+            }
 
-        document.documentElement.style.setProperty('--rank-bg-color', rgbaRankBgColor);
-        document.documentElement.style.setProperty('--text-color', savedTextColor);
-        if (savedRrColor) {
-            document.documentElement.style.setProperty('--rr-color', savedRrColor);
-        }
-
-        // カラーピッカーの値を更新
-        document.getElementById('rankBgColorPicker').value = savedRankBgColor;
-        document.getElementById('rankBgOpacitySlider').value = savedRankBgOpacity;
-        document.getElementById('rankBgOpacityValue').textContent = savedRankBgOpacity + '%';
-        if (savedLastMatchBgColor && savedLastMatchBgOpacity) {
-            document.getElementById('lastMatchBgColorPicker').value = savedLastMatchBgColor;
-            document.getElementById('lastMatchBgOpacitySlider').value = savedLastMatchBgOpacity;
-            document.getElementById('lastMatchBgOpacityValue').textContent = savedLastMatchBgOpacity + '%';
-        }
-        document.getElementById('textColorPicker').value = savedTextColor;
-        if (savedRrColor) {
-            document.getElementById('rrColorPicker').value = savedRrColor;
-        }
-        if (savedBorderColor) {
-            document.getElementById('borderColorPicker').value = savedBorderColor;
-        }
-        if (savedBorderOpacity) {
-            document.getElementById('borderOpacitySlider').value = savedBorderOpacity;
-            document.getElementById('borderOpacityValue').textContent = savedBorderOpacity + '%';
-        }
+            // カラーピッカーUIの復元
+            if (entry.pairPicker) {
+                // ペア条件(rank/lastMatch/text/rr): 揃った時だけ全フィールドを復元
+                if (hasPair) {
+                    document.getElementById(entry.inputId).value = s.color;
+                    if (entry.sliderId) {
+                        document.getElementById(entry.sliderId).value = s.opacity;
+                        document.getElementById(entry.valueId).textContent = s.opacity + '%';
+                    }
+                }
+            } else {
+                // 独立条件(border): 色と不透明度を別々に復元(元コードの非対称挙動を温存)
+                if (s.color) {
+                    document.getElementById(entry.inputId).value = s.color;
+                }
+                if (entry.sliderId && s.opacity) {
+                    document.getElementById(entry.sliderId).value = s.opacity;
+                    document.getElementById(entry.valueId).textContent = s.opacity + '%';
+                }
+            }
+        });
     }
 
     // テーマ設定を適用
@@ -211,25 +173,17 @@ export function generateURL() {
     urlParams.append('obs', ''); // OBSモードパラメータをデフォルトで追加
     urlParams.append('updateInterval', '30'); // 自動更新間隔（30秒）に短縮
 
-    // カスタマイズ設定をURLパラメータとして追加
-    const savedRankBgColor = localStorage.getItem('customRankBgColor');
-    const savedRankBgOpacity = localStorage.getItem('customRankBgOpacity');
-    const savedLastMatchBgColor = localStorage.getItem('customLastMatchBgColor');
-    const savedLastMatchBgOpacity = localStorage.getItem('customLastMatchBgOpacity');
-    const savedTextColor = localStorage.getItem('customTextColor');
-    const savedRrColor = localStorage.getItem('customRrColor');
-    const savedBorderColor = localStorage.getItem('customBorderColor');
-    const savedBorderOpacity = localStorage.getItem('customBorderOpacity');
-    const savedTheme = localStorage.getItem('selectedTheme');
+    // カスタマイズ設定をURLパラメータとして追加(色ごとに独立して存在チェック)
+    COLOR_SETTINGS.forEach(entry => {
+        const color = localStorage.getItem(entry.lsColor);
+        if (color) urlParams.append(entry.param, color);
+        if (entry.lsOpacity) {
+            const opacity = localStorage.getItem(entry.lsOpacity);
+            if (opacity) urlParams.append(entry.opacityParam, opacity);
+        }
+    });
 
-    if (savedRankBgColor) urlParams.append('rankBgColor', savedRankBgColor);
-    if (savedRankBgOpacity) urlParams.append('rankBgOpacity', savedRankBgOpacity);
-    if (savedLastMatchBgColor) urlParams.append('lastMatchBgColor', savedLastMatchBgColor);
-    if (savedLastMatchBgOpacity) urlParams.append('lastMatchBgOpacity', savedLastMatchBgOpacity);
-    if (savedTextColor) urlParams.append('textColor', savedTextColor);
-    if (savedRrColor) urlParams.append('rrColor', savedRrColor);
-    if (savedBorderColor) urlParams.append('borderColor', savedBorderColor);
-    if (savedBorderOpacity) urlParams.append('borderOpacity', savedBorderOpacity);
+    const savedTheme = localStorage.getItem('selectedTheme');
     if (savedTheme) urlParams.append('theme', savedTheme);
 
     const newURL = `${currentURL}?${urlParams.toString()}`;
@@ -238,72 +192,62 @@ export function generateURL() {
 
 export function copyURL() {
     const urlInput = document.getElementById('generatedURL');
-    urlInput.select();
-    document.execCommand('copy');
-    alert('URLをコピーしました！');
+    const url = urlInput.value;
+
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(url).then(() => {
+            alert('URLをコピーしました！');
+        }).catch(() => {
+            // クリップボードAPIが権限等で失敗した場合は execCommand にフォールバック
+            urlInput.select();
+            document.execCommand('copy');
+            alert('URLをコピーしました！');
+        });
+    } else {
+        // navigator.clipboard 非対応ブラウザ(古いOBS内蔵CEF等)向けフォールバック
+        urlInput.select();
+        document.execCommand('copy');
+        alert('URLをコピーしました！');
+    }
 }
 
 // URLパラメータから色設定を適用する。3キーゲート(rankBgColor && rankBgOpacity && textColor)を
 // 満たさない場合は false を返し、呼び出し側で loadSavedSettings() へフォールバックする。
 export function applyUrlColorParams(urlParams) {
-    const urlRankBgColor = urlParams.get('rankBgColor');
-    const urlRankBgOpacity = urlParams.get('rankBgOpacity');
-    const urlLastMatchBgColor = urlParams.get('lastMatchBgColor');
-    const urlLastMatchBgOpacity = urlParams.get('lastMatchBgOpacity');
-    const urlTextColor = urlParams.get('textColor');
-    const urlRrColor = urlParams.get('rrColor');
-    const urlBorderColor = urlParams.get('borderColor');
-    const urlBorderOpacity = urlParams.get('borderOpacity');
+    const values = {};
+    COLOR_SETTINGS.forEach(entry => {
+        values[entry.param] = {
+            color: urlParams.get(entry.param),
+            opacity: entry.opacityParam ? urlParams.get(entry.opacityParam) : null
+        };
+    });
 
-    if (!(urlRankBgColor && urlRankBgOpacity && urlTextColor)) {
+    const rank = values.rankBgColor;
+    const text = values.textColor;
+
+    if (!(rank.color && rank.opacity && text.color)) {
         return false;
     }
 
-    const rankR = parseInt(urlRankBgColor.slice(1, 3), 16);
-    const rankG = parseInt(urlRankBgColor.slice(3, 5), 16);
-    const rankB = parseInt(urlRankBgColor.slice(5, 7), 16);
-    const rgbaRankBgColor = `rgba(${rankR}, ${rankG}, ${rankB}, ${urlRankBgOpacity / 100})`;
-    document.documentElement.style.setProperty('--rank-bg-color', rgbaRankBgColor);
-    document.documentElement.style.setProperty('--text-color', urlTextColor);
-
-    if (urlLastMatchBgColor && urlLastMatchBgOpacity) {
-        const lastMatchR = parseInt(urlLastMatchBgColor.slice(1, 3), 16);
-        const lastMatchG = parseInt(urlLastMatchBgColor.slice(3, 5), 16);
-        const lastMatchB = parseInt(urlLastMatchBgColor.slice(5, 7), 16);
-        const rgbaLastMatchBgColor = `rgba(${lastMatchR}, ${lastMatchG}, ${lastMatchB}, ${urlLastMatchBgOpacity / 100})`;
-        document.documentElement.style.setProperty('--last-match-bg-color', rgbaLastMatchBgColor);
-    }
-
-    if (urlRrColor) {
-        document.documentElement.style.setProperty('--rr-color', urlRrColor);
-    }
-
-    if (urlBorderColor && urlBorderOpacity) {
-        const borderR = parseInt(urlBorderColor.slice(1, 3), 16);
-        const borderG = parseInt(urlBorderColor.slice(3, 5), 16);
-        const borderB = parseInt(urlBorderColor.slice(5, 7), 16);
-        const rgbaBorderColor = `rgba(${borderR}, ${borderG}, ${borderB}, ${urlBorderOpacity / 100})`;
-        document.documentElement.style.setProperty('--border-color', rgbaBorderColor);
-    }
+    COLOR_SETTINGS.forEach(entry => {
+        const v = values[entry.param];
+        const hasPair = entry.opacityParam ? (v.color && v.opacity) : !!v.color;
+        if (hasPair) {
+            document.documentElement.style.setProperty(entry.cssVar, cssValue(entry, v.color, v.opacity));
+        }
+    });
 
     return true;
 }
 
 // カラーピッカー・URL生成関連のUIイベント配線
 export function initSettingsUI() {
-    // ランク背景色の透明度スライダーの更新
-    document.getElementById('rankBgOpacitySlider').addEventListener('input', function (e) {
-        document.getElementById('rankBgOpacityValue').textContent = e.target.value + '%';
-    });
-
-    // 前回のマッチ背景色の透明度スライダーの更新
-    document.getElementById('lastMatchBgOpacitySlider').addEventListener('input', function (e) {
-        document.getElementById('lastMatchBgOpacityValue').textContent = e.target.value + '%';
-    });
-
-    // 境界線色の透明度スライダーの更新
-    document.getElementById('borderOpacitySlider').addEventListener('input', function (e) {
-        document.getElementById('borderOpacityValue').textContent = e.target.value + '%';
+    // 8色設定のうち不透明度スライダーを持つものだけ input リスナーを登録
+    COLOR_SETTINGS.forEach(entry => {
+        if (!entry.sliderId) return;
+        document.getElementById(entry.sliderId).addEventListener('input', function (e) {
+            document.getElementById(entry.valueId).textContent = e.target.value + '%';
+        });
     });
 
     // カラーピッカーモーダルのボタン

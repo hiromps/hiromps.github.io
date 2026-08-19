@@ -70,11 +70,17 @@ async function retryFetch(fetchFn, logPrefix, retryCount = API_CONFIG.RETRY_COUN
 }
 
 async function fetchPlayerStats(name, tag, retryCount = API_CONFIG.RETRY_COUNT) {
-    return retryFetch(
-        (signal) => fetch(`${config.API_BASE_URL}/v1/mmr/ap/${name}/${tag}?api_key=${config.API_KEY}`, { signal }),
+    const data = await retryFetch(
+        (signal) => fetch(`${config.API_BASE_URL}/v1/mmr/ap/${encodeURIComponent(name)}/${encodeURIComponent(tag)}?api_key=${config.API_KEY}`, { signal }),
         'fetchPlayerStats',
         retryCount
     );
+    // retryFetch はHTTPエラー/タイムアウトの最終失敗時に null を返すため、
+    // ここで throw に変換して呼び出し側が「エラー」と「データなし」を区別できるようにする
+    if (data === null) {
+        throw new Error('fetchPlayerStats: APIリクエストに失敗しました');
+    }
+    return data;
 }
 
 async function fetchPlayerProfile(name, tag, retryCount = API_CONFIG.RETRY_COUNT) {
