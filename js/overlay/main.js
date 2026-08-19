@@ -10,7 +10,7 @@ import {
     observeOverlayResize
 } from './layout.js';
 import { updatePlayerInfo, resetGaugeDisplay } from './render.js';
-import { startAutoUpdate, startOBSAutoUpdate } from './auto-update.js';
+import { startAutoUpdate } from './auto-update.js';
 import { loadSavedSettings, applyUrlColorParams, initSettingsUI } from './settings.js';
 import { initPreview } from './preview.js';
 
@@ -97,23 +97,12 @@ function initializePage() {
             }
         }).catch(error => {
             console.error('初回データ取得エラー:', error);
-            // エラーが発生してもOBSモードなら自動更新を開始
+            // エラーが発生してもOBSモードなら自動更新を開始(即時1回実行付き)
             if (isOBS) {
                 console.log('初回取得に失敗しましたが、OBSモードのため自動更新を開始します');
-                startOBSAutoUpdate(updateFreq);
+                startAutoUpdate(updateFreq, { immediate: true });
             }
         });
-
-        // OBSモードの場合、初回更新と並行して自動更新も開始（フォールバック）
-        if (isOBS) {
-            // 少し遅延させてから自動更新を確実に開始
-            setTimeout(() => {
-                if (!state.isAutoUpdateEnabled) {
-                    console.log('フォールバック: OBS自動更新を強制開始');
-                    startOBSAutoUpdate(updateFreq);
-                }
-            }, 2000);
-        }
     } else if (isOBS) {
         // name, tag パラメータがないが OBS モードの場合
         document.getElementById('inputSection').style.display = 'none';
