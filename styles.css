@@ -645,9 +645,7 @@ body.obs-mode .overlay {
 .theme-shadcn .overlay,
 .theme-neon .overlay {
     transition: width 0.3s ease, min-width 0.3s ease, max-width 0.3s ease;
-    width: auto !important;
-    min-width: 300px !important;
-    max-width: 450px !important;
+    width: auto;
 }
 
 .theme-modern .rank-section,
@@ -741,16 +739,6 @@ body.obs-mode .overlay {
     .main-content-container {
         margin: 40px auto 30px auto; /* 上下のマージンを調整 */
         padding: 0 30px; /* 左右の余白も追加 */
-    }
-
-    /* 2段目のコンテナ（カスタマイズボタンとチュートリアル） */
-    .second-row-container {
-        display: flex;
-        gap: 20px;
-        max-width: 1200px;
-        width: 100%;
-        margin: 0 0 20px 0;
-        align-items: flex-start;
     }
 
     /* PCでのチュートリアルセクションの高さ制限 */
@@ -952,6 +940,7 @@ body.obs-mode .overlay {
 
 
     .ad-container {
+        display: none; /* モバイルでは非表示 */
         order: 4; /* 最後に表示 */
         margin: 10px auto; /* 上下にマージン、左右中央寄せ */
         width: 90%;
@@ -1107,11 +1096,6 @@ body.obs-mode .tutorial-section {
     border-radius: 50%; /* 丸くする */
     border: 2px solid var(--border-color); /* 変数を適用 */
     object-fit: cover; /* 画像の表示方法 */
-}
-
-/* Google AdSense広告ユニット */
-.ad-container {
-    display: none; /* デフォルトでは非表示 */
 }
 
 /* カラーピッカーモーダル */
