@@ -1,19 +1,18 @@
 // HenrikDev API 呼び出し層 (ES Module)
 
-// APIキーはルートの config.js (classic script) が定義するグローバル RIOT_API_KEY から取得。
-// config.js が欠落していてもモジュール全体が落ちないように typeof でガードする
-// (空文字なら handleSearch 冒頭の既存チェックが従来どおりエラーメッセージを表示する)。
-export const API_KEY = (typeof RIOT_API_KEY !== 'undefined') ? RIOT_API_KEY : '';
+// APIのベースURLはルートの config.js (classic script) が定義するグローバル config
+// から取得する。config.js が欠落していてもモジュール全体が落ちないように typeof でガードする。
+// APIキー自体はクライアントに一切渡さず、config.API_BASE_URL が指す Cloudflare Worker
+// プロキシ側のsecretとしてのみ保持する。
+const API_BASE_URL = (typeof config !== 'undefined' && config.API_BASE_URL)
+    ? config.API_BASE_URL
+    : 'https://api.henrikdev.xyz/valorant';
 
 // --- CONFIGURATION ---
 
 // --- API CALLS ---
-export async function apiFetch(url, isHenrikDev = true, retryCount = 3) {
-    let requestUrl = url;
-    if (isHenrikDev && API_KEY) {
-        // URLに既にクエリパラメータがあるか確認
-        requestUrl += (url.includes('?') ? '&' : '?') + `api_key=${API_KEY}`;
-    }
+export async function apiFetch(url, retryCount = 3) {
+    const requestUrl = url;
 
     const headers = {};
 
@@ -103,7 +102,7 @@ export async function apiFetch(url, isHenrikDev = true, retryCount = 3) {
 }
 
 export async function getPuuid(gameName, tagLine) {
-    const baseUrl = `https://api.henrikdev.xyz/valorant/v2/account/${encodeURIComponent(gameName)}/${encodeURIComponent(tagLine)}`;
+    const baseUrl = `${API_BASE_URL}/v2/account/${encodeURIComponent(gameName)}/${encodeURIComponent(tagLine)}`;
     const data = await apiFetch(baseUrl);
     if (!data.status || data.status !== 200 || !data.data || !data.data.puuid || !data.data.region) {
         throw new Error('PUUIDまたはリージョンの取得に失敗しました (HenrikDev API)。レスポンス: ' + JSON.stringify(data));
@@ -130,7 +129,7 @@ export const MATCH_LIST_PAGE_SIZE = 10;
 // hasMore は「ちょうどページサイズ分返ってきた(=まだ続きがある可能性が高い)」かどうかの目安。
 export async function getMatchIdsPage(gameName, tagLine, region, page) {
     const start = (page - 1) * MATCH_LIST_PAGE_SIZE;
-    const baseUrl = `https://api.henrikdev.xyz/valorant/v4/matches/${region}/pc/${encodeURIComponent(gameName)}/${encodeURIComponent(tagLine)}`;
+    const baseUrl = `${API_BASE_URL}/v4/matches/${region}/pc/${encodeURIComponent(gameName)}/${encodeURIComponent(tagLine)}`;
     const urlWithParams = `${baseUrl}?mode=competitive&size=${MATCH_LIST_PAGE_SIZE}&start=${start}`;
 
     const data = await apiFetch(urlWithParams);
@@ -157,7 +156,7 @@ function sleep(ms) {
 // レート制限等で失敗した試合は、全件を1周した後に少し待ってから直列でもう一度だけ再試行する。
 async function fetchMatchDetail(matchId, region) {
     // v2からv4に変更し、regionをパスパラメータに追加
-    const url = `https://api.henrikdev.xyz/valorant/v4/match/${region}/${matchId}`;
+    const url = `${API_BASE_URL}/v4/match/${region}/${matchId}`;
     try {
         const data = await apiFetch(url);
         if (!data.status || data.status !== 200 || !data.data) {
@@ -220,9 +219,9 @@ export async function getMatchDetails(matchIds, region, onProgress) {
 // レート制限(429)にかかっている状態で null を返してしまうと、ランクを持つ
 // プレイヤーでも "ランク情報なし" という誤った表示になってしまうことを確認済み。
 export async function getMmrData(region, gameName, tagLine, retryCount = 3) {
-    const baseUrl = `https://api.henrikdev.xyz/valorant/v2/mmr/${region}/${encodeURIComponent(gameName)}/${encodeURIComponent(tagLine)}`;
+    const baseUrl = `${API_BASE_URL}/v2/mmr/${region}/${encodeURIComponent(gameName)}/${encodeURIComponent(tagLine)}`;
     // PUUIDベースのエンドポイントも利用可能:
-    // const baseUrl = `https://api.henrikdev.xyz/valorant/v2/by-puuid/mmr/${region}/${puuid}`;
+    // const baseUrl = `${API_BASE_URL}/v2/by-puuid/mmr/${region}/${puuid}`;
 
     let lastError = null;
     for (let attempt = 1; attempt <= retryCount; attempt++) {
@@ -255,7 +254,7 @@ export async function getMmrData(region, gameName, tagLine, retryCount = 3) {
 // 全試合が一律で "-- RR" 表示になり、あたかも正常にRRデータが存在しないかのように
 // 見えてしまっていた。
 export async function getMmrHistory(region, puuid, retryCount = 3) {
-    const baseUrl = `https://api.henrikdev.xyz/valorant/v1/by-puuid/mmr-history/${region}/${puuid}`;
+    const baseUrl = `${API_BASE_URL}/v1/by-puuid/mmr-history/${region}/${puuid}`;
 
     let lastError = null;
     for (let attempt = 1; attempt <= retryCount; attempt++) {
