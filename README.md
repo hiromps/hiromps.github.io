@@ -55,14 +55,15 @@ VALORANTのプレイヤー情報を表示するOBS配信用オーバーレイと
 ## API・データについて
 
 - ランク・マッチ情報の取得には非公式の [HenrikDev API](https://docs.henrikdev.xyz/) を使用しています
-- APIキーは `config.js` に平文で記述しており、静的サイトの性質上クライアント側に露出します。個人利用・小規模配信を想定した構成です
+- APIキーはクライアントに一切渡さず、Cloudflare Worker製のプロキシ（`cloudflare-worker/`）側のsecretとしてのみ保持しています。`config.js` の `API_BASE_URL` はこのWorkerのURLを指しており、ブラウザは直接 `api.henrikdev.xyz` を呼び出しません
+- Workerはレスポンスを Workers KV にキャッシュし、HenrikDev への実際のリクエスト数を抑えています（詳細は `cloudflare-worker/README.md`）
 
 ## リポジトリ構成
 
 ```
 /
 ├── index.html              OBSオーバーレイ本体
-├── config.js                APIキー設定（Git管理下）
+├── config.js                API呼び出し先設定(Cloudflare WorkerプロキシのURL。APIキーは含まない)
 ├── styles.css / pages.css / accessibility.css
 ├── js/
 │   ├── api.js               HenrikDev API呼び出し層（classic script、複数ページで共有）
@@ -79,7 +80,11 @@ VALORANTのプレイヤー情報を表示するOBS配信用オーバーレイと
 │   ├── index.html
 │   └── js/                     main.js / api.js / process.js / render.js / chart.js
 ├── leaderboard.html / match-history.html / skins-database.html
-└── riot.txt                    Riot Developer Portal 所有権確認用
+├── riot.txt                    Riot Developer Portal 所有権確認用
+└── cloudflare-worker/          HenrikDev APIプロキシ + KVキャッシュ(Cloudflare Workers、別デプロイ)
+    ├── worker.js
+    ├── wrangler.toml
+    └── README.md                デプロイ手順
 ```
 
 ## ローカル開発

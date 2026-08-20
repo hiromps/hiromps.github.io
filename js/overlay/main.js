@@ -13,6 +13,7 @@ import { updatePlayerInfo, resetGaugeDisplay } from './render.js';
 import { startAutoUpdate } from './auto-update.js';
 import { loadSavedSettings, applyUrlColorParams, initSettingsUI } from './settings.js';
 import { initPreview } from './preview.js';
+import { updateChampionOverlay } from './champion.js';
 
 // ページ初期化処理
 function initializePage() {
@@ -31,6 +32,10 @@ function initializePage() {
     const savedTheme = localStorage.getItem('selectedTheme') || 'classic';
     const urlTheme = urlParams.get('theme') || savedTheme;
     applyTheme(urlTheme);
+
+    // Championのプレースホルダー表示(ランクなし/0RR)を動的レイアウトで初期描画しておく
+    // (実データが来るまでの間もフォントサイズ・位置の計算済み状態にするため)
+    updateChampionOverlay({ rankName: 'ランクなし', rankIconSrc: 'assets/images/ranks/unranked.png', rr: 0, delta: undefined });
 
     // URLパラメータから色設定を適用。3キーゲートを満たさない場合は localStorage にフォールバック
     const appliedFromUrl = applyUrlColorParams(urlParams);
@@ -80,6 +85,7 @@ function initializePage() {
 
         // 前回のマッチセクションも表示
         resetGaugeDisplay('前回のマッチ');
+        updateChampionOverlay({ rankName: '情報なし', rankIconSrc: 'assets/images/ranks/unranked.png', rr: 0, delta: undefined });
     }
 
     // 文字サイズ調整機能を初期化

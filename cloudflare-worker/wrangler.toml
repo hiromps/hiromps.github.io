@@ -1,0 +1,13 @@
+name = "hiromps-valorant-proxy"
+main = "worker.js"
+compatibility_date = "2025-01-01"
+
+# HENRIKDEV_API_KEY はここに書かず、以下のコマンドで secret として登録する:
+#   wrangler secret put HENRIKDEV_API_KEY
+
+# キャッシュ用 KV namespace。
+# `wrangler kv namespace create VALORANT_CACHE` を実行して発行された id に
+# 書き換えてください(下の値はプレースホルダーです)。
+[[kv_namespaces]]
+binding = "VALORANT_CACHE"
+id = "ca07f85574414b6ab8899791335ba37c"

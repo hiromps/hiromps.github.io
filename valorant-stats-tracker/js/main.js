@@ -1,5 +1,5 @@
 // エントリポイント (ES Module)
-import { API_KEY, getPuuid, getMatchIdsPage, getMatchDetails, getMmrData, getMmrHistory } from './api.js';
+import { getPuuid, getMatchIdsPage, getMatchDetails, getMmrData, getMmrHistory } from './api.js';
 import { processMatchData } from './process.js';
 import { renderResults, updateMatchHistoryData, setPaginationDataSource, setMayHaveMorePages, setLoadMoreProgress, setLoadingState, setLoadingProgress, showError } from './render.js';
 import { initChartTypeButtons } from './chart.js';
@@ -202,11 +202,6 @@ async function loadMoreMatches() {
 
 // --- MAIN FUNCTION ---
 async function handleSearch() {
-    // APIキーが設定されているかチェックします。
-    if (!API_KEY || API_KEY === "YOUR_RIOT_API_KEY_HERE") {
-        showError('APIキーが設定されていません。ルートの config.js に有効な Riot API キーを設定してください。');
-        return;
-    }
     const gameName = gameNameInput.value.trim();
     const tagLine = tagLineInput.value.trim();
     if (!gameName || !tagLine) {

@@ -4,6 +4,7 @@
 import { state } from './state.js';
 import { applyClassicSmartAdjustments, handleTextOverflow } from './theme.js';
 import { adjustTextSize, adjustOverlayWidth } from './layout.js';
+import { updateChampionOverlay } from './champion.js';
 
 // 「前回のマッチ」ゲージを初期状態(0%・緑・非表示データなし)にリセットする共通処理。
 // updatePlayerInfo 内の4箇所(ランクなし/データなし/エラー時、および main.js の OBS+データ無し初期表示)で同一のブロックだった
@@ -79,6 +80,13 @@ export async function updatePlayerInfo(name, tag) {
                     lastMatchSection.style.display = 'none';
                 }
 
+                updateChampionOverlay({
+                    rankName: currentRank,
+                    rankIconSrc: document.getElementById('rankIcon').src,
+                    rr: rankingInTier || 0,
+                    delta: mmrChange
+                });
+
                 console.log(`[${new Date().toLocaleTimeString()}] ランク情報更新: ${currentRank} ${rankingInTier}RR`);
 
             } else { // currentRank がない場合 (例: ランクなし)
@@ -86,6 +94,7 @@ export async function updatePlayerInfo(name, tag) {
                 document.getElementById('rankText').textContent = 'ランクなし';
                 document.getElementById('rrText').textContent = '0RR';
                 resetGaugeDisplay('前回のマッチ');
+                updateChampionOverlay({ rankName: 'ランクなし', rankIconSrc: 'assets/images/ranks/unranked.png', rr: 0, delta: undefined });
                 console.log(`[${new Date().toLocaleTimeString()}] ランク情報なし - 0RRで表示`);
             }
 
@@ -94,6 +103,7 @@ export async function updatePlayerInfo(name, tag) {
             document.getElementById('rankText').textContent = 'データなし';
             document.getElementById('rrText').textContent = '0RR';
             resetGaugeDisplay('前回のマッチ');
+            updateChampionOverlay({ rankName: 'データなし', rankIconSrc: 'assets/images/ranks/unranked.png', rr: 0, delta: undefined });
             console.log(`[${new Date().toLocaleTimeString()}] API応答にデータが含まれていません - 0RRで表示`);
         }
 
@@ -117,6 +127,7 @@ export async function updatePlayerInfo(name, tag) {
         document.getElementById('rankText').textContent = 'エラー';
         document.getElementById('rrText').textContent = '0RR';
         resetGaugeDisplay('前回のマッチ');
+        updateChampionOverlay({ rankName: 'エラー', rankIconSrc: 'assets/images/ranks/unranked.png', rr: 0, delta: undefined });
     }
 }
 
