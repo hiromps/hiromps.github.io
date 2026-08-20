@@ -59,6 +59,14 @@ textarea:focus {
         transition-duration: 0.01ms !important;
         scroll-behavior: auto !important;
     }
+
+    /* ローディングスピナーは装飾ではなく「処理中」を伝える必須の状態表示なので、
+       reduced-motion環境でも上のルールで殺さず回転を維持する。
+       (0.01ms・1回転で止まると、実際は動いていても静止して見え「フリーズした」と誤認される) */
+    .animate-spin {
+        animation-duration: 1s !important;
+        animation-iteration-count: infinite !important;
+    }
 }
 
 /* === High Contrast Mode === */
@@ -139,17 +147,18 @@ textarea:focus {
 }
 
 /* === Better Link Styling === */
-a:not(.header-button) {
+/* .brand（ヘッダーのロゴリンク）は下線なしのブランド表記のため対象外 */
+a:not(.header-button):not(.brand) {
     color: var(--valorant-red);
     text-decoration: underline;
     text-underline-offset: 2px;
 }
 
-a:not(.header-button):hover {
+a:not(.header-button):not(.brand):hover {
     text-decoration-thickness: 2px;
 }
 
-a:not(.header-button):focus {
+a:not(.header-button):not(.brand):focus {
     text-decoration-thickness: 2px;
     outline-offset: 4px;
 }
