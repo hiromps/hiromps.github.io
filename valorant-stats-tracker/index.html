@@ -8,8 +8,24 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+JP:wght@400;500;700&family=Rajdhani:wght@500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../pages.css">
+    <link rel="stylesheet" href="../accessibility.css">
     <style>
+        /* pages.css（共通ヘッダー）が参照するデザイントークン。styles.css を読み込まないため最小限を定義 */
+        :root {
+            --valorant-red: #ff4655;
+            --valorant-light: #ffffff;
+            --radius-md: 8px;
+            --spacing-xs: 4px;
+            --spacing-sm: 8px;
+            --spacing-lg: 16px;
+            --spacing-xl: 20px;
+            --spacing-3xl: 32px;
+            --win-color: #4CAF50;
+            --loss-color: #F44336;
+        }
+
         body {
             font-family: 'Inter', 'Noto Sans JP', sans-serif;
             margin: 0;
@@ -38,83 +54,8 @@
             overflow-x: hidden;
         }
         
-        /* レスポンシブヘッダー */
-        .app-header {
-            position: sticky;
-            top: 0;
-            left: 0;
-            right: 0;
-            width: 100%;
-            padding: 0.75rem 0;
-            background-color: rgba(15, 25, 35, 0.98);
-            border-bottom: 2px solid #ff4655;
-            backdrop-filter: blur(15px);
-            box-shadow: 0 2px 20px rgba(0, 0, 0, 0.4);
-            z-index: 999;
-            transition: all 0.3s ease;
-        }
-        .header-content {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            max-width: 1400px;
-            margin: 0 auto;
-            padding: 0 1rem;
-            width: 100%;
-            min-height: 60px;
-        }
-        
-        .nav-buttons {
-            display: flex;
-            gap: 0.5rem;
-            align-items: center;
-            flex-wrap: wrap;
-        }
-
-        .app-header button,
-        .app-header a.header-button {
-            background-color: #ff4655;
-            color: white;
-            border: none;
-            padding: 0.6rem 1rem;
-            margin: 0;
-            font-size: 0.9rem;
-            font-weight: 600;
-            cursor: pointer;
-            border-radius: 6px;
-            transition: all 0.3s ease;
-            text-decoration: none;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            white-space: nowrap;
-            min-height: 40px;
-            box-shadow: 0 2px 8px rgba(255, 70, 85, 0.3);
-        }
-        .app-header button:hover,
-        .app-header a.header-button:hover {
-            background-color: #e0303f;
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(255, 70, 85, 0.4);
-        }
-        .app-header button.active,
-        .app-header a.header-button.active {
-            background-color: #22c55e; /* 緑などでアクティブ状態を示す */
-            box-shadow: 0 0 15px rgba(34, 197, 94, 0.5);
-            text-decoration: none; /* アクティブ時も下線を消す */
-        }
         .hidden {
             display: none !important;
-        }
-        #showOverlayModeLink {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        #showTrackerModeLink {
-            display: flex;
-            align-items: center;
-            justify-content: center;
         }
 
         /* 背景スタイル */
@@ -166,126 +107,6 @@
             50% { opacity: 1; }
         }
 
-        /* ハンバーガーメニュー */
-        .hamburger-menu {
-            display: none;
-            flex-direction: column;
-            justify-content: center;
-            cursor: pointer;
-            padding: 8px;
-            border-radius: 6px;
-            transition: all 0.3s ease;
-            min-width: 44px;
-            min-height: 44px;
-            background-color: transparent;
-            border: 1px solid transparent;
-            margin-left: auto;
-        }
-        
-        .hamburger-menu:hover {
-            background-color: rgba(255, 70, 85, 0.1);
-            border-color: rgba(255, 70, 85, 0.3);
-        }
-        
-        .hamburger-line {
-            width: 22px;
-            height: 2px;
-            background-color: #fff;
-            margin: 2px 0;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            border-radius: 2px;
-        }
-        
-        .hamburger-menu.active .hamburger-line:nth-child(1) {
-            transform: rotate(45deg) translate(6px, 6px);
-        }
-        
-        .hamburger-menu.active .hamburger-line:nth-child(2) {
-            opacity: 0;
-        }
-        
-        .hamburger-menu.active .hamburger-line:nth-child(3) {
-            transform: rotate(-45deg) translate(6px, -6px);
-        }
-        
-        .mobile-nav {
-            display: none;
-            position: absolute;
-            top: 100%;
-            left: 0;
-            right: 0;
-            background: rgba(15, 25, 35, 0.98);
-            backdrop-filter: blur(15px);
-            border-top: 1px solid rgba(255, 70, 85, 0.3);
-            padding: 1rem;
-            z-index: 1000;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
-            border-bottom: 2px solid rgba(255, 70, 85, 0.5);
-            animation: slideDown 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-        
-        .mobile-nav.active {
-            display: block;
-        }
-        
-        .mobile-nav-buttons {
-            display: flex;
-            flex-direction: column;
-            gap: 0.75rem;
-            max-width: 400px;
-            margin: 0 auto;
-        }
-        
-        .mobile-nav .header-button {
-            width: 100%;
-            text-align: center;
-            padding: 1rem 1.5rem;
-            margin: 0;
-            border-radius: 8px;
-            font-size: 1rem;
-            font-weight: 600;
-            background-color: rgba(255, 70, 85, 0.1);
-            border: 1px solid rgba(255, 70, 85, 0.3);
-            transition: all 0.3s ease;
-            min-height: 50px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        
-        .mobile-nav .header-button:hover {
-            background-color: rgba(255, 70, 85, 0.2);
-            transform: translateY(-1px);
-        }
-        
-        .mobile-nav .header-button.active {
-            background-color: rgba(34, 197, 94, 0.2);
-            border-color: rgba(34, 197, 94, 0.5);
-        }
-        
-        @keyframes slideDown {
-            from {
-                opacity: 0;
-                transform: translateY(-20px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        /* 他ページ(index.html等)と同じ中間ブレークポイント */
-        @media screen and (max-width: 1024px) {
-            .nav-buttons {
-                gap: 0.25rem;
-            }
-
-            .app-header a.header-button {
-                padding: 0.5rem 0.75rem;
-                font-size: 0.85rem;
-            }
-        }
-
         /* モバイル用マッチカードスタイル */
         /* Tailwindのmd:(min-width:768px)と境界を揃えるため767px以下をモバイル扱いにする */
         @media (max-width: 767px) {
@@ -294,22 +115,6 @@
             }
             .match-cards-mobile {
                 display: block;
-            }
-            .app-header {
-                position: relative;
-            }
-
-            .header-content {
-                justify-content: space-between;
-                padding: 0 20px;
-            }
-
-            .nav-buttons {
-                display: none;
-            }
-
-            .hamburger-menu {
-                display: flex;
             }
         }
 
@@ -334,6 +139,111 @@
             transform: translateY(-2px);
             transition: all 0.3s ease;
         }
+
+        /*
+         * マッチ履歴ページ等と同じ挙動に統一: 未入力=グレー、入力済み+非フォーカス=緑、
+         * フォーカス中=赤のみ（緑と赤が同時に重なって見えないようにする）。
+         * Tailwind CDN が生成する CSS は head の末尾に追加され、accessibility.css の
+         * input:valid:not(:placeholder-shown) と互角以上の優先度になり得るため、
+         * ID + !important で明示的に上書きする。
+         */
+        #gameNameInput:valid:not(:placeholder-shown):not(:focus),
+        #tagLineInput:valid:not(:placeholder-shown):not(:focus) {
+            border-color: #4CAF50 !important;
+        }
+
+        #gameNameInput:focus,
+        #tagLineInput:focus {
+            outline: none !important;
+            border-color: #ef4444 !important;
+            box-shadow: 0 0 0 2px rgba(239, 68, 68, 0.5) !important;
+        }
+
+        /* KDA/K/D/HS%/ACS の「?」ヘルプアイコンとツールチップ */
+        .stat-help {
+            position: relative;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 15px;
+            height: 15px;
+            margin-left: 4px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.15);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            color: #d1d5db;
+            font-size: 10px;
+            font-weight: 700;
+            line-height: 1;
+            text-transform: none;
+            cursor: help;
+            flex-shrink: 0;
+            vertical-align: middle;
+        }
+
+        .stat-help:hover,
+        .stat-help:focus-visible,
+        .stat-help.active {
+            background: #ef4444;
+            border-color: #ef4444;
+            color: #fff;
+            outline: none;
+        }
+
+        .stat-help .tooltip-bubble {
+            position: absolute;
+            top: calc(100% + 8px);
+            /* 中央揃え(left:50%+translateX)だと、一番右のACS列ではテーブル/カードの
+               右端をはみ出し、overflow-x-auto等に吸収されて説明が見えなくなっていた。
+               ボタンの右端に揃えて左方向にのみ広がる形にし、どの列でもコンテナ内に収まるようにする。 */
+            right: 0;
+            width: max-content;
+            max-width: 220px;
+            padding: 8px 10px;
+            background: #111827;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 8px;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.45);
+            color: #f3f4f6;
+            font-size: 12px;
+            font-weight: 400;
+            text-transform: none;
+            letter-spacing: normal;
+            line-height: 1.5;
+            text-align: left;
+            opacity: 0;
+            visibility: hidden;
+            pointer-events: none;
+            transition: opacity 0.15s ease;
+            z-index: 9999;
+        }
+
+        .stat-help .tooltip-bubble::before {
+            content: '';
+            position: absolute;
+            bottom: 100%;
+            right: 4px;
+            border: 5px solid transparent;
+            border-bottom-color: #111827;
+        }
+
+        .stat-help:hover .tooltip-bubble,
+        .stat-help:focus-visible .tooltip-bubble,
+        .stat-help.active .tooltip-bubble {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        /* 「今シーズンの戦績」テーブルのスクロールバーを非表示にする(横スワイプ等の
+           スクロール自体は維持し、見た目のバーだけ消す) */
+        .match-table-desktop {
+            scrollbar-width: none; /* Firefox */
+            -ms-overflow-style: none; /* 旧Edge/IE */
+        }
+
+        .match-table-desktop::-webkit-scrollbar {
+            display: none; /* Chrome/Safari */
+        }
     </style>
 </head>
 <body class="bg-gray-900 text-white min-h-screen">
@@ -342,6 +252,10 @@
     
     <header class="app-header">
         <div class="header-content">
+            <a href="../" class="brand" aria-label="VALORANT Tracker ホーム">
+                <span class="brand-mark" aria-hidden="true"></span>
+                <span class="brand-text">VALORANT<span class="brand-accent">TRACKER</span></span>
+            </a>
             <div class="nav-buttons">
                 <a href="../" id="showOverlayModeLink" class="header-button">OBSオーバーレイ</a>
                 <a href="./" id="showTrackerModeLink" class="header-button active">戦績トラッカー</a>
@@ -370,20 +284,18 @@
         </div>
     </header>
 
-    <div class="max-w-5xl mx-auto mt-4">
+    <div class="max-w-5xl mx-auto mt-4 pb-10 sm:pb-16">
 
-        <!-- Page Title -->
-        <header class="text-center mb-6 sm:mb-8">
-            <h1 class="text-3xl sm:text-4xl md:text-5xl font-bold text-red-500 tracking-wider">VALORANT Tracker</h1>
-            <p class="text-gray-400 mt-2 text-sm sm:text-base">今シーズンのコンペティティブ戦績を分析します</p>
-        </header>
-
-        <!-- Search Form -->
-        <div class="mb-6 sm:mb-8 p-4 sm:p-6 bg-gray-800 rounded-xl shadow-lg">
+        <!-- Search Form（マッチ履歴ページの search-section と統一したタイトル+フォームの一体カード） -->
+        <div class="mb-6 sm:mb-8 p-4 sm:p-6 bg-gray-800 rounded-xl shadow-lg max-w-2xl mx-auto">
+            <div class="text-center mb-4 sm:mb-6">
+                <h1 class="text-3xl font-bold text-red-500 tracking-wider">VALORANT Tracker</h1>
+                <p class="text-gray-400 text-sm mt-2">今シーズンのコンペティティブ戦績を分析します</p>
+            </div>
             <div class="flex flex-col sm:flex-row gap-3 sm:gap-4">
-                <input type="text" id="gameNameInput" class="flex-grow bg-gray-700 text-white placeholder-gray-400 border-2 border-gray-600 rounded-lg px-3 sm:px-4 py-2 sm:py-3 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500 text-sm sm:text-base" placeholder="ゲーム名 (例: TenZ)">
-                <input type="text" id="tagLineInput" class="flex-grow bg-gray-700 text-white placeholder-gray-400 border-2 border-gray-600 rounded-lg px-3 sm:px-4 py-2 sm:py-3 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500 text-sm sm:text-base" placeholder="タグライン (例: 1234)">
-                <button id="searchButton" class="bg-red-600 hover:bg-red-700 text-white font-bold py-2 sm:py-3 px-4 sm:px-6 rounded-lg transition-colors duration-300 flex items-center justify-center text-sm sm:text-base">
+                <input type="text" id="gameNameInput" class="flex-grow min-w-0 bg-gray-700 text-white placeholder-gray-400 border-2 border-gray-600 rounded-lg px-3 sm:px-4 py-2 sm:py-3 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500 text-sm sm:text-base" placeholder="ゲーム名 (例: TenZ)">
+                <input type="text" id="tagLineInput" class="flex-grow min-w-0 bg-gray-700 text-white placeholder-gray-400 border-2 border-gray-600 rounded-lg px-3 sm:px-4 py-2 sm:py-3 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500 text-sm sm:text-base" placeholder="タグライン (例: 1234)">
+                <button id="searchButton" class="bg-red-600 hover:bg-red-700 text-white font-bold py-2 sm:py-3 px-4 sm:px-6 rounded-lg transition-colors duration-300 flex items-center justify-center text-sm sm:text-base shrink-0 whitespace-nowrap">
                     <svg id="searchIcon" class="w-4 h-4 sm:w-5 sm:h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
                     <svg id="loadingIcon" class="animate-spin -ml-1 mr-3 h-4 w-4 sm:h-5 sm:w-5 text-white hidden" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                         <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
@@ -392,6 +304,14 @@
                     <span id="buttonText">検索</span>
                 </button>
             </div>
+            <div class="flex items-center justify-center gap-2 mt-3">
+                <label for="seasonScopeSelect" class="text-xs sm:text-sm text-gray-400">対象シーズン</label>
+                <select id="seasonScopeSelect" class="bg-gray-700 text-white border-2 border-gray-600 rounded-lg px-2 py-1 text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500">
+                    <option value="current" selected>今シーズンのみ</option>
+                    <option value="all">全シーズン(通期)</option>
+                </select>
+            </div>
+            <p id="searchProgress" class="hidden text-center text-xs text-gray-400 mt-3"></p>
         </div>
 
         <!-- Results Section -->
@@ -461,21 +381,22 @@
 
             <!-- Match History -->
             <div class="bg-gray-800 rounded-xl shadow-lg overflow-hidden">
-                <h3 class="text-lg sm:text-xl font-bold p-4 sm:p-6">今シーズンの戦績 (コンペティティブ)</h3>
+                <h3 id="matchHistoryTitle" class="text-lg sm:text-xl font-bold p-4 sm:p-6">今シーズンの戦績 (コンペティティブ)</h3>
                 
                 <!-- デスクトップ用テーブル -->
                 <div class="match-table-desktop overflow-x-auto">
                     <table class="w-full text-left">
                         <thead class="bg-gray-700 text-gray-300 uppercase text-sm">
                             <tr>
+                                <th class="p-4">日付</th>
                                 <th class="p-4">マップ</th>
                                 <th class="p-4">エージェント</th>
                                 <th class="p-4">ランク</th>
                                 <th class="p-4">結果</th>
-                                <th class="p-4">KDA</th>
-                                <th class="p-4">K/D</th>
-                                <th class="p-4">HS%</th>
-                                <th class="p-4">ACS</th>
+                                <th class="p-4">KDA<button type="button" class="stat-help" aria-label="KDAの説明">?<span class="tooltip-bubble" role="tooltip">キル数 / デス数 / アシスト数の略。その試合で倒した数(キル)、倒された数(デス)、味方を助けた回数(アシスト)を表します。</span></button></th>
+                                <th class="p-4">K/D<button type="button" class="stat-help" aria-label="K/Dの説明">?<span class="tooltip-bubble" role="tooltip">キルレシオ(キル数 ÷ デス数)。1デスあたり何人倒せているかを示す指標で、数値が高いほど良い成績です。</span></button></th>
+                                <th class="p-4">HS%<button type="button" class="stat-help" aria-label="HS%の説明">?<span class="tooltip-bubble" role="tooltip">ヘッドショット率。命中させた弾のうち頭部に当たった割合です。数値が高いほどエイム精度が高いとされます。</span></button></th>
+                                <th class="p-4">ACS<button type="button" class="stat-help" aria-label="ACSの説明">?<span class="tooltip-bubble" role="tooltip">Average Combat Score(平均コンバットスコア)。ダメージ・キル・オブジェクト貢献などを基にVALORANTが算出する総合的な活躍度スコアです。</span></button></th>
                             </tr>
                         </thead>
                         <tbody id="matchHistoryBody" class="divide-y divide-gray-700">
@@ -487,6 +408,15 @@
                 <!-- モバイル用カード -->
                 <div id="matchHistoryMobile" class="match-cards-mobile p-4 space-y-4">
                     <!-- Match cards will be inserted here -->
+                </div>
+
+                <!-- 追加読み込み(無限スクロール): このエリアが画面内に入ると自動で次の試合を読み込む -->
+                <div id="matchHistoryLoadMoreStatus" class="hidden p-4 text-center text-sm text-gray-400 border-t border-gray-700 flex items-center justify-center gap-2">
+                    <svg id="matchHistoryLoadMoreSpinner" class="hidden animate-spin h-4 w-4 text-red-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                    <span id="matchHistoryLoadMoreText"></span>
                 </div>
             </div>
         </div>

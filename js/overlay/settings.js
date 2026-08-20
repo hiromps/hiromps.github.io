@@ -61,6 +61,10 @@ export function applyCustomColors() {
         }
     });
 
+    // プレイヤー名/タグが入力済みなら、今適用したカスタマイズ内容をURLへ即座に反映する
+    // (URLをコピーするだけでこのテーマ・配色がそのまま使えるようにするため)
+    refreshGeneratedURLIfReady();
+
     closeColorPicker();
 
     // カスタムカラー適用後に幅調整を実行（プレビュー画面のみ）
@@ -95,6 +99,9 @@ export function resetCustomColors() {
 
     // テーマをクラシックに戻す
     applyTheme('classic');
+
+    // プレイヤー名/タグが入力済みなら、リセット後のデフォルト状態をURLへ即座に反映する
+    refreshGeneratedURLIfReady();
 
     // リセット後に幅調整を実行（プレビュー画面のみ）
     setTimeout(() => {
@@ -157,13 +164,14 @@ export function loadSavedSettings() {
     }
 }
 
-export function generateURL() {
+// プレイヤー名/タグ + 現在のカスタマイズ(localStorageに保存済みの色・テーマ)からURLを組み立てる。
+// 未入力の場合は null を返す（呼び出し側でアラート表示するか黙って何もしないかを選べるようにする）。
+function buildGeneratedURL() {
     const playerName = document.getElementById('playerName').value;
     const playerTag = document.getElementById('playerTag').value;
 
     if (!playerName || !playerTag) {
-        alert('プレイヤー名とタグを入力してください。');
-        return;
+        return null;
     }
 
     const currentURL = window.location.href.split('?')[0];
@@ -186,8 +194,27 @@ export function generateURL() {
     const savedTheme = localStorage.getItem('selectedTheme');
     if (savedTheme) urlParams.append('theme', savedTheme);
 
-    const newURL = `${currentURL}?${urlParams.toString()}`;
+    return `${currentURL}?${urlParams.toString()}`;
+}
+
+export function generateURL() {
+    const newURL = buildGeneratedURL();
+
+    if (!newURL) {
+        alert('プレイヤー名とタグを入力してください。');
+        return;
+    }
+
     document.getElementById('generatedURL').value = newURL;
+}
+
+// カスタマイズ適用/リセット直後に呼ぶ。プレイヤー名/タグが未入力ならアラートを出さず何もしない
+// (まだURLを生成する段階ではないだけなので、カスタマイズ操作の妨げにしない)。
+function refreshGeneratedURLIfReady() {
+    const newURL = buildGeneratedURL();
+    if (newURL) {
+        document.getElementById('generatedURL').value = newURL;
+    }
 }
 
 export function copyURL() {
