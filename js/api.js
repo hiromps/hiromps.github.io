@@ -71,7 +71,7 @@ async function retryFetch(fetchFn, logPrefix, retryCount = API_CONFIG.RETRY_COUN
 
 async function fetchPlayerStats(name, tag, retryCount = API_CONFIG.RETRY_COUNT) {
     const data = await retryFetch(
-        (signal) => fetch(`${config.API_BASE_URL}/v1/mmr/ap/${encodeURIComponent(name)}/${encodeURIComponent(tag)}?api_key=${config.API_KEY}`, { signal }),
+        (signal) => fetch(`${config.API_BASE_URL}/v1/mmr/ap/${encodeURIComponent(name)}/${encodeURIComponent(tag)}`, { signal }),
         'fetchPlayerStats',
         retryCount
     );
@@ -85,7 +85,7 @@ async function fetchPlayerStats(name, tag, retryCount = API_CONFIG.RETRY_COUNT) 
 
 async function fetchPlayerProfile(name, tag, retryCount = API_CONFIG.RETRY_COUNT) {
     return retryFetch(
-        (signal) => fetch(`${config.API_BASE_URL}/v1/profile/ap/${name}/${tag}?api_key=${config.API_KEY}`, { signal }),
+        (signal) => fetch(`${config.API_BASE_URL}/v1/profile/ap/${name}/${tag}`, { signal }),
         'fetchPlayerProfile',
         retryCount
     );
@@ -147,12 +147,8 @@ function getAgentImageUrl(agentName) {
 }
 
 // 共通API関数（戦績トラッカーと同じ仕組み）
-async function apiFetch(url, isHenrikDev = true, retryCount = 3) {
-    let requestUrl = url;
-    if (isHenrikDev && config.API_KEY) {
-        // URLに既にクエリパラメータがあるか確認
-        requestUrl += (url.includes('?') ? '&' : '?') + `api_key=${config.API_KEY}`;
-    }
+async function apiFetch(url, retryCount = 3) {
+    const requestUrl = url;
 
     const headers = {};
     
@@ -336,9 +332,7 @@ async function fetchLeaderboard(region = 'ap', retryCount = 3) {
             const timeoutId = setTimeout(() => controller.abort(), 15000);
 
             // Henrik-3 APIのv2エンドポイントを使用（リーダーボードはv2）
-            const url = config.API_KEY ? 
-                `${config.API_BASE_URL}/v2/leaderboard/${region}?api_key=${config.API_KEY}` :
-                `${config.API_BASE_URL}/v2/leaderboard/${region}`;
+            const url = `${config.API_BASE_URL}/v2/leaderboard/${region}`;
 
             const response = await fetch(url, {
                 signal: controller.signal,
