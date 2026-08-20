@@ -1174,6 +1174,122 @@
                 font-size: 0.8rem;
             }
         }
+
+        /* ============================================================ */
+        /* VALORANT ゲームデザイン刷新（トップページ専用）                */
+        /* .overlay 配下（実際にOBSへ映るウィジェット本体）は対象外       */
+        /* ============================================================ */
+
+        .header-content {
+            justify-content: flex-start;
+            gap: 1.5rem;
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+            text-decoration: none;
+            flex-shrink: 0;
+        }
+
+        .brand-mark {
+            width: 6px;
+            height: 24px;
+            background: var(--valorant-red, #ff4655);
+            box-shadow: 0 0 10px rgba(255, 70, 85, 0.7);
+            flex-shrink: 0;
+        }
+
+        .brand-text {
+            font-family: 'Rajdhani', 'Noto Sans JP', sans-serif;
+            font-weight: 700;
+            font-size: 1.05rem;
+            letter-spacing: 2.5px;
+            text-transform: uppercase;
+            color: #fff;
+            white-space: nowrap;
+        }
+
+        .brand-accent {
+            color: var(--valorant-red, #ff4655);
+            margin-left: 0.4em;
+        }
+
+        @media screen and (max-width: 480px) {
+            .brand-text {
+                font-size: 0.8rem;
+                letter-spacing: 1.5px;
+            }
+
+            .brand-mark {
+                height: 18px;
+            }
+        }
+
+        /* ナビゲーションボタン：角度カット（ヘッダーナビのみ） */
+        .app-header a.header-button {
+            border-radius: 0;
+            clip-path: polygon(10px 0, 100% 0, calc(100% - 10px) 100%, 0 100%);
+            font-family: 'Rajdhani', 'Noto Sans JP', sans-serif;
+            font-weight: 700;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+
+        .mobile-nav .header-button {
+            border-radius: 0;
+            clip-path: polygon(8px 0, 100% 0, calc(100% - 8px) 100%, 0 100%);
+            font-family: 'Rajdhani', 'Noto Sans JP', sans-serif;
+            font-weight: 700;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+
+        .input-section h2,
+        .color-picker-content h3 {
+            text-align: left;
+            font-family: 'Rajdhani', 'Noto Sans JP', sans-serif;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            font-size: 1.15em;
+            padding-left: 14px;
+            border-left: 4px solid var(--valorant-red, #ff4655);
+            color: #fff;
+        }
+
+        .preview-header h3 {
+            font-family: 'Rajdhani', 'Noto Sans JP', sans-serif;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            padding-left: 12px;
+            border-left: 3px solid var(--valorant-red, #ff4655);
+        }
+
+        .preview-status {
+            font-family: 'Rajdhani', 'Noto Sans JP', sans-serif;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+        }
+
+        /* チュートリアルトグル */
+        .tutorial-toggle {
+            font-family: 'Rajdhani', 'Noto Sans JP', sans-serif;
+            font-weight: 700;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+        }
+
+        /* フォーム／カスタマイズボタン */
+        .input-form button,
+        .customize-button-container button {
+            font-family: 'Rajdhani', 'Noto Sans JP', sans-serif;
+            font-weight: 700;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
     </style>
 </head>
     <body>
@@ -1195,6 +1311,10 @@
     
     <header class="app-header">
         <div class="header-content">
+            <a href="/" class="brand" aria-label="VALORANT Tracker ホーム">
+                <span class="brand-mark" aria-hidden="true"></span>
+                <span class="brand-text">VALORANT<span class="brand-accent">TRACKER</span></span>
+            </a>
             <div class="nav-buttons">
                 <a href="/" id="showOverlayModeLink" class="header-button active">OBSオーバーレイ</a>
                 <a href="./valorant-stats-tracker/" id="showTrackerModeLink" class="header-button">戦績トラッカー</a>
@@ -1223,19 +1343,6 @@
         </div>
     </header>
     <div class="background"></div>
-
-    <!-- Google AdSense広告ユニット -->
-    <div class="ad-container">
-        <ins class="adsbygoogle"
-             style="display:block"
-             data-ad-client="ca-pub-6090439809602995"
-             data-ad-slot="1000000000000000"
-             data-ad-format="auto"
-             data-full-width-responsive="true"></ins>
-        <script>
-             (adsbygoogle = window.adsbygoogle || []).push({});
-        </script>
-    </div>
 
     <!-- メインコンテンツコンテナ -->
     <div class="main-content-container">
@@ -1325,6 +1432,19 @@
                 </ul>
             </div>
         </div>
+    </div>
+
+    <!-- Google AdSense広告ユニット -->
+    <div class="ad-container">
+        <ins class="adsbygoogle"
+             style="display:block"
+             data-ad-client="ca-pub-6090439809602995"
+             data-ad-slot="1000000000000000"
+             data-ad-format="auto"
+             data-full-width-responsive="true"></ins>
+        <script>
+             (adsbygoogle = window.adsbygoogle || []).push({});
+        </script>
     </div>
 
     <!-- カラーピッカーモーダル -->

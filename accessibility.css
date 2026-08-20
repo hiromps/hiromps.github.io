@@ -139,17 +139,18 @@ textarea:focus {
 }
 
 /* === Better Link Styling === */
-a:not(.header-button) {
+/* .brand（ヘッダーのロゴリンク）は下線なしのブランド表記のため対象外 */
+a:not(.header-button):not(.brand) {
     color: var(--valorant-red);
     text-decoration: underline;
     text-underline-offset: 2px;
 }
 
-a:not(.header-button):hover {
+a:not(.header-button):not(.brand):hover {
     text-decoration-thickness: 2px;
 }
 
-a:not(.header-button):focus {
+a:not(.header-button):not(.brand):focus {
     text-decoration-thickness: 2px;
     outline-offset: 4px;
 }

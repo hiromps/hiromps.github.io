@@ -737,6 +737,7 @@ body.obs-mode .overlay {
     }
 
     .main-content-container {
+        width: fit-content; /* 中身の幅にフィットさせ、右側の余分な透明パディングをなくす */
         margin: 40px auto 30px auto; /* 上下のマージンを調整 */
         padding: 0 30px; /* 左右の余白も追加 */
     }
@@ -760,7 +761,8 @@ body.obs-mode .overlay {
     .right-column {
         display: flex;
         flex-direction: column;
-        flex: 1;
+        flex: 0 1 auto;
+        max-width: 420px; /* オーバーレイの幅に合わせ、余分な透明パディングを作らない */
         align-items: flex-start;
     }
 
@@ -782,7 +784,7 @@ body.obs-mode .overlay {
     .tutorial-section {
         width: 100%;
         margin: 40px auto 50px auto; /* 上下の余白を調整 */
-        max-width: 800px; /* よりコンパクトに */
+        max-width: 900px; /* 上のオーバーレイ設定(.main-content-container)と幅を揃える */
     }
 
     .input-form {
