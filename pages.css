@@ -105,13 +105,57 @@ body {
 
 .header-content {
     display: flex;
-    justify-content: space-between;
+    justify-content: flex-start;
     align-items: center;
+    gap: 1.5rem;
     max-width: 1400px;
     margin: 0 auto;
     padding: 0 1rem;
     width: 100%;
     min-height: 60px;
+}
+
+/* === Brand === */
+.brand {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    text-decoration: none;
+    flex-shrink: 0;
+}
+
+.brand-mark {
+    width: 6px;
+    height: 24px;
+    background: var(--valorant-red);
+    box-shadow: 0 0 10px rgba(255, 70, 85, 0.7);
+    flex-shrink: 0;
+}
+
+.brand-text {
+    font-family: 'Rajdhani', 'Noto Sans JP', sans-serif;
+    font-weight: 700;
+    font-size: 1.05rem;
+    letter-spacing: 2.5px;
+    text-transform: uppercase;
+    color: #fff;
+    white-space: nowrap;
+}
+
+.brand-accent {
+    color: var(--valorant-red);
+    margin-left: 0.4em;
+}
+
+@media screen and (max-width: 480px) {
+    .brand-text {
+        font-size: 0.8rem;
+        letter-spacing: 1.5px;
+    }
+
+    .brand-mark {
+        height: 18px;
+    }
 }
 
 .nav-buttons {
@@ -367,4 +411,23 @@ h2, h3 {
         font-size: 0.95rem;
         min-height: 46px;
     }
+}
+
+/* === ヘッダーナビ：角度カット（VALORANT ゲームデザイン、全ページ共通） === */
+.app-header a.header-button {
+    border-radius: 0;
+    clip-path: polygon(10px 0, 100% 0, calc(100% - 10px) 100%, 0 100%);
+    font-family: 'Rajdhani', 'Noto Sans JP', sans-serif;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+}
+
+.mobile-nav .header-button {
+    border-radius: 0;
+    clip-path: polygon(8px 0, 100% 0, calc(100% - 8px) 100%, 0 100%);
+    font-family: 'Rajdhani', 'Noto Sans JP', sans-serif;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
 }

@@ -8,8 +8,24 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+JP:wght@400;500;700&family=Rajdhani:wght@500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../pages.css">
+    <link rel="stylesheet" href="../accessibility.css">
     <style>
+        /* pages.css（共通ヘッダー）が参照するデザイントークン。styles.css を読み込まないため最小限を定義 */
+        :root {
+            --valorant-red: #ff4655;
+            --valorant-light: #ffffff;
+            --radius-md: 8px;
+            --spacing-xs: 4px;
+            --spacing-sm: 8px;
+            --spacing-lg: 16px;
+            --spacing-xl: 20px;
+            --spacing-3xl: 32px;
+            --win-color: #4CAF50;
+            --loss-color: #F44336;
+        }
+
         body {
             font-family: 'Inter', 'Noto Sans JP', sans-serif;
             margin: 0;
@@ -38,83 +54,8 @@
             overflow-x: hidden;
         }
         
-        /* レスポンシブヘッダー */
-        .app-header {
-            position: sticky;
-            top: 0;
-            left: 0;
-            right: 0;
-            width: 100%;
-            padding: 0.75rem 0;
-            background-color: rgba(15, 25, 35, 0.98);
-            border-bottom: 2px solid #ff4655;
-            backdrop-filter: blur(15px);
-            box-shadow: 0 2px 20px rgba(0, 0, 0, 0.4);
-            z-index: 999;
-            transition: all 0.3s ease;
-        }
-        .header-content {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            max-width: 1400px;
-            margin: 0 auto;
-            padding: 0 1rem;
-            width: 100%;
-            min-height: 60px;
-        }
-        
-        .nav-buttons {
-            display: flex;
-            gap: 0.5rem;
-            align-items: center;
-            flex-wrap: wrap;
-        }
-
-        .app-header button,
-        .app-header a.header-button {
-            background-color: #ff4655;
-            color: white;
-            border: none;
-            padding: 0.6rem 1rem;
-            margin: 0;
-            font-size: 0.9rem;
-            font-weight: 600;
-            cursor: pointer;
-            border-radius: 6px;
-            transition: all 0.3s ease;
-            text-decoration: none;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            white-space: nowrap;
-            min-height: 40px;
-            box-shadow: 0 2px 8px rgba(255, 70, 85, 0.3);
-        }
-        .app-header button:hover,
-        .app-header a.header-button:hover {
-            background-color: #e0303f;
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(255, 70, 85, 0.4);
-        }
-        .app-header button.active,
-        .app-header a.header-button.active {
-            background-color: #22c55e; /* 緑などでアクティブ状態を示す */
-            box-shadow: 0 0 15px rgba(34, 197, 94, 0.5);
-            text-decoration: none; /* アクティブ時も下線を消す */
-        }
         .hidden {
             display: none !important;
-        }
-        #showOverlayModeLink {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        #showTrackerModeLink {
-            display: flex;
-            align-items: center;
-            justify-content: center;
         }
 
         /* 背景スタイル */
@@ -166,126 +107,6 @@
             50% { opacity: 1; }
         }
 
-        /* ハンバーガーメニュー */
-        .hamburger-menu {
-            display: none;
-            flex-direction: column;
-            justify-content: center;
-            cursor: pointer;
-            padding: 8px;
-            border-radius: 6px;
-            transition: all 0.3s ease;
-            min-width: 44px;
-            min-height: 44px;
-            background-color: transparent;
-            border: 1px solid transparent;
-            margin-left: auto;
-        }
-        
-        .hamburger-menu:hover {
-            background-color: rgba(255, 70, 85, 0.1);
-            border-color: rgba(255, 70, 85, 0.3);
-        }
-        
-        .hamburger-line {
-            width: 22px;
-            height: 2px;
-            background-color: #fff;
-            margin: 2px 0;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            border-radius: 2px;
-        }
-        
-        .hamburger-menu.active .hamburger-line:nth-child(1) {
-            transform: rotate(45deg) translate(6px, 6px);
-        }
-        
-        .hamburger-menu.active .hamburger-line:nth-child(2) {
-            opacity: 0;
-        }
-        
-        .hamburger-menu.active .hamburger-line:nth-child(3) {
-            transform: rotate(-45deg) translate(6px, -6px);
-        }
-        
-        .mobile-nav {
-            display: none;
-            position: absolute;
-            top: 100%;
-            left: 0;
-            right: 0;
-            background: rgba(15, 25, 35, 0.98);
-            backdrop-filter: blur(15px);
-            border-top: 1px solid rgba(255, 70, 85, 0.3);
-            padding: 1rem;
-            z-index: 1000;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
-            border-bottom: 2px solid rgba(255, 70, 85, 0.5);
-            animation: slideDown 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-        
-        .mobile-nav.active {
-            display: block;
-        }
-        
-        .mobile-nav-buttons {
-            display: flex;
-            flex-direction: column;
-            gap: 0.75rem;
-            max-width: 400px;
-            margin: 0 auto;
-        }
-        
-        .mobile-nav .header-button {
-            width: 100%;
-            text-align: center;
-            padding: 1rem 1.5rem;
-            margin: 0;
-            border-radius: 8px;
-            font-size: 1rem;
-            font-weight: 600;
-            background-color: rgba(255, 70, 85, 0.1);
-            border: 1px solid rgba(255, 70, 85, 0.3);
-            transition: all 0.3s ease;
-            min-height: 50px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        
-        .mobile-nav .header-button:hover {
-            background-color: rgba(255, 70, 85, 0.2);
-            transform: translateY(-1px);
-        }
-        
-        .mobile-nav .header-button.active {
-            background-color: rgba(34, 197, 94, 0.2);
-            border-color: rgba(34, 197, 94, 0.5);
-        }
-        
-        @keyframes slideDown {
-            from {
-                opacity: 0;
-                transform: translateY(-20px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        /* 他ページ(index.html等)と同じ中間ブレークポイント */
-        @media screen and (max-width: 1024px) {
-            .nav-buttons {
-                gap: 0.25rem;
-            }
-
-            .app-header a.header-button {
-                padding: 0.5rem 0.75rem;
-                font-size: 0.85rem;
-            }
-        }
-
         /* モバイル用マッチカードスタイル */
         /* Tailwindのmd:(min-width:768px)と境界を揃えるため767px以下をモバイル扱いにする */
         @media (max-width: 767px) {
@@ -294,22 +115,6 @@
             }
             .match-cards-mobile {
                 display: block;
-            }
-            .app-header {
-                position: relative;
-            }
-
-            .header-content {
-                justify-content: space-between;
-                padding: 0 20px;
-            }
-
-            .nav-buttons {
-                display: none;
-            }
-
-            .hamburger-menu {
-                display: flex;
             }
         }
 
@@ -334,6 +139,25 @@
             transform: translateY(-2px);
             transition: all 0.3s ease;
         }
+
+        /*
+         * マッチ履歴ページ等と同じ挙動に統一: 未入力=グレー、入力済み+非フォーカス=緑、
+         * フォーカス中=赤のみ（緑と赤が同時に重なって見えないようにする）。
+         * Tailwind CDN が生成する CSS は head の末尾に追加され、accessibility.css の
+         * input:valid:not(:placeholder-shown) と互角以上の優先度になり得るため、
+         * ID + !important で明示的に上書きする。
+         */
+        #gameNameInput:valid:not(:placeholder-shown):not(:focus),
+        #tagLineInput:valid:not(:placeholder-shown):not(:focus) {
+            border-color: #4CAF50 !important;
+        }
+
+        #gameNameInput:focus,
+        #tagLineInput:focus {
+            outline: none !important;
+            border-color: #ef4444 !important;
+            box-shadow: 0 0 0 2px rgba(239, 68, 68, 0.5) !important;
+        }
     </style>
 </head>
 <body class="bg-gray-900 text-white min-h-screen">
@@ -342,6 +166,10 @@
     
     <header class="app-header">
         <div class="header-content">
+            <a href="../" class="brand" aria-label="VALORANT Tracker ホーム">
+                <span class="brand-mark" aria-hidden="true"></span>
+                <span class="brand-text">VALORANT<span class="brand-accent">TRACKER</span></span>
+            </a>
             <div class="nav-buttons">
                 <a href="../" id="showOverlayModeLink" class="header-button">OBSオーバーレイ</a>
                 <a href="./" id="showTrackerModeLink" class="header-button active">戦績トラッカー</a>
@@ -372,18 +200,16 @@
 
     <div class="max-w-5xl mx-auto mt-4">
 
-        <!-- Page Title -->
-        <header class="text-center mb-6 sm:mb-8">
-            <h1 class="text-3xl sm:text-4xl md:text-5xl font-bold text-red-500 tracking-wider">VALORANT Tracker</h1>
-            <p class="text-gray-400 mt-2 text-sm sm:text-base">今シーズンのコンペティティブ戦績を分析します</p>
-        </header>
-
-        <!-- Search Form -->
-        <div class="mb-6 sm:mb-8 p-4 sm:p-6 bg-gray-800 rounded-xl shadow-lg">
+        <!-- Search Form（マッチ履歴ページの search-section と統一したタイトル+フォームの一体カード） -->
+        <div class="mb-6 sm:mb-8 p-4 sm:p-6 bg-gray-800 rounded-xl shadow-lg max-w-2xl mx-auto">
+            <div class="text-center mb-4 sm:mb-6">
+                <h1 class="text-3xl font-bold text-red-500 tracking-wider">VALORANT Tracker</h1>
+                <p class="text-gray-400 text-sm mt-2">今シーズンのコンペティティブ戦績を分析します</p>
+            </div>
             <div class="flex flex-col sm:flex-row gap-3 sm:gap-4">
                 <input type="text" id="gameNameInput" class="flex-grow bg-gray-700 text-white placeholder-gray-400 border-2 border-gray-600 rounded-lg px-3 sm:px-4 py-2 sm:py-3 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500 text-sm sm:text-base" placeholder="ゲーム名 (例: TenZ)">
                 <input type="text" id="tagLineInput" class="flex-grow bg-gray-700 text-white placeholder-gray-400 border-2 border-gray-600 rounded-lg px-3 sm:px-4 py-2 sm:py-3 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500 text-sm sm:text-base" placeholder="タグライン (例: 1234)">
-                <button id="searchButton" class="bg-red-600 hover:bg-red-700 text-white font-bold py-2 sm:py-3 px-4 sm:px-6 rounded-lg transition-colors duration-300 flex items-center justify-center text-sm sm:text-base">
+                <button id="searchButton" class="bg-red-600 hover:bg-red-700 text-white font-bold py-2 sm:py-3 px-4 sm:px-6 rounded-lg transition-colors duration-300 flex items-center justify-center text-sm sm:text-base shrink-0 whitespace-nowrap">
                     <svg id="searchIcon" class="w-4 h-4 sm:w-5 sm:h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
                     <svg id="loadingIcon" class="animate-spin -ml-1 mr-3 h-4 w-4 sm:h-5 sm:w-5 text-white hidden" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                         <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
