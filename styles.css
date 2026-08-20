@@ -142,34 +142,6 @@ body.obs-mode .overlay {
     margin-bottom: 15px;
 }
 
-.agent-icon {
-    width: 80px;
-    height: 80px;
-    margin-right: 20px;
-    border-radius: 50%;
-    border: 2px solid var(--valorant-red);
-    object-fit: cover;
-}
-
-.player-details {
-    flex-grow: 1;
-}
-
-.player-name {
-    margin: 0;
-    font-size: 1.4em;
-    color: var(--valorant-light);
-}
-
-.player-rank {
-    margin: 5px 0 0;
-    font-size: 1.1em;
-    color: var(--valorant-red);
-    display: flex;
-    align-items: center;
-    gap: 15px;
-}
-
 .rank-section {
     display: flex;
     align-items: center;
@@ -260,44 +232,6 @@ body.obs-mode .overlay {
     position: relative; /* ゲージの上に表示 */
     z-index: 1; /* ゲージより前面に */
     color: var(--text-color);
-}
-
-.last-match-section[style*="background-color: rgb(76, 175, 80)"] {
-    /* 緑色の背景 */
-    background-color: var(--valorant-green) !important;
-}
-
-.last-match-section[style*="background-color: rgb(244, 67, 54)"] {
-    /* 赤色の背景 */
-    background-color: var(--valorant-red-bg) !important;
-}
-
-.stats-grid {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 15px;
-    margin-top: 20px;
-}
-
-.stat-item {
-    text-align: center;
-    padding: var(--spacing-md);
-    background: rgba(255, 70, 85, 0.1);
-    border-radius: var(--radius-md);
-}
-
-.stat-label {
-    display: block;
-    font-size: 0.9em;
-    color: var(--valorant-light);
-    margin-bottom: 8px;
-}
-
-.stat-value {
-    display: block;
-    font-size: 1.3em;
-    color: var(--valorant-red);
-    font-weight: bold;
 }
 
 /* 入力セクションとチュートリアルセクションを横並びにするためのコンテナ */
@@ -711,9 +645,7 @@ body.obs-mode .overlay {
 .theme-shadcn .overlay,
 .theme-neon .overlay {
     transition: width 0.3s ease, min-width 0.3s ease, max-width 0.3s ease;
-    width: auto !important;
-    min-width: 300px !important;
-    max-width: 450px !important;
+    width: auto;
 }
 
 .theme-modern .rank-section,
@@ -807,16 +739,6 @@ body.obs-mode .overlay {
     .main-content-container {
         margin: 40px auto 30px auto; /* 上下のマージンを調整 */
         padding: 0 30px; /* 左右の余白も追加 */
-    }
-
-    /* 2段目のコンテナ（カスタマイズボタンとチュートリアル） */
-    .second-row-container {
-        display: flex;
-        gap: 20px;
-        max-width: 1200px;
-        width: 100%;
-        margin: 0 0 20px 0;
-        align-items: flex-start;
     }
 
     /* PCでのチュートリアルセクションの高さ制限 */
@@ -983,8 +905,6 @@ body.obs-mode .overlay {
     .customize-button-container {
         width: 90%;
         margin: 10px auto; /* 上下にマージン、左右中央寄せ */
-        order: -1; /* 任意: 例えば入力セクションの上に表示したい場合 */
-        /* order: 1; /* 入力セクションの下、オーバーレイの上に表示したい場合 */
         order: 2; /* オーバーレイの下、author-sectionの上に表示 */
     }
 
@@ -1020,6 +940,7 @@ body.obs-mode .overlay {
 
 
     .ad-container {
+        display: none; /* モバイルでは非表示 */
         order: 4; /* 最後に表示 */
         margin: 10px auto; /* 上下にマージン、左右中央寄せ */
         width: 90%;
@@ -1154,19 +1075,6 @@ body.obs-mode .tutorial-section {
     display: none !important; /* OBSモードでは非表示 */
 }
 
-/* 入力フォームも非表示 */
-body:has(input[id="generatedURL"][value*="obs"]) .input-section {
-    display: none !important;
-}
-
-body:has(input[id="generatedURL"][value*="obs"]) .customize-button-container {
-    display: none !important; /* OBSモードでは非表示 */
-}
-
-body:has(input[id="generatedURL"][value*="obs"]) .ad-container {
-    display: none !important; /* OBSモードでは非表示 */
-}
-
 /* 製作者紹介セクション */
 .author-section {
     display: flex;
@@ -1188,11 +1096,6 @@ body:has(input[id="generatedURL"][value*="obs"]) .ad-container {
     border-radius: 50%; /* 丸くする */
     border: 2px solid var(--border-color); /* 変数を適用 */
     object-fit: cover; /* 画像の表示方法 */
-}
-
-/* Google AdSense広告ユニット */
-.ad-container {
-    display: none; /* デフォルトでは非表示 */
 }
 
 /* カラーピッカーモーダル */

@@ -190,10 +190,11 @@ body {
     padding: var(--spacing-sm);
     border-radius: var(--radius-md);
     transition: all 0.3s ease;
-    min-width: 40px;
-    min-height: 40px;
+    min-width: 44px;
+    min-height: 44px;
     background-color: transparent;
     border: 1px solid transparent;
+    margin-left: auto; /* .nav-buttons が非表示になるモバイル幅で右寄せにする */
 }
 
 .hamburger-menu:hover {

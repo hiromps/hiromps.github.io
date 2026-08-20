@@ -128,10 +128,11 @@
             padding: 8px;
             border-radius: 6px;
             transition: all 0.3s ease;
-            min-width: 40px;
-            min-height: 40px;
+            min-width: 44px;
+            min-height: 44px;
             background-color: transparent;
             border: 1px solid transparent;
+            margin-left: auto;
         }
         
         .hamburger-menu:hover {
@@ -313,121 +314,37 @@
                 width: 32px;
                 height: 32px;
             }
-            
-            /* クラシックテーマのタブレット版固定サイズ */
-            .theme-classic .overlay {
-                min-width: 300px;
-                max-width: 380px;
-            }
-            
-            .theme-classic .rank-section {
-                padding: 6px 12px;
-                gap: 10px;
-                min-height: 55px;
-            }
-            
-            .theme-classic .rank-icon {
-                width: 50px;
-                height: 50px;
-            }
-            
-            .theme-classic .rank-details {
-                gap: 3px;
-            }
-            
-            .theme-classic .rank-name-line {
-                gap: 6px;
-            }
-            
-            .theme-classic .rank-name {
-                font-size: 1rem;
-            }
-            
-            .theme-classic .rr {
-                font-size: 0.95rem;
-            }
-            
-            .theme-classic .last-match-section {
-                padding: 10px 12px;
-                min-height: 38px;
-            }
-            
-            .theme-classic .last-match-text {
-                font-size: 0.9rem;
-            }
         }
-        
+
         @media screen and (max-width: 480px) {
             .header-content {
                 padding: 0 0.75rem;
                 min-height: 52px;
             }
-            
+
             .author-text {
                 font-size: 0.75rem;
                 display: block;
             }
-            
+
             .hamburger-menu {
                 min-width: 36px;
                 min-height: 36px;
                 padding: 6px;
             }
-            
+
             .hamburger-line {
                 width: 20px;
             }
-            
+
             .mobile-nav {
                 padding: 0.75rem;
             }
-            
+
             .mobile-nav .header-button {
                 padding: 0.875rem 1rem;
                 font-size: 0.95rem;
                 min-height: 46px;
-            }
-            
-            /* クラシックテーマのモバイル版固定サイズ */
-            .theme-classic .overlay {
-                min-width: 280px;
-                max-width: 340px;
-            }
-            
-            .theme-classic .rank-section {
-                padding: 5px 10px;
-                gap: 8px;
-                min-height: 50px;
-            }
-            
-            .theme-classic .rank-icon {
-                width: 45px;
-                height: 45px;
-            }
-            
-            .theme-classic .rank-details {
-                gap: 2px;
-            }
-            
-            .theme-classic .rank-name-line {
-                gap: 4px;
-            }
-            
-            .theme-classic .rank-name {
-                font-size: 0.9rem;
-            }
-            
-            .theme-classic .rr {
-                font-size: 0.85rem;
-            }
-            
-            .theme-classic .last-match-section {
-                padding: 8px 10px;
-                min-height: 35px;
-            }
-            
-            .theme-classic .last-match-text {
-                font-size: 0.8rem;
             }
         }
         .mode-container {
@@ -647,6 +564,94 @@
             /* ホバー時のRR効果を削除してシンプルに */
         }
 
+        @media screen and (max-width: 768px) {
+            /* クラシックテーマのタブレット版固定サイズ */
+            .theme-classic .overlay {
+                min-width: 300px;
+                max-width: 380px;
+            }
+
+            .theme-classic .rank-section {
+                padding: 6px 12px;
+                gap: 10px;
+                min-height: 55px;
+            }
+
+            .theme-classic .rank-icon {
+                width: 50px;
+                height: 50px;
+            }
+
+            .theme-classic .rank-details {
+                gap: 3px;
+            }
+
+            .theme-classic .rank-name-line {
+                gap: 6px;
+            }
+
+            .theme-classic .rank-name {
+                font-size: 1rem;
+            }
+
+            .theme-classic .rr {
+                font-size: 0.95rem;
+            }
+
+            .theme-classic .last-match-section {
+                padding: 10px 12px;
+                min-height: 38px;
+            }
+
+            .theme-classic .last-match-text {
+                font-size: 0.9rem;
+            }
+        }
+
+        @media screen and (max-width: 480px) {
+            /* クラシックテーマのモバイル版固定サイズ */
+            .theme-classic .overlay {
+                min-width: 280px;
+                max-width: 340px;
+            }
+
+            .theme-classic .rank-section {
+                padding: 5px 10px;
+                gap: 8px;
+                min-height: 50px;
+            }
+
+            .theme-classic .rank-icon {
+                width: 45px;
+                height: 45px;
+            }
+
+            .theme-classic .rank-details {
+                gap: 2px;
+            }
+
+            .theme-classic .rank-name-line {
+                gap: 4px;
+            }
+
+            .theme-classic .rank-name {
+                font-size: 0.9rem;
+            }
+
+            .theme-classic .rr {
+                font-size: 0.85rem;
+            }
+
+            .theme-classic .last-match-section {
+                padding: 8px 10px;
+                min-height: 35px;
+            }
+
+            .theme-classic .last-match-text {
+                font-size: 0.8rem;
+            }
+        }
+
         /* モダンテーマ - カード分割レイアウト */
         .theme-modern .overlay {
             background: transparent;
@@ -685,8 +690,8 @@
         }
 
         .theme-modern .rank-icon {
-            width: 70px;
-            height: 70px;
+            width: clamp(56px, 20vw, 70px);
+            height: clamp(56px, 20vw, 70px);
             border-radius: 12px;
             flex-shrink: 0;
             border: none !important;
@@ -796,8 +801,8 @@
         }
 
         .theme-shadcn .rank-icon {
-            width: 70px;
-            height: 70px;
+            width: clamp(56px, 20vw, 70px);
+            height: clamp(56px, 20vw, 70px);
             border-radius: 8px;
             flex-shrink: 0;
             border: none !important;
@@ -987,8 +992,8 @@
         }
 
         .theme-neon .rank-icon {
-            width: 75px;
-            height: 75px;
+            width: clamp(60px, 20vw, 75px);
+            height: clamp(60px, 20vw, 75px);
             border-radius: 16px;
             flex-shrink: 0;
             border: none !important;
@@ -1064,9 +1069,20 @@
 
         /* OBS Mode - Transparent Background */
         body.obs-mode,
-        body.obs-mode html {
+        html.obs-mode {
             background: transparent !important;
             background-color: transparent !important;
+        }
+
+        /* 入力フォームありモード(name+tagパラメータ付き)では入力欄を隠す */
+        body.has-player .input-section {
+            display: none;
+        }
+
+        /* 通常表示(OBSモードでない)でプレイヤー情報がある場合はオーバーレイを中央に */
+        body.has-player:not(.obs-mode) .overlay {
+            top: 50%;
+            transform: translateY(-50%);
         }
 
         body.obs-mode .background {
@@ -1161,6 +1177,20 @@
     </style>
 </head>
     <body>
+    <script>
+        // FOUC防止: module scriptの実行を待たず、DOM構築直後に obs-mode / has-player クラスを付与する。
+        // 実際の表示制御は全てCSS側(このファイルのinline styleとstyles.css)で行う。
+        (function () {
+            var params = new URLSearchParams(window.location.search);
+            if (params.has('obs')) {
+                document.documentElement.classList.add('obs-mode');
+                document.body.classList.add('obs-mode');
+            }
+            if (params.get('name') && params.get('tag')) {
+                document.body.classList.add('has-player');
+            }
+        })();
+    </script>
     <div class="background"></div>
     
     <header class="app-header">
@@ -1212,13 +1242,13 @@
         <div id="inputSection" class="input-section">
             <h2>VALORANT プレイヤー情報</h2>
             <div class="input-form">
-                <input type="text" id="playerName" placeholder="プレイヤー名" required oninput="updatePreview()">
-                <input type="text" id="playerTag" placeholder="タグ" required oninput="updatePreview()">
-                <button onclick="generateURL()">URLを生成</button>
+                <input type="text" id="playerName" placeholder="プレイヤー名" required>
+                <input type="text" id="playerTag" placeholder="タグ" required>
+                <button id="generateUrlButton">URLを生成</button>
             </div>
             <div class="url-output">
                 <input type="text" id="generatedURL" readonly>
-                <button onclick="copyURL()">コピー</button>
+                <button id="copyUrlButton">コピー</button>
             </div>
             <div class="preview-hint">
                 💡 入力すると右側でリアルタイムプレビューが表示されます
@@ -1232,7 +1262,7 @@
             </div>
             <div class="overlay" id="previewOverlay">
                 <div class="rank-section">
-                    <img src="assets/images/ranks/ランクなし.png" alt="Rank Icon" class="rank-icon" id="rankIcon">
+                    <img src="assets/images/ranks/unranked.png" alt="Rank Icon" class="rank-icon" id="rankIcon">
                     <div class="rank-details">
                         <div class="rank-name-line">
                             <span class="rank-name" id="rankText">ランクなし</span><span class="rr" id="rrText">0RR</span>
@@ -1243,12 +1273,6 @@
                 <div class="last-match-section" id="lastMatchSection">
                     <div class="mmr-gauge-fill"></div>
                     <span class="last-match-text" id="lastMatchText">前回のマッチ +0pts</span>
-                </div>
-                <!-- OBS用デバッグ情報 -->
-                <div id="obsDebugInfo" style="display: none; font-size: 12px; color: #888; margin-top: 10px;">
-                    <div>自動更新: <span id="autoUpdateStatus">無効</span></div>
-                    <div>最終更新: <span id="lastUpdateTime">-</span></div>
-                    <button onclick="manualUpdate()" style="margin-top: 5px; padding: 2px 8px; font-size: 10px;">手動更新</button>
                 </div>
             </div>
             
@@ -1261,7 +1285,7 @@
 
     <!-- OBSチュートリアルセクション -->
     <div class="tutorial-section">
-        <button class="tutorial-toggle" onclick="toggleTutorial()">
+        <button class="tutorial-toggle" id="tutorialToggleButton">
             📺 OBS設定ガイド <span id="tutorialArrow" class="rotated">▼</span>
         </button>
         <div class="tutorial-content expanded" id="tutorialContent">
@@ -1343,1369 +1367,17 @@
                 <span id="borderOpacityValue">100%</span>
             </div>
             <div class="color-picker-buttons">
-                <button onclick="applyCustomColors()">適用</button>
-                <button onclick="closeColorPicker()">キャンセル</button>
-                <button onclick="resetCustomColors()">リセット</button>
+                <button id="applyColorsButton">適用</button>
+                <button id="cancelColorsButton">キャンセル</button>
+                <button id="resetColorsButton">リセット</button>
             </div>
         </div>
     </div>
 
     <script src="config.js"></script>
     <script src="js/api.js"></script>
-    <script>
-        // グローバル変数でプレイヤー情報と更新間隔を管理
-        let currentPlayerName = null;
-        let currentPlayerTag = null;
-        let updateInterval = null;
-        let isAutoUpdateEnabled = false;
-
-        // テーマ選択機能
-        let currentTheme = 'classic';
-
-        function applyTheme(theme) {
-            const body = document.body;
-            // 既存のテーマクラスを削除
-            body.classList.remove('theme-classic', 'theme-modern', 'theme-shadcn', 'theme-neon');
-            // 新しいテーマクラスを追加
-            body.classList.add(`theme-${theme}`);
-            currentTheme = theme;
-            
-            // テーマをlocalStorageに保存
-            localStorage.setItem('selectedTheme', theme);
-            
-            // ボタンのアクティブ状態を更新
-            document.querySelectorAll('.theme-button').forEach(btn => {
-                btn.classList.remove('active');
-            });
-            document.querySelector(`[data-theme="${theme}"]`).classList.add('active');
-            
-            // オーバーレイの幅をリセット（全テーマでCSSによる最小幅調整が適用される）
-            const overlay = document.querySelector('.overlay');
-            if (overlay) {
-                // インラインスタイルをクリアしてCSSに委譲
-                overlay.style.width = '';
-                overlay.style.minWidth = '';
-                overlay.style.maxWidth = '';
-            }
-            
-            // Cyberテーマの場合、スキャンライン効果を追加
-            if (theme === 'shadcn') {
-                setTimeout(addScanLineEffect, 100);
-            }
-            
-            // クラシックテーマの場合、スマート自動調整を適用
-            if (theme === 'classic') {
-                setTimeout(() => {
-                    applyClassicSmartAdjustments();
-                    handleTextOverflow();
-                }, 150);
-            }
-            
-            // テーマ変更後に前回のマッチセクションの幅を調整（プレビュー画面のみ）
-            setTimeout(() => {
-                if (theme === 'classic') {
-                    resetLastMatchWidthForClassic();
-                    // 追加の調整
-                    setTimeout(applyClassicSmartAdjustments, 100);
-                } else {
-                    adjustLastMatchWidth();
-                }
-            }, 200);
-        }
-
-        // VALORANT風スキャンライン効果を追加
-        function addScanLineEffect() {
-            const rankSection = document.querySelector('.theme-shadcn .rank-section');
-            if (rankSection && !rankSection.querySelector('.scan-line')) {
-                const scanLine = document.createElement('div');
-                scanLine.className = 'scan-line';
-                rankSection.appendChild(scanLine);
-            }
-        }
-
-        // クラシックテーマのスマート自動調整システム
-        function applyClassicSmartAdjustments() {
-            if (currentTheme !== 'classic') return;
-            
-            // モバイル版では自動調整を無効化
-            if (window.innerWidth <= 768) {
-                console.log('モバイル版のため横幅自動調整をスキップ');
-                return;
-            }
-            
-            const overlay = document.querySelector('.theme-classic .overlay');
-            const rankName = document.querySelector('.theme-classic .rank-name');
-            const rrText = document.querySelector('.theme-classic .rr');
-            const lastMatchText = document.querySelector('.theme-classic .last-match-text');
-            
-            if (!overlay || !rankName || !rrText || !lastMatchText) return;
-            
-                         try {
-                 // 既存のクラスをリセット（横幅調整クラスは除外）
-                 rankName.classList.remove('long-text');
-                 rrText.classList.remove('adjust-size');
-                 lastMatchText.classList.remove('long-text');
-                 
-                 // テキストの長さを測定
-                 const rankTextLength = rankName.textContent.length;
-                 const rrTextLength = rrText.textContent.length;
-                 const lastMatchTextLength = lastMatchText.textContent.length;
-                 
-                 // ランク名の長さに応じた調整
-                 if (rankTextLength > 12) {
-                     rankName.classList.add('long-text');
-                 }
-                 
-                 // RRテキストの長さに応じた調整
-                 if (rrTextLength > 6) {
-                     rrText.classList.add('adjust-size');
-                 }
-                 
-                 // 前回のマッチテキストの長さに応じた調整
-                 if (lastMatchTextLength > 20) {
-                     lastMatchText.classList.add('long-text');
-                 }
-                 
-                 // 特殊文字や非ラテン文字の処理
-                 const hasSpecialChars = /[^\x00-\x7F]/.test(rankName.textContent + lastMatchText.textContent);
-                 if (hasSpecialChars) {
-                     // 日本語や特殊文字がある場合の調整
-                     rankName.style.letterSpacing = '0.3px';
-                     lastMatchText.style.letterSpacing = '0.2px';
-                 }
-                 
-                 console.log(`クラシックテーマ調整: ランク文字数=${rankTextLength}, RR文字数=${rrTextLength}, マッチ文字数=${lastMatchTextLength}`);
-                 
-             } catch (error) {
-                 console.error('クラシックテーマ自動調整エラー:', error);
-             }
-        }
-
-        // テキスト幅測定ヘルパー関数
-        function measureTextWidth(text, fontSize, fontFamily = 'Inter, sans-serif', fontWeight = '400') {
-            const canvas = document.createElement('canvas');
-            const context = canvas.getContext('2d');
-            context.font = `${fontWeight} ${fontSize} ${fontFamily}`;
-            return context.measureText(text).width;
-        }
-
-        // レスポンシブフォントサイズ計算
-        function calculateOptimalFontSize(text, containerWidth, baseFontSize = '1rem') {
-            const maxWidth = containerWidth * 0.9; // 90%の幅を使用
-            const textWidth = measureTextWidth(text, baseFontSize);
-            
-            if (textWidth <= maxWidth) {
-                return baseFontSize;
-            }
-            
-            // 幅に収まるようにフォントサイズを調整
-            const scaleFactor = maxWidth / textWidth;
-            const baseSizeNum = parseFloat(baseFontSize);
-            const adjustedSize = Math.max(baseSizeNum * scaleFactor, 0.7); // 最小0.7rem
-            
-            return `${adjustedSize}rem`;
-        }
-
-        // クラシックテーマの高度な調整（文字が切れる場合の対応）
-        function handleTextOverflow() {
-            if (currentTheme !== 'classic') return;
-            
-            const rankNameElement = document.querySelector('.theme-classic .rank-name');
-            const rrElement = document.querySelector('.theme-classic .rr');
-            const lastMatchElement = document.querySelector('.theme-classic .last-match-text');
-            const overlay = document.querySelector('.theme-classic .overlay');
-            
-            if (!rankNameElement || !rrElement || !lastMatchElement || !overlay) return;
-            
-            // オーバーフロー検出と修正
-            [rankNameElement, rrElement, lastMatchElement].forEach(element => {
-                if (element.scrollWidth > element.clientWidth) {
-                    // テキストがオーバーフローしている場合
-                    const currentFontSize = window.getComputedStyle(element).fontSize;
-                    const currentSizeNum = parseFloat(currentFontSize);
-                    const reducedSize = Math.max(currentSizeNum * 0.9, 10); // 最小10px
-                    
-                    element.style.fontSize = `${reducedSize}px`;
-                    console.log(`テキストオーバーフロー修正: ${element.className} フォントサイズ ${currentFontSize} → ${reducedSize}px`);
-                }
-            });
-        }
-
-        // カラーピッカーモーダルの表示/非表示
-        function showColorPicker() {
-            const modal = document.getElementById('colorPickerModal');
-            modal.style.display = 'flex';
-        }
-
-        function closeColorPicker() {
-            const modal = document.getElementById('colorPickerModal');
-            modal.style.display = 'none';
-            
-            // モーダルを閉じた後に幅調整を実行（プレビュー画面のみ）
-            setTimeout(() => {
-                if (currentTheme === 'classic') {
-                    resetLastMatchWidthForClassic();
-                } else {
-                    adjustLastMatchWidth();
-                }
-            }, 300);
-        }
-
-        // 自動更新機能（改善版）
-        function startAutoUpdate(intervalSeconds = 60) {
-            if (isAutoUpdateEnabled || !currentPlayerName || !currentPlayerTag) {
-                return;
-            }
-
-            isAutoUpdateEnabled = true;
-            console.log(`自動更新を開始しました（${intervalSeconds}秒間隔）`);
-
-            // 定期的にプレイヤー情報を更新
-            updateInterval = setInterval(() => {
-                if (currentPlayerName && currentPlayerTag) {
-                    console.log('プレイヤー情報を自動更新中...');
-                    updatePlayerInfo(currentPlayerName, currentPlayerTag).catch(error => {
-                        console.error('自動更新中にエラーが発生しました:', error);
-                        // エラーが発生しても自動更新は継続
-                    });
-                }
-            }, intervalSeconds * 1000);
-        }
-
-        function stopAutoUpdate() {
-            if (!isAutoUpdateEnabled) {
-                return;
-            }
-
-            isAutoUpdateEnabled = false;
-            if (updateInterval) {
-                clearInterval(updateInterval);
-                updateInterval = null;
-                console.log('自動更新を停止しました');
-            }
-        }
-
-        // OBS専用の自動更新機能（より堅牢）
-        function startOBSAutoUpdate(intervalSeconds = 60) {
-            // 既に開始されている場合は停止してから再開始
-            if (updateInterval) {
-                clearInterval(updateInterval);
-            }
-            
-            isAutoUpdateEnabled = true;
-            console.log(`OBS専用自動更新を開始しました（${intervalSeconds}秒間隔）`);
-            
-            // ステータス更新
-            updateAutoUpdateStatus();
-
-            // 即座に一回実行してから定期実行を開始
-            if (currentPlayerName && currentPlayerTag) {
-                updatePlayerInfo(currentPlayerName, currentPlayerTag).catch(error => {
-                    console.error('初回更新中にエラーが発生しました:', error);
-                });
-            }
-
-            // 定期実行
-            updateInterval = setInterval(() => {
-                if (currentPlayerName && currentPlayerTag) {
-                    console.log(`[${new Date().toLocaleTimeString()}] プレイヤー情報を自動更新中...`);
-                    updatePlayerInfo(currentPlayerName, currentPlayerTag).catch(error => {
-                        console.error('自動更新中にエラーが発生しました:', error);
-                        // エラーが発生しても自動更新は継続
-                    });
-                } else {
-                    console.warn('プレイヤー情報が設定されていません。自動更新を停止します。');
-                    stopAutoUpdate();
-                }
-            }, intervalSeconds * 1000);
-        }
-
-        // 自動更新ステータスを画面に反映
-        function updateAutoUpdateStatus() {
-            const statusElement = document.getElementById('autoUpdateStatus');
-            const timeElement = document.getElementById('lastUpdateTime');
-            
-            if (statusElement) {
-                statusElement.textContent = isAutoUpdateEnabled ? '有効' : '無効';
-                statusElement.style.color = isAutoUpdateEnabled ? '#4CAF50' : '#f44336';
-            }
-            
-            if (timeElement) {
-                timeElement.textContent = new Date().toLocaleTimeString();
-            }
-        }
-
-        // ページ非表示/表示時の自動更新制御（OBS用に調整）
-        document.addEventListener('visibilitychange', function() {
-            const urlParams = new URLSearchParams(window.location.search);
-            const isOBS = urlParams.has('obs');
-            
-            // OBSモードの場合は可視性に関係なく自動更新を継続
-            if (isOBS) {
-                console.log(`可視性変更: ${document.hidden ? '非表示' : '表示'} - OBSモードのため自動更新継続`);
-                return;
-            }
-            
-            if (!currentPlayerName || !currentPlayerTag) {
-                return;
-            }
-
-            if (document.hidden) {
-                // 通常モードでページが非表示になったら更新を一時停止
-                if (isAutoUpdateEnabled) {
-                    stopAutoUpdate();
-                    console.log('ページが非表示になったため自動更新を一時停止');
-                }
-            } else {
-                // 通常モードでページが表示されたら更新を再開
-                if (!isAutoUpdateEnabled) {
-                    const updateFreq = parseInt(urlParams.get('updateInterval')) || 60;
-                    startAutoUpdate(updateFreq);
-                    console.log('ページが表示されたため自動更新を再開');
-                }
-            }
-        });
-
-        // ページ離脱時のクリーンアップ
-        window.addEventListener('beforeunload', function() {
-            stopAutoUpdate();
-        });
-
-        // ランク背景色の透明度スライダーの更新
-        document.getElementById('rankBgOpacitySlider').addEventListener('input', function(e) {
-            document.getElementById('rankBgOpacityValue').textContent = e.target.value + '%';
-        });
-
-        // 前回のマッチ背景色の透明度スライダーの更新
-        document.getElementById('lastMatchBgOpacitySlider').addEventListener('input', function(e) {
-            document.getElementById('lastMatchBgOpacityValue').textContent = e.target.value + '%';
-        });
-
-        // 境界線色の透明度スライダーの更新
-        document.getElementById('borderOpacitySlider').addEventListener('input', function(e) {
-            document.getElementById('borderOpacityValue').textContent = e.target.value + '%';
-        });
-
-        // カスタムカラーの適用
-        function applyCustomColors() {
-            const rankBgColor = document.getElementById('rankBgColorPicker').value;
-            const rankBgOpacity = document.getElementById('rankBgOpacitySlider').value;
-            const lastMatchBgColor = document.getElementById('lastMatchBgColorPicker').value;
-            const lastMatchBgOpacity = document.getElementById('lastMatchBgOpacitySlider').value;
-            const textColor = document.getElementById('textColorPicker').value;
-            const rrColor = document.getElementById('rrColorPicker').value;
-            const borderColor = document.getElementById('borderColorPicker').value;
-            const borderOpacity = document.getElementById('borderOpacitySlider').value;
-
-            // ランク背景色をrgba形式に変換
-            const rankR = parseInt(rankBgColor.slice(1, 3), 16);
-            const rankG = parseInt(rankBgColor.slice(3, 5), 16);
-            const rankB = parseInt(rankBgColor.slice(5, 7), 16);
-            const rgbaRankBgColor = `rgba(${rankR}, ${rankG}, ${rankB}, ${rankBgOpacity / 100})`;
-
-            // 前回のマッチ背景色をrgba形式に変換
-            const lastMatchR = parseInt(lastMatchBgColor.slice(1, 3), 16);
-            const lastMatchG = parseInt(lastMatchBgColor.slice(3, 5), 16);
-            const lastMatchB = parseInt(lastMatchBgColor.slice(5, 7), 16);
-            const rgbaLastMatchBgColor = `rgba(${lastMatchR}, ${lastMatchG}, ${lastMatchB}, ${lastMatchBgOpacity / 100})`;
-
-            // 境界線色をrgba形式に変換
-            const borderR = parseInt(borderColor.slice(1, 3), 16);
-            const borderG = parseInt(borderColor.slice(3, 5), 16);
-            const borderB = parseInt(borderColor.slice(5, 7), 16);
-            const rgbaBorderColor = `rgba(${borderR}, ${borderG}, ${borderB}, ${borderOpacity / 100})`;
-
-            // CSS変数を更新
-            document.documentElement.style.setProperty('--rank-bg-color', rgbaRankBgColor);
-            document.documentElement.style.setProperty('--last-match-bg-color', rgbaLastMatchBgColor);
-            document.documentElement.style.setProperty('--text-color', textColor);
-            document.documentElement.style.setProperty('--rr-color', rrColor);
-            document.documentElement.style.setProperty('--border-color', rgbaBorderColor);
-
-            // 設定を保存
-            localStorage.setItem('customRankBgColor', rankBgColor);
-            localStorage.setItem('customRankBgOpacity', rankBgOpacity);
-            localStorage.setItem('customLastMatchBgColor', lastMatchBgColor);
-            localStorage.setItem('customLastMatchBgOpacity', lastMatchBgOpacity);
-            localStorage.setItem('customTextColor', textColor);
-            localStorage.setItem('customRrColor', rrColor);
-            localStorage.setItem('customBorderColor', borderColor);
-            localStorage.setItem('customBorderOpacity', borderOpacity);
-
-            closeColorPicker();
-            
-            // カスタムカラー適用後に幅調整を実行（プレビュー画面のみ）
-            setTimeout(() => {
-                if (currentTheme === 'classic') {
-                    resetLastMatchWidthForClassic();
-                } else {
-                    adjustLastMatchWidth();
-                }
-            }, 300);
-        }
-
-        // カスタムカラーをリセット
-        function resetCustomColors() {
-            // デフォルト値に戻す
-            document.getElementById('rankBgColorPicker').value = '#3a444e';
-            document.getElementById('rankBgOpacitySlider').value = '100';
-            document.getElementById('rankBgOpacityValue').textContent = '100%';
-            document.getElementById('lastMatchBgColorPicker').value = '#F44336';
-            document.getElementById('lastMatchBgOpacitySlider').value = '100';
-            document.getElementById('lastMatchBgOpacityValue').textContent = '100%';
-            document.getElementById('textColorPicker').value = '#ffffff';
-            document.getElementById('rrColorPicker').value = '#ff4655';
-            document.getElementById('borderColorPicker').value = '#ff4655';
-            document.getElementById('borderOpacitySlider').value = '100';
-            document.getElementById('borderOpacityValue').textContent = '100%';
-
-            // CSS変数をリセット
-            document.documentElement.style.setProperty('--rank-bg-color', 'rgba(58, 68, 78, 1)');
-            document.documentElement.style.setProperty('--last-match-bg-color', 'rgba(244, 67, 54, 1)');
-            document.documentElement.style.setProperty('--text-color', '#ffffff');
-            document.documentElement.style.setProperty('--rr-color', '#ff4655');
-            document.documentElement.style.setProperty('--border-color', 'rgba(255, 70, 85, 1)');
-
-            // localStorageからカスタム設定を削除
-            localStorage.removeItem('customRankBgColor');
-            localStorage.removeItem('customRankBgOpacity');
-            localStorage.removeItem('customLastMatchBgColor');
-            localStorage.removeItem('customLastMatchBgOpacity');
-            localStorage.removeItem('customTextColor');
-            localStorage.removeItem('customRrColor');
-            localStorage.removeItem('customBorderColor');
-            localStorage.removeItem('customBorderOpacity');
-
-            // テーマをクラシックに戻す
-            applyTheme('classic');
-            
-            // リセット後に幅調整を実行（プレビュー画面のみ）
-            setTimeout(() => {
-                // リセット後はクラシックテーマになるので、クラシック用の処理を実行
-                resetLastMatchWidthForClassic();
-            }, 300);
-        }
-
-        // 保存された設定を読み込む
-        function loadSavedSettings() {
-            const savedRankBgColor = localStorage.getItem('customRankBgColor');
-            const savedRankBgOpacity = localStorage.getItem('customRankBgOpacity');
-            const savedLastMatchBgColor = localStorage.getItem('customLastMatchBgColor');
-            const savedLastMatchBgOpacity = localStorage.getItem('customLastMatchBgOpacity');
-            const savedTextColor = localStorage.getItem('customTextColor');
-            const savedRrColor = localStorage.getItem('customRrColor');
-            const savedBorderColor = localStorage.getItem('customBorderColor');
-            const savedBorderOpacity = localStorage.getItem('customBorderOpacity');
-            const savedTheme = localStorage.getItem('selectedTheme');
-
-            if (savedRankBgColor && savedRankBgOpacity && savedTextColor) {
-                // ランク背景色の設定
-                const rankR = parseInt(savedRankBgColor.slice(1, 3), 16);
-                const rankG = parseInt(savedRankBgColor.slice(3, 5), 16);
-                const rankB = parseInt(savedRankBgColor.slice(5, 7), 16);
-                const rgbaRankBgColor = `rgba(${rankR}, ${rankG}, ${rankB}, ${savedRankBgOpacity / 100})`;
-
-                // 前回のマッチ背景色の設定
-                if (savedLastMatchBgColor && savedLastMatchBgOpacity) {
-                    const lastMatchR = parseInt(savedLastMatchBgColor.slice(1, 3), 16);
-                    const lastMatchG = parseInt(savedLastMatchBgColor.slice(3, 5), 16);
-                    const lastMatchB = parseInt(savedLastMatchBgColor.slice(5, 7), 16);
-                    const rgbaLastMatchBgColor = `rgba(${lastMatchR}, ${lastMatchG}, ${lastMatchB}, ${savedLastMatchBgOpacity / 100})`;
-                    document.documentElement.style.setProperty('--last-match-bg-color', rgbaLastMatchBgColor);
-                }
-
-                // 境界線色の設定
-                if (savedBorderColor && savedBorderOpacity) {
-                    const borderR = parseInt(savedBorderColor.slice(1, 3), 16);
-                    const borderG = parseInt(savedBorderColor.slice(3, 5), 16);
-                    const borderB = parseInt(savedBorderColor.slice(5, 7), 16);
-                    const rgbaBorderColor = `rgba(${borderR}, ${borderG}, ${borderB}, ${savedBorderOpacity / 100})`;
-                    document.documentElement.style.setProperty('--border-color', rgbaBorderColor);
-                }
-
-                document.documentElement.style.setProperty('--rank-bg-color', rgbaRankBgColor);
-                document.documentElement.style.setProperty('--text-color', savedTextColor);
-                if (savedRrColor) {
-                    document.documentElement.style.setProperty('--rr-color', savedRrColor);
-                }
-
-                // カラーピッカーの値を更新
-                document.getElementById('rankBgColorPicker').value = savedRankBgColor;
-                document.getElementById('rankBgOpacitySlider').value = savedRankBgOpacity;
-                document.getElementById('rankBgOpacityValue').textContent = savedRankBgOpacity + '%';
-                if (savedLastMatchBgColor && savedLastMatchBgOpacity) {
-                    document.getElementById('lastMatchBgColorPicker').value = savedLastMatchBgColor;
-                    document.getElementById('lastMatchBgOpacitySlider').value = savedLastMatchBgOpacity;
-                    document.getElementById('lastMatchBgOpacityValue').textContent = savedLastMatchBgOpacity + '%';
-                }
-                document.getElementById('textColorPicker').value = savedTextColor;
-                if (savedRrColor) {
-                    document.getElementById('rrColorPicker').value = savedRrColor;
-                }
-                if (savedBorderColor) {
-                    document.getElementById('borderColorPicker').value = savedBorderColor;
-                }
-                if (savedBorderOpacity) {
-                    document.getElementById('borderOpacitySlider').value = savedBorderOpacity;
-                    document.getElementById('borderOpacityValue').textContent = savedBorderOpacity + '%';
-                }
-            }
-
-            // テーマ設定を適用
-            if (savedTheme) {
-                applyTheme(savedTheme);
-            }
-        }
-
-        // ページ初期化処理
-        function initializePage() {
-            // URLパラメータを取得
-            const urlParams = new URLSearchParams(window.location.search);
-            const name = urlParams.get('name');
-            const tag = urlParams.get('tag');
-            const isOBS = urlParams.has('obs');
-            const updateFreq = parseInt(urlParams.get('updateInterval')) || 60;
-
-            // プレイヤー情報をグローバル変数に設定
-            currentPlayerName = name;
-            currentPlayerTag = tag;
-
-            // 初期テーマを確実に適用（クラシックテーマをデフォルトで適用）
-            const savedTheme = localStorage.getItem('selectedTheme') || 'classic';
-            const urlTheme = urlParams.get('theme') || savedTheme;
-            applyTheme(urlTheme);
-
-            // URLパラメータからカスタマイズ設定を読み込み
-            const urlRankBgColor = urlParams.get('rankBgColor');
-            const urlRankBgOpacity = urlParams.get('rankBgOpacity');
-            const urlLastMatchBgColor = urlParams.get('lastMatchBgColor');
-            const urlLastMatchBgOpacity = urlParams.get('lastMatchBgOpacity');
-            const urlTextColor = urlParams.get('textColor');
-            const urlRrColor = urlParams.get('rrColor');
-            const urlBorderColor = urlParams.get('borderColor');
-            const urlBorderOpacity = urlParams.get('borderOpacity');
-
-            // URLパラメータから色設定を適用
-            if (urlRankBgColor && urlRankBgOpacity && urlTextColor) {
-                const rankR = parseInt(urlRankBgColor.slice(1, 3), 16);
-                const rankG = parseInt(urlRankBgColor.slice(3, 5), 16);
-                const rankB = parseInt(urlRankBgColor.slice(5, 7), 16);
-                const rgbaRankBgColor = `rgba(${rankR}, ${rankG}, ${rankB}, ${urlRankBgOpacity / 100})`;
-                document.documentElement.style.setProperty('--rank-bg-color', rgbaRankBgColor);
-                document.documentElement.style.setProperty('--text-color', urlTextColor);
-
-                if (urlLastMatchBgColor && urlLastMatchBgOpacity) {
-                    const lastMatchR = parseInt(urlLastMatchBgColor.slice(1, 3), 16);
-                    const lastMatchG = parseInt(urlLastMatchBgColor.slice(3, 5), 16);
-                    const lastMatchB = parseInt(urlLastMatchBgColor.slice(5, 7), 16);
-                    const rgbaLastMatchBgColor = `rgba(${lastMatchR}, ${lastMatchG}, ${lastMatchB}, ${urlLastMatchBgOpacity / 100})`;
-                    document.documentElement.style.setProperty('--last-match-bg-color', rgbaLastMatchBgColor);
-                }
-
-                if (urlRrColor) {
-                    document.documentElement.style.setProperty('--rr-color', urlRrColor);
-                }
-
-                if (urlBorderColor && urlBorderOpacity) {
-                    const borderR = parseInt(urlBorderColor.slice(1, 3), 16);
-                    const borderG = parseInt(urlBorderColor.slice(3, 5), 16);
-                    const borderB = parseInt(urlBorderColor.slice(5, 7), 16);
-                    const rgbaBorderColor = `rgba(${borderR}, ${borderG}, ${borderB}, ${urlBorderOpacity / 100})`;
-                    document.documentElement.style.setProperty('--border-color', rgbaBorderColor);
-                }
-            } else {
-                // URLパラメータに色設定がない場合はlocalStorageから読み込む
-                loadSavedSettings();
-                
-                // デフォルト値を確実に設定（カスタマイズベース用）
-                if (!localStorage.getItem('customRankBgColor')) {
-                    document.documentElement.style.setProperty('--rank-bg-color', 'rgba(58, 68, 78, 1)');
-                }
-            }
-
-            // テーマ設定は既に初期化時に適用済み
-
-            // モーダルの外側をクリックしたら閉じる
-            window.onclick = function(event) {
-                const modal = document.getElementById('colorPickerModal');
-                if (event.target == modal) {
-                    closeColorPicker();
-                }
-            }
-
-            if (name && tag) {
-                // URLパラメータがある場合は入力フォームを非表示
-                document.getElementById('inputSection').style.display = 'none';
-
-                if (isOBS) {
-                    // OBSモードの場合のスタイル調整
-                    document.documentElement.style.backgroundColor = 'transparent';
-                    document.body.style.backgroundColor = 'transparent';
-                    document.body.style.overflow = 'hidden';
-                    // bodyにOBSモードクラスを追加
-                    document.body.classList.add('obs-mode');
-
-                    // ヘッダーナビゲーションを非表示
-                    const headerElement = document.querySelector('.app-header');
-                    if (headerElement) {
-                        headerElement.style.display = 'none';
-                    }
-
-                    // 背景アニメーション要素を非表示
-                    const backgroundElement = document.querySelector('.background');
-                    if (backgroundElement) {
-                        backgroundElement.style.display = 'none';
-                    }
-
-                    // オーバーレイのOBS向け位置調整（中央に配置）
-                    const overlayElement = document.querySelector('.overlay');
-                    if (overlayElement) {
-                        overlayElement.style.position = 'absolute';
-                        overlayElement.style.top = '50%';
-                        overlayElement.style.left = '50%';
-                        overlayElement.style.right = 'auto';
-                        overlayElement.style.transform = 'translate(-50%, -50%)';
-                        
-                        // OBSブラウザソースサイズに応じてスケール調整
-                        adjustOBSScale();
-                    }
-
-                    // OBSモードでは自動更新を開始
-                    console.log(`OBSモードで自動更新を有効化（${updateFreq}秒間隔）`);
-
-                } else {
-                    // 通常のブラウザ表示でのオーバーレイ位置調整
-                    document.querySelector('.overlay').style.top = '50%';
-                    document.querySelector('.overlay').style.transform = 'translateY(-50%)';
-                }
-
-                // プレイヤー情報を更新（初回）
-                updatePlayerInfo(name, tag).then(() => {
-                    // 初回更新完了後、OBSモードの場合は自動更新を開始
-                    if (isOBS) {
-                        startAutoUpdate(updateFreq);
-                    }
-                }).catch(error => {
-                    console.error('初回データ取得エラー:', error);
-                    // エラーが発生してもOBSモードなら自動更新を開始
-                    if (isOBS) {
-                        console.log('初回取得に失敗しましたが、OBSモードのため自動更新を開始します');
-                        startOBSAutoUpdate(updateFreq);
-                    }
-                });
-                
-                // OBSモードの場合、初回更新と並行して自動更新も開始（フォールバック）
-                if (isOBS) {
-                    // 少し遅延させてから自動更新を確実に開始
-                    setTimeout(() => {
-                        if (!isAutoUpdateEnabled) {
-                            console.log('フォールバック: OBS自動更新を強制開始');
-                            startOBSAutoUpdate(updateFreq);
-                        }
-                    }, 2000);
-                }
-            } else if (isOBS) {
-                // name, tag パラメータがないが OBS モードの場合
-                document.getElementById('inputSection').style.display = 'none';
-                
-                // ヘッダーナビゲーションを非表示
-                const headerElement = document.querySelector('.app-header');
-                if (headerElement) {
-                    headerElement.style.display = 'none';
-                }
-                
-                // bodyにOBSモードクラスを追加
-                document.body.classList.add('obs-mode');
-                
-                const backgroundElement = document.querySelector('.background');
-                if (backgroundElement) {
-                    backgroundElement.style.display = 'none';
-                }
-                // データがない旨を表示
-                document.getElementById('rankText').textContent = '情報なし';
-                document.getElementById('rrText').textContent = '0RR';
-                
-                // 前回のマッチセクションも表示
-                const lastMatchSection = document.getElementById('lastMatchSection');
-                const lastMatchText = document.getElementById('lastMatchText');
-                const mmrGaugeFill = lastMatchSection.querySelector('.mmr-gauge-fill');
-                
-                lastMatchText.textContent = '前回のマッチ';
-                mmrGaugeFill.style.width = '0%';
-                mmrGaugeFill.style.backgroundColor = '#4CAF50';
-                mmrGaugeFill.style.left = '0';
-                mmrGaugeFill.style.right = 'auto';
-                lastMatchSection.style.display = 'flex';
-            }
-
-            // 文字サイズ調整機能を初期化
-            observeOverlayResize();
-
-            // 初期化完了後に幅調整を実行（プレビュー画面のみ）
-            setTimeout(() => {
-                if (currentTheme === 'classic') {
-                    resetLastMatchWidthForClassic();
-                    // クラシックテーマのスマート自動調整を初期化時に実行
-                    applyClassicSmartAdjustments();
-                } else {
-                    adjustLastMatchWidth();
-                }
-            }, 500);
-            
-            // プレビュー画面でより確実に幅調整を実行
-            setTimeout(() => {
-                if (currentTheme === 'classic') {
-                    resetLastMatchWidthForClassic();
-                    applyClassicSmartAdjustments();
-                    setTimeout(handleTextOverflow, 100);
-                } else {
-                    adjustLastMatchWidth();
-                }
-            }, 1000);
-            
-            setTimeout(() => {
-                if (currentTheme === 'classic') {
-                    resetLastMatchWidthForClassic();
-                    applyClassicSmartAdjustments();
-                } else {
-                    adjustLastMatchWidth();
-                }
-            }, 2000);
-
-            // カスタマイズボタンのイベントリスナーを設定
-            const customizeButton = document.getElementById('customizeButton');
-            if (customizeButton) {
-                customizeButton.addEventListener('click', showColorPicker);
-            }
-
-            // テーマボタンのイベントリスナーを設定
-            document.querySelectorAll('.theme-button').forEach(button => {
-                button.addEventListener('click', function() {
-                    const theme = this.getAttribute('data-theme');
-                    applyTheme(theme);
-                    // テーマ変更後に幅調整（プレビュー画面のみ）
-                    setTimeout(() => {
-                        if (theme === 'classic') {
-                            resetLastMatchWidthForClassic();
-                        } else {
-                            adjustLastMatchWidth();
-                        }
-                    }, 300);
-                });
-            });
-        }
-
-        // 文字途切れ防止のための動的調整機能
-        function adjustTextSize() {
-            const overlay = document.querySelector('.overlay');
-            if (!overlay) return;
-
-            const rankName = overlay.querySelector('.rank-name');
-            const rrText = overlay.querySelector('.rr');
-            const lastMatchText = overlay.querySelector('.last-match-text');
-
-            // ランク名の調整
-            if (rankName) {
-                adjustElementText(rankName, overlay);
-            }
-
-            // RRテキストの調整
-            if (rrText) {
-                adjustElementText(rrText, overlay);
-            }
-
-            // 前回のマッチテキストの調整
-            if (lastMatchText) {
-                adjustElementText(lastMatchText, overlay);
-            }
-
-            // 前回のマッチセクションの幅をランクセクションに合わせる
-            adjustLastMatchWidth();
-
-            // 全テーマで横幅を自動調整
-            adjustOverlayWidth();
-        }
-
-        // 前回のマッチセクションの幅をランクセクションに合わせる機能（プレビュー画面のみ）
-        function adjustLastMatchWidth() {
-            // URLパラメータがある場合（URL生成後）は何もしない
-            const urlParams = new URLSearchParams(window.location.search);
-            if (urlParams.has('name') || urlParams.has('tag')) {
-                return;
-            }
-            
-            // クラシックテーマの場合は元のデザインを保持
-            if (currentTheme === 'classic') {
-                console.log('クラシックテーマのため幅調整をスキップ');
-                return;
-            }
-            
-            const rankSection = document.querySelector('.rank-section');
-            const lastMatchSection = document.querySelector('.last-match-section');
-            
-            if (!rankSection || !lastMatchSection) return;
-
-            // ランクセクションの実際の幅を取得
-            const rankSectionWidth = rankSection.offsetWidth;
-            
-            // プレビュー画面でのみCSS制約を解除して幅と位置を設定（クラシック以外のテーマ）
-            lastMatchSection.style.width = rankSectionWidth + 'px';
-            lastMatchSection.style.minWidth = rankSectionWidth + 'px';
-            lastMatchSection.style.maxWidth = rankSectionWidth + 'px';
-            lastMatchSection.style.boxSizing = 'border-box';
-            lastMatchSection.style.margin = '0 auto'; // 中央揃え
-            lastMatchSection.style.display = 'block'; // ブロック要素として表示
-            
-            // ランクセクションと前回のマッチセクションの位置を完全に同期
-            const rankSectionStyle = window.getComputedStyle(rankSection);
-            const rankSectionRect = rankSection.getBoundingClientRect();
-            const overlay = rankSection.closest('.overlay');
-            
-            if (overlay) {
-                const overlayRect = overlay.getBoundingClientRect();
-                const rankLeftOffset = rankSectionRect.left - overlayRect.left;
-                
-                // 前回のマッチセクションをランクセクションと同じ左位置に配置
-                lastMatchSection.style.marginLeft = rankLeftOffset + 'px';
-                lastMatchSection.style.marginRight = 'auto';
-            }
-            
-            console.log(`前回のマッチセクション幅調整（プレビュー画面・${currentTheme}テーマ）: ${rankSectionWidth}px`);
-        }
-
-        // クラシックテーマ用にスタイルをリセットする機能（再構築版）
-        function resetLastMatchWidthForClassic() {
-            // URLパラメータがある場合（URL生成後）は何もしない
-            const urlParams = new URLSearchParams(window.location.search);
-            if (urlParams.has('name') || urlParams.has('tag')) {
-                return;
-            }
-            
-            const lastMatchSection = document.querySelector('.last-match-section');
-            const rankSection = document.querySelector('.rank-section');
-            if (!lastMatchSection || !rankSection) return;
-            
-            // クラシックテーマでは新しいCSS構造により自動的に幅が統一される
-            // 追加のスタイル調整をリセット
-            lastMatchSection.style.width = '';
-            lastMatchSection.style.minWidth = '';
-            lastMatchSection.style.maxWidth = '';
-            lastMatchSection.style.marginLeft = '';
-            lastMatchSection.style.marginRight = '';
-            
-            console.log('クラシックテーマ: CSS構造により自動幅統一');
-        }
-
-        // 全テーマの横幅自動調整機能（最小幅に調整）
-        function adjustOverlayWidth() {
-            const overlay = document.querySelector('.overlay');
-            if (!overlay) return;
-
-            // 全テーマでCSSによる最小幅調整が適用される
-            console.log(`${currentTheme}テーマ: CSSによる最小幅調整を適用`);
-        }
-
-        function adjustElementText(element, container) {
-            // 前回のマッチテキストは調整をスキップ（専用のコンテナ幅を使用するため）
-            if (element && element.classList.contains('last-match-text')) {
-                return;
-            }
-
-            const containerWidth = container.offsetWidth;
-            const elementWidth = element.scrollWidth;
-            
-            // テキストがコンテナより大きい場合
-            if (elementWidth > containerWidth * 0.9) {
-                const currentFontSize = parseFloat(window.getComputedStyle(element).fontSize);
-                const ratio = (containerWidth * 0.85) / elementWidth;
-                const newFontSize = Math.max(currentFontSize * ratio, 10); // 最小10px
-                
-                element.style.fontSize = newFontSize + 'px';
-            }
-        }
-
-        // OBSブラウザソースサイズに応じてオーバーレイをスケール調整
-        function adjustOBSScale() {
-            const overlay = document.querySelector('.overlay');
-            if (!overlay || !document.body.classList.contains('obs-mode')) return;
-
-            // ブラウザソースのサイズを取得
-            const browserWidth = window.innerWidth;
-            const browserHeight = window.innerHeight;
-            
-            // 基準サイズ（450x200）に対するスケール比を計算
-            const baseWidth = 450;
-            const baseHeight = 200;
-            
-            const scaleX = browserWidth / baseWidth;
-            const scaleY = browserHeight / baseHeight;
-            
-            // 縦横比を保持してスケール（小さい方のスケールを使用）
-            const scale = Math.min(scaleX, scaleY, 3); // 最大3倍まで
-            
-            // スケール適用
-            overlay.style.transform = `translate(-50%, -50%) scale(${scale})`;
-            
-            console.log(`OBSスケール調整: ${browserWidth}x${browserHeight} → スケール ${scale.toFixed(2)}`);
-        }
-
-        // ウィンドウサイズ変更時にスケール調整
-        window.addEventListener('resize', function() {
-            if (document.body.classList.contains('obs-mode')) {
-                adjustOBSScale();
-            }
-        });
-
-        // オーバーレイのサイズ変更監視
-        function observeOverlayResize() {
-            const overlay = document.querySelector('.overlay');
-            if (!overlay) return;
-
-            const resizeObserver = new ResizeObserver(entries => {
-                for (let entry of entries) {
-                    setTimeout(adjustTextSize, 100); // 少し遅延させて確実に調整
-                }
-            });
-
-            resizeObserver.observe(overlay);
-        }
-
-        // プレイヤー情報更新時に文字サイズも調整
-        function updatePlayerInfoWithTextAdjustment(name, tag) {
-            return updatePlayerInfo(name, tag).then(() => {
-                setTimeout(adjustTextSize, 200); // データ更新後に調整
-            });
-        }
-
-        async function updatePlayerInfo(name, tag) {
-            try {
-                console.log(`[${new Date().toLocaleTimeString()}] プレイヤー情報を取得中: ${name}#${tag}`);
-                
-                // 堅牢なAPI呼び出しを使用（改善されたfetchPlayerStats関数を使用）
-                const stats = await fetchPlayerStats(name, tag);
-
-                console.log('Stats response:', stats);
-
-                if (stats && stats.data) {
-                    const playerData = stats.data; // stats.data の内容を直接使用
-                    console.log(`[${new Date().toLocaleTimeString()}] データ取得成功`);
-
-                    // ランク情報を更新
-                    const currentRank = playerData.currenttierpatched;
-                    const rankingInTier = playerData.ranking_in_tier;
-                    const mmrChange = playerData.mmr_change_to_last_game; // MMR変動値を取得
-
-                    if (currentRank) {
-                        // APIから取得した画像のURLを使用
-                        if (playerData.images && playerData.images.large) {
-                             document.getElementById('rankIcon').src = playerData.images.large;
-                        } else {
-                             // APIに画像URLがない場合はローカル画像を使用（フォールバック）
-                             document.getElementById('rankIcon').src = getRankImageUrl(currentRank);
-                        }
-
-                        document.getElementById('rankText').textContent = currentRank;
-                        document.getElementById('rrText').textContent = `${rankingInTier || 0}RR`;
-
-                        // 直近のマッチ結果（MMR変動値）を更新
-                        const lastMatchSection = document.getElementById('lastMatchSection');
-                        const lastMatchText = document.getElementById('lastMatchText');
-                        const mmrGaugeFill = lastMatchSection.querySelector('.mmr-gauge-fill');
-
-                        // 現在のRR値に基づいてゲージを表示
-                        if (rankingInTier !== undefined && rankingInTier !== null) {
-                            // 前回のマッチの結果のみ表示
-                            if (mmrChange !== undefined) {
-                                const sign = mmrChange >= 0 ? '+' : '';
-                                lastMatchText.textContent = `前回のマッチ ${sign}${mmrChange}pts`;
-                            } else {
-                                lastMatchText.textContent = '前回のマッチ';
-                            }
-
-                            // ゲージの幅を計算（RR値 / 100 * 100 = パーセンテージ）
-                            const gaugePercentage = Math.min(100, Math.max(0, rankingInTier)); // 0-100の範囲に制限
-                            
-                            // 常に緑色のゲージ（現在のランクポイントを表すため）
-                            mmrGaugeFill.style.width = `${gaugePercentage}%`;
-                            mmrGaugeFill.style.backgroundColor = '#4CAF50'; // 緑
-                            mmrGaugeFill.style.left = '0';
-                            mmrGaugeFill.style.right = 'auto';
-
-                            lastMatchSection.style.display = 'flex'; // ゲージ表示のためflexに変更
-                        } else {
-                            lastMatchSection.style.display = 'none';
-                        }
-
-                        console.log(`[${new Date().toLocaleTimeString()}] ランク情報更新: ${currentRank} ${rankingInTier}RR`);
-
-                    } else { // currentRank がない場合 (例: ランクなし)
-                        document.getElementById('rankIcon').src = 'assets/images/ranks/ランクなし.png';
-                        document.getElementById('rankText').textContent = 'ランクなし';
-                        document.getElementById('rrText').textContent = '0RR';
-                        
-                        // 前回のマッチセクションも表示
-                        const lastMatchSection = document.getElementById('lastMatchSection');
-                        const lastMatchText = document.getElementById('lastMatchText');
-                        const mmrGaugeFill = lastMatchSection.querySelector('.mmr-gauge-fill');
-                        
-                        lastMatchText.textContent = '前回のマッチ';
-                        mmrGaugeFill.style.width = '0%';
-                        mmrGaugeFill.style.backgroundColor = '#4CAF50';
-                        mmrGaugeFill.style.left = '0';
-                        mmrGaugeFill.style.right = 'auto';
-                        lastMatchSection.style.display = 'flex';
-                        
-                        console.log(`[${new Date().toLocaleTimeString()}] ランク情報なし - 0RRで表示`);
-                    }
-
-                } else { // stats または stats.data が存在しない場合
-                    document.getElementById('rankIcon').src = 'assets/images/ranks/ランクなし.png';
-                    document.getElementById('rankText').textContent = 'データなし';
-                    document.getElementById('rrText').textContent = '0RR';
-                    
-                    // 前回のマッチセクションも表示
-                    const lastMatchSection = document.getElementById('lastMatchSection');
-                    const lastMatchText = document.getElementById('lastMatchText');
-                    const mmrGaugeFill = lastMatchSection.querySelector('.mmr-gauge-fill');
-                    
-                    lastMatchText.textContent = '前回のマッチ';
-                    mmrGaugeFill.style.width = '0%';
-                    mmrGaugeFill.style.backgroundColor = '#4CAF50';
-                    mmrGaugeFill.style.left = '0';
-                    mmrGaugeFill.style.right = 'auto';
-                    lastMatchSection.style.display = 'flex';
-                    
-                    console.log(`[${new Date().toLocaleTimeString()}] API応答にデータが含まれていません - 0RRで表示`);
-                }
-                
-                // 最終更新時刻を更新
-                updateAutoUpdateStatus();
-
-                // プレイヤー情報更新後に文字サイズと横幅を調整
-                setTimeout(() => {
-                    adjustTextSize();
-                    adjustOverlayWidth();
-                    
-                    // クラシックテーマの場合、スマート自動調整を実行
-                    if (currentTheme === 'classic') {
-                        applyClassicSmartAdjustments();
-                        setTimeout(handleTextOverflow, 100);
-                    }
-                }, 300);
-
-            } catch (error) {
-                console.error(`[${new Date().toLocaleTimeString()}] Error updating player info:`, error);
-                
-                // エラー発生時も表示をリセット
-                document.getElementById('rankIcon').src = 'assets/images/ranks/ランクなし.png';
-                document.getElementById('rankText').textContent = 'エラー';
-                document.getElementById('rrText').textContent = '0RR';
-                
-                // 前回のマッチセクションも表示
-                const lastMatchSection = document.getElementById('lastMatchSection');
-                const lastMatchText = document.getElementById('lastMatchText');
-                const mmrGaugeFill = lastMatchSection.querySelector('.mmr-gauge-fill');
-                
-                lastMatchText.textContent = '前回のマッチ';
-                mmrGaugeFill.style.width = '0%';
-                mmrGaugeFill.style.backgroundColor = '#4CAF50';
-                mmrGaugeFill.style.left = '0';
-                mmrGaugeFill.style.right = 'auto';
-                lastMatchSection.style.display = 'flex';
-                
-                // エラー時も最終更新時刻を更新
-                updateAutoUpdateStatus();
-            }
-        }
-
-        function generateURL() {
-            const playerName = document.getElementById('playerName').value;
-            const playerTag = document.getElementById('playerTag').value;
-            
-            if (!playerName || !playerTag) {
-                alert('プレイヤー名とタグを入力してください。');
-                return;
-            }
-
-            const currentURL = window.location.href.split('?')[0];
-            const urlParams = new URLSearchParams();
-            urlParams.append('name', playerName);
-            urlParams.append('tag', playerTag);
-            urlParams.append('obs', ''); // OBSモードパラメータをデフォルトで追加
-            urlParams.append('updateInterval', '30'); // 自動更新間隔（30秒）に短縮
-
-            // カスタマイズ設定をURLパラメータとして追加
-            const savedRankBgColor = localStorage.getItem('customRankBgColor');
-            const savedRankBgOpacity = localStorage.getItem('customRankBgOpacity');
-            const savedLastMatchBgColor = localStorage.getItem('customLastMatchBgColor');
-            const savedLastMatchBgOpacity = localStorage.getItem('customLastMatchBgOpacity');
-            const savedTextColor = localStorage.getItem('customTextColor');
-            const savedRrColor = localStorage.getItem('customRrColor');
-            const savedBorderColor = localStorage.getItem('customBorderColor');
-            const savedBorderOpacity = localStorage.getItem('customBorderOpacity');
-            const savedTheme = localStorage.getItem('selectedTheme');
-
-            if (savedRankBgColor) urlParams.append('rankBgColor', savedRankBgColor);
-            if (savedRankBgOpacity) urlParams.append('rankBgOpacity', savedRankBgOpacity);
-            if (savedLastMatchBgColor) urlParams.append('lastMatchBgColor', savedLastMatchBgColor);
-            if (savedLastMatchBgOpacity) urlParams.append('lastMatchBgOpacity', savedLastMatchBgOpacity);
-            if (savedTextColor) urlParams.append('textColor', savedTextColor);
-            if (savedRrColor) urlParams.append('rrColor', savedRrColor);
-            if (savedBorderColor) urlParams.append('borderColor', savedBorderColor);
-            if (savedBorderOpacity) urlParams.append('borderOpacity', savedBorderOpacity);
-            if (savedTheme) urlParams.append('theme', savedTheme);
-            
-            const newURL = `${currentURL}?${urlParams.toString()}`;
-            document.getElementById('generatedURL').value = newURL;
-        }
-
-        function copyURL() {
-            const urlInput = document.getElementById('generatedURL');
-            urlInput.select();
-            document.execCommand('copy');
-            alert('URLをコピーしました！');
-        }
-
-        // リアルタイムプレビュー機能
-        let previewTimeout = null;
-        let isPreviewLoading = false;
-
-        function updatePreview() {
-            const playerName = document.getElementById('playerName').value.trim();
-            const playerTag = document.getElementById('playerTag').value.trim();
-            const previewStatus = document.getElementById('previewStatus');
-            const previewOverlay = document.getElementById('previewOverlay');
-
-            // 入力が空の場合
-            if (!playerName || !playerTag) {
-                previewStatus.textContent = 'データを入力してください';
-                previewStatus.className = 'preview-status';
-                resetPreviewDisplay();
-                return;
-            }
-
-            // 前回のタイムアウトをクリア
-            if (previewTimeout) {
-                clearTimeout(previewTimeout);
-            }
-
-            // ステータス更新
-            previewStatus.textContent = '読み込み中...';
-            previewStatus.className = 'preview-status loading';
-
-            // デバウンス処理（500ms後に実行）
-            previewTimeout = setTimeout(() => {
-                loadPreviewData(playerName, playerTag);
-            }, 500);
-        }
-
-        async function loadPreviewData(name, tag) {
-            if (isPreviewLoading) return;
-            isPreviewLoading = true;
-
-            const previewStatus = document.getElementById('previewStatus');
-
-            try {
-                console.log(`[Preview] プレビューデータを読み込み中: ${name}#${tag}`);
-
-                // API呼び出し（既存の関数を使用）
-                const stats = await fetchPlayerStats(name, tag);
-
-                console.log('[Preview] API Response:', stats);
-
-                if (!stats || !stats.data) {
-                    throw new Error('プレイヤーが見つかりません');
-                }
-
-                // プレビュー更新（stats.dataを直接渡す）
-                updatePreviewDisplay(stats.data);
-
-                previewStatus.textContent = `✓ ${name}#${tag}`;
-                previewStatus.className = 'preview-status success';
-
-                console.log('[Preview] プレビュー更新完了');
-
-            } catch (error) {
-                console.error('[Preview] エラー:', error);
-                previewStatus.textContent = '✗ プレイヤーが見つかりません';
-                previewStatus.className = 'preview-status error';
-                resetPreviewDisplay();
-            } finally {
-                isPreviewLoading = false;
-            }
-        }
-
-        function updatePreviewDisplay(playerData) {
-            console.log('[Preview] Updating display with data:', playerData);
-
-            // ランク情報更新
-            const rankIcon = document.getElementById('rankIcon');
-            const rankText = document.getElementById('rankText');
-            const rrText = document.getElementById('rrText');
-
-            if (playerData && playerData.currenttierpatched) {
-                const rankName = playerData.currenttierpatched;
-                const rr = playerData.ranking_in_tier || 0;
-                const mmrChange = playerData.mmr_change_to_last_game;
-
-                console.log(`[Preview] Rank: ${rankName}, RR: ${rr}, MMR Change: ${mmrChange}`);
-
-                rankText.textContent = rankName;
-                rrText.textContent = `${rr}RR`;
-
-                // ランクアイコン更新（APIの画像URLを優先）
-                if (playerData.images && playerData.images.large) {
-                    rankIcon.src = playerData.images.large;
-                } else {
-                    // フォールバック：ローカル画像
-                    const rankImagePath = `assets/images/ranks/${rankName}.png`;
-                    rankIcon.src = rankImagePath;
-                }
-                rankIcon.alt = rankName;
-
-                // 最終マッチ情報更新
-                const lastMatchSection = document.getElementById('lastMatchSection');
-                const lastMatchText = document.getElementById('lastMatchText');
-                const mmrGaugeFill = document.querySelector('.mmr-gauge-fill');
-
-                if (mmrChange !== undefined) {
-                    const sign = mmrChange >= 0 ? '+' : '';
-                    lastMatchText.textContent = `前回のマッチ ${sign}${mmrChange}pts`;
-
-                    // RR値に基づいてゲージを表示
-                    const gaugePercentage = Math.min(100, Math.max(0, rr));
-                    mmrGaugeFill.style.width = `${gaugePercentage}%`;
-                    mmrGaugeFill.style.backgroundColor = '#4CAF50';
-                    mmrGaugeFill.style.left = '0';
-                    mmrGaugeFill.style.right = 'auto';
-
-                    lastMatchSection.style.display = 'flex';
-                } else {
-                    lastMatchText.textContent = '前回のマッチ';
-                    mmrGaugeFill.style.width = `${Math.min(100, rr)}%`;
-                    mmrGaugeFill.style.backgroundColor = '#4CAF50';
-                    lastMatchSection.style.display = 'flex';
-                }
-            } else {
-                console.log('[Preview] No rank data available');
-                resetPreviewDisplay();
-            }
-        }
-
-        function resetPreviewDisplay() {
-            // デフォルト表示に戻す
-            const rankIcon = document.getElementById('rankIcon');
-            const rankText = document.getElementById('rankText');
-            const rrText = document.getElementById('rrText');
-            const lastMatchSection = document.getElementById('lastMatchSection');
-
-            rankIcon.src = 'assets/images/ranks/ランクなし.png';
-            rankIcon.alt = 'ランクなし';
-            rankText.textContent = 'ランクなし';
-            rrText.textContent = '0RR';
-            lastMatchSection.style.display = 'none';
-        }
-
-        function manualUpdate() {
-            console.log('手動更新が呼び出されました');
-            updatePlayerInfo(currentPlayerName, currentPlayerTag).then(() => {
-                console.log('手動更新が成功しました');
-            }).catch(error => {
-                console.error('手動更新中にエラーが発生しました:', error);
-            });
-        }
-
-        // チュートリアルの開閉機能
-        function toggleTutorial() {
-            const content = document.getElementById('tutorialContent');
-            const arrow = document.getElementById('tutorialArrow');
-            
-            if (content.classList.contains('expanded')) {
-                // 閉じる
-                content.classList.remove('expanded');
-                arrow.classList.remove('rotated');
-            } else {
-                // 開く
-                content.classList.add('expanded');
-                arrow.classList.add('rotated');
-            }
-        }
-
-        // ハンバーガーメニューの動作（完全統一版）
-        function initializeHamburgerMenu() {
-            const hamburgerMenu = document.getElementById('hamburgerMenu');
-            const mobileNav = document.getElementById('mobileNav');
-            
-            if (!hamburgerMenu || !mobileNav) {
-                console.warn('ハンバーガーメニューまたはモバイルナビが見つかりません');
-                return;
-            }
-            
-            // ハンバーガーメニューのクリックイベント
-            hamburgerMenu.addEventListener('click', function(event) {
-                event.stopPropagation();
-                hamburgerMenu.classList.toggle('active');
-                mobileNav.classList.toggle('active');
-                
-                // アクセシビリティのためのaria属性を更新
-                const isActive = hamburgerMenu.classList.contains('active');
-                hamburgerMenu.setAttribute('aria-expanded', isActive);
-                mobileNav.setAttribute('aria-hidden', !isActive);
-            });
-            
-            // モバイルナビのリンクをクリックしたときにメニューを閉じる
-            const mobileNavLinks = mobileNav.querySelectorAll('.header-button');
-            mobileNavLinks.forEach(link => {
-                link.addEventListener('click', () => {
-                    closeHamburgerMenu();
-                });
-            });
-            
-            // 画面外をクリックしたときにメニューを閉じる
-            document.addEventListener('click', function(event) {
-                if (!hamburgerMenu.contains(event.target) && 
-                    !mobileNav.contains(event.target) && 
-                    mobileNav.classList.contains('active')) {
-                    closeHamburgerMenu();
-                }
-            });
-            
-            // ESCキーでメニューを閉じる
-            document.addEventListener('keydown', function(event) {
-                if (event.key === 'Escape' && mobileNav.classList.contains('active')) {
-                    closeHamburgerMenu();
-                }
-            });
-            
-            // ウィンドウリサイズ時にメニューを閉じる（デスクトップビューに戻った場合）
-            window.addEventListener('resize', function() {
-                if (window.innerWidth > 768 && mobileNav.classList.contains('active')) {
-                    closeHamburgerMenu();
-                }
-            });
-            
-            // メニューを閉じる共通関数
-            function closeHamburgerMenu() {
-                hamburgerMenu.classList.remove('active');
-                mobileNav.classList.remove('active');
-                hamburgerMenu.setAttribute('aria-expanded', false);
-                mobileNav.setAttribute('aria-hidden', true);
-            }
-            
-            // 初期状態のaria属性を設定
-            hamburgerMenu.setAttribute('aria-expanded', false);
-            hamburgerMenu.setAttribute('aria-label', 'メニューを開く');
-            mobileNav.setAttribute('aria-hidden', true);
-            
-            console.log('ハンバーガーメニューが正常に初期化されました');
-        }
-
-        // ページ読み込み時の初期化
-        window.addEventListener('DOMContentLoaded', function() {
-            initializePage();
-            initializeHamburgerMenu();
-        });
-    </script>
+    <script src="js/hamburger-menu.js"></script>
+    <script type="module" src="js/overlay/main.js"></script>
 
     <!-- Performance Optimization -->
     <script src="js/performance.js"></script>
