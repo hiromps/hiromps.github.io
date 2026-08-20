@@ -59,6 +59,14 @@ textarea:focus {
         transition-duration: 0.01ms !important;
         scroll-behavior: auto !important;
     }
+
+    /* ローディングスピナーは装飾ではなく「処理中」を伝える必須の状態表示なので、
+       reduced-motion環境でも上のルールで殺さず回転を維持する。
+       (0.01ms・1回転で止まると、実際は動いていても静止して見え「フリーズした」と誤認される) */
+    .animate-spin {
+        animation-duration: 1s !important;
+        animation-iteration-count: infinite !important;
+    }
 }
 
 /* === High Contrast Mode === */

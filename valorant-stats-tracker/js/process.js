@@ -1,39 +1,89 @@
 // マッチ詳細データの加工層 (ES Module)
 import { RANK_FILES, rankImageUrl } from '../../shared/ranks.js';
 
+// 試合の開始時刻をミリ秒のUNIXタイムスタンプで返す。HenrikDev APIはバージョンにより
+// フィールド名が異なるため、存在する候補を順に試す。どれも取得できない場合は0を返し、
+// (元の取得順を保った上で)並び替えの末尾に安定して収まるようにする。
+function getMatchTimestamp(match) {
+    const meta = match && match.metadata;
+    if (!meta) return 0;
+
+    if (typeof meta.started_at === 'string') {
+        const t = Date.parse(meta.started_at);
+        if (!isNaN(t)) return t;
+    }
+    if (typeof meta.game_start === 'number') {
+        // 秒単位のUNIXタイムスタンプ(HenrikDev v1〜v3系でよく使われる形式)
+        return meta.game_start * 1000;
+    }
+    if (typeof meta.game_start_patched === 'string') {
+        const t = Date.parse(meta.game_start_patched);
+        if (!isNaN(t)) return t;
+    }
+    return 0;
+}
+
+// 一覧表示用に日付を "YYYY/MM/DD" 形式へ整形する。タイムスタンプが取得できない試合は
+// "不明" と表示する(ソート用の 0 をそのまま日付として見せないため)。
+function formatMatchDate(timestampMs) {
+    if (!timestampMs) return '不明';
+    const d = new Date(timestampMs);
+    const y = d.getFullYear();
+    const m = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    return `${y}/${m}/${day}`;
+}
+
 // --- DATA PROCESSING ---
-export function processMatchData(matches, puuid) {
+// seasonScope: 'current'(デフォルト、今シーズンのみ) | 'all'(全シーズン/通期をそのまま表示)
+// 「今シーズン」は取得できた試合のうち最も新しいものの season.short を基準にする。
+// (MMRデータの by_season から「現行アクト」を推測する方式を試したことがあるが、
+// まだ実試合が無い先のアクトを指すことがあり、直近の実試合まで除外してしまう
+// 不具合が起きたため廃止した。取得できた試合そのものの情報を信頼する方が確実。)
+export function processMatchData(matches, puuid, seasonScope = 'current') {
 
     if (!matches || matches.length === 0) {
         return [];
     }
 
-    // 最新の試合から現在のシーズンIDを特定
-    let currentSeasonId = null;
-    for (const match of matches) { // まず有効なシーズンIDを持つ最初のマッチを探す
-        if (match && match.metadata && match.metadata.season && match.metadata.season.id) {
-            currentSeasonId = match.metadata.season.id;
-            break;
+    // API側が返す順序を信用せず、必ず「最新の試合が先頭」になるようクライアント側で
+    // 明示的に並び替える。ここが崩れていると、直後のシーズン判定(先頭の試合を基準に
+    // 現在シーズンを決める)が誤ったシーズンを掴んでしまい、本来は今シーズンの試合が
+    // 丸ごと除外される(=表示件数が不自然に少なくなる)ことがある。
+    const sortedMatches = [...matches].sort((a, b) => getMatchTimestamp(b) - getMatchTimestamp(a));
+
+    // 「今シーズンのみ」の場合だけ、対象シーズンの short コードを確定してフィルタする。
+    // 「全シーズン」選択時はシーズンによる絞り込みを行わず、取得できた試合をそのまま使う。
+    let targetSeasonShort = null;
+    if (seasonScope !== 'all') {
+        // 直近の試合(=最新のもの、上でソート済み)のシーズンを「今シーズン」とみなす。
+        for (const match of sortedMatches) {
+            if (match && match.metadata && match.metadata.season && match.metadata.season.short) {
+                targetSeasonShort = match.metadata.season.short;
+                break;
+            }
+        }
+
+        if (!targetSeasonShort) {
+            console.warn("Could not determine current season from fetched matches. Displaying all fetched competitive matches.");
+            // シーズンが特定できない場合は、取得した全コンペ試合をそのまま処理 (従来通りのフォールバック)
+        } else {
+            console.log("Determined current season from most recent match:", targetSeasonShort);
         }
     }
 
-    if (!currentSeasonId) {
-        console.warn("Could not determine current season ID from fetched matches. Displaying all fetched competitive matches.");
-        // シーズンIDが特定できない場合は、取得した全コンペ試合をそのまま処理 (従来通りのフォールバック)
-    } else {
-        console.log("Determined current season ID:", currentSeasonId);
-    }
-
-    const processedMatches = matches.map(match => {
+    const processedMatches = sortedMatches.map(match => {
 
         if (!match || !match.metadata || !match.players || !match.teams || !match.rounds) {
             console.warn("Skipping match due to missing fundamental data structure (metadata, players, teams, or rounds):", match);
             return null;
         }
 
-        // ★ 変更: シーズンIDによるフィルタリング (currentSeasonIdが特定できた場合のみ)
-        if (currentSeasonId && (!match.metadata.season || match.metadata.season.id !== currentSeasonId)) {
-            console.log(`Skipping match from different season: match season_id=${match.metadata.season ? match.metadata.season.id : 'N/A'}, current_season_id=${currentSeasonId}`);
+        const matchSeasonShort = match.metadata.season ? match.metadata.season.short : null;
+
+        // ★ 変更: シーズンによるフィルタリング (targetSeasonShortが特定できた場合のみ。全シーズン選択時はスキップ)
+        if (targetSeasonShort && matchSeasonShort !== targetSeasonShort) {
+            console.log(`Skipping match from different season: match season=${matchSeasonShort || 'N/A'}, target season=${targetSeasonShort}`);
             return null;
         }
 
@@ -98,6 +148,7 @@ export function processMatchData(matches, puuid) {
 
         return {
             matchId: match.metadata.match_id, // ★ renderResults で MMR 履歴と紐付けるために match_id を追加
+            matchDate: formatMatchDate(getMatchTimestamp(match)),
             map: match.metadata.map ? match.metadata.map.name : '不明なマップ',
             agentName: player.agent.name || '不明なエージェント',
             agentIcon: agentIconUrl,
@@ -115,6 +166,7 @@ export function processMatchData(matches, puuid) {
             rankIcon: rankIconUrl,
             rankPoints: rankPoints, // 初期値は "-- RR"
             seasonId: match.metadata.season ? match.metadata.season.id : null,
+            seasonShort: matchSeasonShort,
             damageDealt: damageDealtValue, // 与ダメージ
             damageReceived: damageReceivedValue, // 被ダメージ
             roundsPlayed: roundsPlayed // ラウンド数
