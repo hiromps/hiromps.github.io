@@ -1057,6 +1057,105 @@
             box-shadow: 0 0 10px rgba(0, 255, 255, 0.5);
         }
 
+        /* Championテーマ - 完成済み背景画像 + 動的SVG（固定ビジュアル・カスタマイズ不可） */
+        .champion-overlay {
+            display: none;
+        }
+        /* render.js/preview.js がデータ更新のたびに lastMatchSection.style.display を
+           インラインスタイルで直接書き換えるため(既存4テーマ用の挙動で、そちらは変更しない)、
+           通常の詳細度では負けてしまう。Championテーマの間は常に隠すため !important で上書きする */
+        .theme-champion .rank-section,
+        .theme-champion .last-match-section {
+            display: none !important;
+        }
+        .theme-champion .champion-overlay {
+            display: block;
+            position: relative;
+            width: 100%;
+        }
+        .theme-champion .overlay {
+            background: transparent;
+            backdrop-filter: none;
+            border: none;
+            box-shadow: none;
+            padding: 0;
+            width: min(640px, 92vw);
+            min-width: 0;
+            max-width: none;
+            display: block;
+        }
+        .champion-bg {
+            display: block;
+            width: 100%;
+            height: auto;
+            pointer-events: none;
+            user-select: none;
+        }
+        .champion-svg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+        }
+        .champion-text {
+            font-family: 'Rajdhani', 'Noto Sans JP', sans-serif;
+            fill: #ffffff;
+        }
+        .champion-rank-name {
+            font-size: 50px;
+            font-weight: 700;
+            letter-spacing: 1px;
+        }
+        .champion-rr-value {
+            font-size: 32px;
+            font-weight: 700;
+        }
+        .champion-rr-label {
+            font-size: 20px;
+            font-weight: 600;
+            fill: rgba(255, 255, 255, 0.65);
+        }
+        .champion-label {
+            font-size: 13px;
+            font-weight: 600;
+            letter-spacing: 2px;
+            fill: rgba(255, 255, 255, 0.55);
+        }
+        .champion-delta {
+            font-size: 26px;
+            font-weight: 700;
+            fill: #ffd76a;
+        }
+        .champion-delta.is-positive {
+            fill: #4CAF50;
+        }
+        .champion-delta.is-negative {
+            fill: #ff4655;
+        }
+        @media screen and (max-width: 768px) {
+            .theme-champion .overlay {
+                width: 94vw;
+            }
+        }
+        /* Championテーマ選択時はカラーカスタマイズUIを隠し、固定デザインの案内を表示する */
+        body.theme-champion #colorCustomizationFields {
+            display: none;
+        }
+        .champion-fixed-notice {
+            display: none;
+            padding: 10px 12px;
+            margin: 8px 0;
+            color: rgba(255, 255, 255, 0.75);
+            font-size: 0.9rem;
+            background: rgba(255, 255, 255, 0.06);
+            border-left: 3px solid #ffd76a;
+            border-radius: 4px;
+        }
+        body.theme-champion .champion-fixed-notice {
+            display: block;
+        }
+
         @keyframes neonBorder {
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
@@ -1294,8 +1393,12 @@
 </head>
     <body>
     <script>
-        // FOUC防止: module scriptの実行を待たず、DOM構築直後に obs-mode / has-player クラスを付与する。
+        // FOUC防止: module scriptの実行を待たず、DOM構築直後に obs-mode / has-player / theme-* クラスを付与する。
         // 実際の表示制御は全てCSS側(このファイルのinline styleとstyles.css)で行う。
+        // theme-* を付与しないと、js/overlay/theme.js の applyTheme() が実行されるまでの間
+        // (module scriptはHTML構文解析完了後まで遅延される)body にテーマクラスが無い状態になり、
+        // Championテーマ選択時でもクラシックテーマ用の進捗バー(.last-match-section)などが
+        // 一瞬だけデフォルト表示されてしまう(OBSブラウザソースで進捗バーが映り込むバグの原因)。
         (function () {
             var params = new URLSearchParams(window.location.search);
             if (params.has('obs')) {
@@ -1305,6 +1408,9 @@
             if (params.get('name') && params.get('tag')) {
                 document.body.classList.add('has-player');
             }
+            var savedTheme = localStorage.getItem('selectedTheme') || 'classic';
+            var theme = params.get('theme') || savedTheme;
+            document.body.classList.add('theme-' + theme);
         })();
     </script>
     <div class="background"></div>
@@ -1380,6 +1486,32 @@
                 <div class="last-match-section" id="lastMatchSection">
                     <div class="mmr-gauge-fill"></div>
                     <span class="last-match-text" id="lastMatchText">前回のマッチ +0pts</span>
+                </div>
+
+                <!-- Championテーマ専用: 完成済み背景画像 + 動的SVG（他4テーマとは独立した固定ビジュアル） -->
+                <div class="champion-overlay" id="championOverlay">
+                    <img class="champion-bg" src="assets/images/theme/champion.png" alt="" draggable="false">
+                    <svg class="champion-svg" viewBox="0 0 1672 941" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                        <defs>
+                            <linearGradient id="championGaugeGradient" x1="0" y1="0" x2="1" y2="0">
+                                <stop offset="0%" stop-color="#ffe9a8"></stop>
+                                <stop offset="55%" stop-color="#ffcf5c"></stop>
+                                <stop offset="100%" stop-color="#ff9d2f"></stop>
+                            </linearGradient>
+                            <clipPath id="championGaugeClip">
+                                <rect x="605" y="576" width="865" height="44" rx="22" ry="22"></rect>
+                            </clipPath>
+                        </defs>
+                        <image id="championRankBadge" href="assets/images/ranks/unranked.png" x="115" y="329" width="250" height="250" preserveAspectRatio="xMidYMid meet"></image>
+                        <text id="championRankName" x="777" y="488" text-anchor="middle" class="champion-text champion-rank-name">ランクなし</text>
+                        <text id="championRRValue" x="1300" y="488" class="champion-text champion-rr-value">0</text>
+                        <text id="championRRLabel" x="1340" y="488" class="champion-text champion-rr-label">RR</text>
+                        <text x="440" y="580" text-anchor="middle" class="champion-text champion-label">LAST MATCH</text>
+                        <text id="championDelta" x="440" y="617" text-anchor="middle" class="champion-text champion-delta">±0pts</text>
+                        <g clip-path="url(#championGaugeClip)">
+                            <rect id="championGaugeFill" x="605" y="576" width="0" height="44" fill="url(#championGaugeGradient)"></rect>
+                        </g>
+                    </svg>
                 </div>
             </div>
             
@@ -1458,33 +1590,39 @@
                     <button type="button" id="themeModern" class="theme-button" data-theme="modern">モダン</button>
                                             <button type="button" id="themeShadcn" class="theme-button" data-theme="shadcn">Cyber</button>
                     <button type="button" id="themeNeon" class="theme-button" data-theme="neon">Neon</button>
+                    <button type="button" id="themeChampion" class="theme-button" data-theme="champion">Champion</button>
                 </div>
             </div>
-            <div class="color-picker-section">
-                <label for="rankBgColorPicker">ランク背景色:</label>
-                <input type="color" id="rankBgColorPicker" value="#3a444e">
-                <input type="range" id="rankBgOpacitySlider" min="0" max="100" value="100">
-                <span id="rankBgOpacityValue">100%</span>
+            <div id="championFixedNotice" class="champion-fixed-notice">
+                Championは固定デザインテーマです（背景画像 + 公式ランクバッジ）。カラーカスタマイズは使用できません。
             </div>
-            <div class="color-picker-section">
-                <label for="lastMatchBgColorPicker">前回のマッチ背景色:</label>
-                <input type="color" id="lastMatchBgColorPicker" value="#F44336">
-                <input type="range" id="lastMatchBgOpacitySlider" min="0" max="100" value="100">
-                <span id="lastMatchBgOpacityValue">100%</span>
-            </div>
-            <div class="color-picker-section">
-                <label for="textColorPicker">文字色:</label>
-                <input type="color" id="textColorPicker" value="#ffffff">
-            </div>
-            <div class="color-picker-section">
-                <label for="rrColorPicker">RRテキスト色:</label>
-                <input type="color" id="rrColorPicker" value="#ff4655">
-            </div>
-            <div class="color-picker-section">
-                <label for="borderColorPicker">境界線色:</label>
-                <input type="color" id="borderColorPicker" value="#ff4655">
-                <input type="range" id="borderOpacitySlider" min="0" max="100" value="100">
-                <span id="borderOpacityValue">100%</span>
+            <div id="colorCustomizationFields">
+                <div class="color-picker-section">
+                    <label for="rankBgColorPicker">ランク背景色:</label>
+                    <input type="color" id="rankBgColorPicker" value="#3a444e">
+                    <input type="range" id="rankBgOpacitySlider" min="0" max="100" value="100">
+                    <span id="rankBgOpacityValue">100%</span>
+                </div>
+                <div class="color-picker-section">
+                    <label for="lastMatchBgColorPicker">前回のマッチ背景色:</label>
+                    <input type="color" id="lastMatchBgColorPicker" value="#F44336">
+                    <input type="range" id="lastMatchBgOpacitySlider" min="0" max="100" value="100">
+                    <span id="lastMatchBgOpacityValue">100%</span>
+                </div>
+                <div class="color-picker-section">
+                    <label for="textColorPicker">文字色:</label>
+                    <input type="color" id="textColorPicker" value="#ffffff">
+                </div>
+                <div class="color-picker-section">
+                    <label for="rrColorPicker">RRテキスト色:</label>
+                    <input type="color" id="rrColorPicker" value="#ff4655">
+                </div>
+                <div class="color-picker-section">
+                    <label for="borderColorPicker">境界線色:</label>
+                    <input type="color" id="borderColorPicker" value="#ff4655">
+                    <input type="range" id="borderOpacitySlider" min="0" max="100" value="100">
+                    <span id="borderOpacityValue">100%</span>
+                </div>
             </div>
             <div class="color-picker-buttons">
                 <button id="applyColorsButton">適用</button>
