@@ -70,11 +70,17 @@ async function retryFetch(fetchFn, logPrefix, retryCount = API_CONFIG.RETRY_COUN
 }
 
 async function fetchPlayerStats(name, tag, retryCount = API_CONFIG.RETRY_COUNT) {
-    return retryFetch(
-        (signal) => fetch(`${config.API_BASE_URL}/v1/mmr/ap/${name}/${tag}?api_key=${config.API_KEY}`, { signal }),
+    const data = await retryFetch(
+        (signal) => fetch(`${config.API_BASE_URL}/v1/mmr/ap/${encodeURIComponent(name)}/${encodeURIComponent(tag)}?api_key=${config.API_KEY}`, { signal }),
         'fetchPlayerStats',
         retryCount
     );
+    // retryFetch はHTTPエラー/タイムアウトの最終失敗時に null を返すため、
+    // ここで throw に変換して呼び出し側が「エラー」と「データなし」を区別できるようにする
+    if (data === null) {
+        throw new Error('fetchPlayerStats: APIリクエストに失敗しました');
+    }
+    return data;
 }
 
 async function fetchPlayerProfile(name, tag, retryCount = API_CONFIG.RETRY_COUNT) {
@@ -88,34 +94,34 @@ async function fetchPlayerProfile(name, tag, retryCount = API_CONFIG.RETRY_COUNT
 // ランク画像のパスを取得する関数
 function getRankImageUrl(rank) {
     const rankMap = {
-        'Iron 1': 'アイアン1',
-        'Iron 2': 'アイアン2',
-        'Iron 3': 'アイアン3',
-        'Bronze 1': 'ブロンズ1',
-        'Bronze 2': 'ブロンズ2',
-        'Bronze 3': 'ブロンズ3',
-        'Silver 1': 'シルバー1',
-        'Silver 2': 'シルバー2',
-        'Silver 3': 'シルバー3',
-        'Gold 1': 'ゴールド1',
-        'Gold 2': 'ゴールド2',
-        'Gold 3': 'ゴールド3',
-        'Platinum 1': 'プラチナ1',
-        'Platinum 2': 'プラチナ2',
-        'Platinum 3': 'プラチナ3',
-        'Diamond 1': 'ダイヤ1',
-        'Diamond 2': 'ダイヤ2',
-        'Diamond 3': 'ダイヤ3',
-        'Ascendant 1': 'アセンダント1',
-        'Ascendant 2': 'アセンダント2',
-        'Ascendant 3': 'アセンダント3',
-        'Immortal 1': 'イモータル1',
-        'Immortal 2': 'イモータル2',
-        'Immortal 3': 'イモータル3',
-        'Radiant': 'レディアント'
+        'Iron 1': 'iron1',
+        'Iron 2': 'iron2',
+        'Iron 3': 'iron3',
+        'Bronze 1': 'bronze1',
+        'Bronze 2': 'bronze2',
+        'Bronze 3': 'bronze3',
+        'Silver 1': 'silver1',
+        'Silver 2': 'silver2',
+        'Silver 3': 'silver3',
+        'Gold 1': 'gold1',
+        'Gold 2': 'gold2',
+        'Gold 3': 'gold3',
+        'Platinum 1': 'platinum1',
+        'Platinum 2': 'platinum2',
+        'Platinum 3': 'platinum3',
+        'Diamond 1': 'diamond1',
+        'Diamond 2': 'diamond2',
+        'Diamond 3': 'diamond3',
+        'Ascendant 1': 'ascendant1',
+        'Ascendant 2': 'ascendant2',
+        'Ascendant 3': 'ascendant3',
+        'Immortal 1': 'immortal1',
+        'Immortal 2': 'immortal2',
+        'Immortal 3': 'immortal3',
+        'Radiant': 'radiant'
     };
-    
-    const imageName = rankMap[rank] || 'ランクなし';
+
+    const imageName = rankMap[rank] || 'unranked';
     return `assets/images/ranks/${imageName}.png`;
 }
 
