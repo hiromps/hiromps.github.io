@@ -365,6 +365,7 @@
         }
         .theme-selector {
             display: flex;
+            flex-wrap: wrap;
             gap: 0.5rem;
             margin-top: 0.5rem;
         }
@@ -378,6 +379,8 @@
             transition: all 0.3s ease;
             font-size: 0.875rem;
             font-weight: 500;
+            white-space: nowrap;
+            flex-shrink: 0;
         }
         .theme-button:hover {
             border-color: #6b7280;
@@ -387,6 +390,13 @@
             border-color: #ff4655;
             background: #ff4655;
             color: white;
+        }
+        /* モーダル自体が狭くなるスマホ幅では、ボタンをさらに小さくして1行に収まりやすくする */
+        @media screen and (max-width: 480px) {
+            .theme-button {
+                padding: 0.4rem 0.7rem;
+                font-size: 0.8rem;
+            }
         }
         /* 全テーマ共通 - 文字途切れ防止 */
         .overlay .rank-name {
@@ -1502,7 +1512,7 @@
                                 <rect x="605" y="576" width="865" height="44" rx="22" ry="22"></rect>
                             </clipPath>
                         </defs>
-                        <image id="championRankBadge" href="assets/images/ranks/unranked.png" x="115" y="329" width="250" height="250" preserveAspectRatio="xMidYMid meet"></image>
+                        <image id="championRankBadge" href="assets/images/ranks/unranked.png" x="115" y="349" width="250" height="250" preserveAspectRatio="xMidYMid meet"></image>
                         <text id="championRankName" x="777" y="488" text-anchor="middle" class="champion-text champion-rank-name">ランクなし</text>
                         <text id="championRRValue" x="1300" y="488" class="champion-text champion-rr-value">0</text>
                         <text id="championRRLabel" x="1340" y="488" class="champion-text champion-rr-label">RR</text>
