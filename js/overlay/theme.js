@@ -2,10 +2,22 @@
 import { state } from './state.js';
 import { resetLastMatchWidthForClassic, adjustLastMatchWidth } from './layout.js';
 
+// テーマ定義。type: 'code' はCSS+カスタマイズ可能な既存4テーマ、'image' は背景画像+動的SVGの固定ビジュアル(Champion)。
+// customizable: false のテーマは colorCustomizationFields が非表示になる(index.html の body.theme-* CSSで制御)。
+export const THEME_META = {
+    classic: { id: 'classic', name: 'クラシック', type: 'code', customizable: true },
+    modern: { id: 'modern', name: 'モダン', type: 'code', customizable: true },
+    shadcn: { id: 'shadcn', name: 'Cyber', type: 'code', customizable: true },
+    neon: { id: 'neon', name: 'Neon', type: 'code', customizable: true },
+    champion: { id: 'champion', name: 'Champion', type: 'image', customizable: false, background: 'assets/images/theme/champion.png' }
+};
+
+const ALL_THEME_CLASSES = Object.keys(THEME_META).map(id => `theme-${id}`);
+
 export function applyTheme(theme) {
     const body = document.body;
     // 既存のテーマクラスを削除
-    body.classList.remove('theme-classic', 'theme-modern', 'theme-shadcn', 'theme-neon');
+    body.classList.remove(...ALL_THEME_CLASSES);
     // 新しいテーマクラスを追加
     body.classList.add(`theme-${theme}`);
     state.currentTheme = theme;

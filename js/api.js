@@ -12,9 +12,15 @@ const API_CONFIG = {
  * @param {Function} fetchFn - The fetch function to retry
  * @param {string} logPrefix - Prefix for logging
  * @param {number} retryCount - Number of retry attempts
- * @returns {Promise<any>} - The API response or null
+ * @returns {Promise<any>} - The API response
+ * @throws {Error} 最終試行まで失敗した場合、その原因(HTTPステータス等)を保持したエラーをthrowする。
+ *   呼び出し側は error.status (HTTPステータスコード。ネットワーク/タイムアウトの場合はundefined) や
+ *   error.name === 'AbortError' を見て、原因ごとに異なるメッセージを表示できる
+ *   (describeApiError() 参照。以前は原因を握りつぶして null を返していたため、
+ *   レート制限やサーバーエラーで失敗した場合も「プレイヤーが見つかりません」と誤表示されていた)
  */
 async function retryFetch(fetchFn, logPrefix, retryCount = API_CONFIG.RETRY_COUNT) {
+    let lastError = null;
     for (let attempt = 1; attempt <= retryCount; attempt++) {
         try {
             console.log(`[API] ${logPrefix} リクエスト送信中 (試行 ${attempt}/${retryCount})`);
@@ -38,7 +44,9 @@ async function retryFetch(fetchFn, logPrefix, retryCount = API_CONFIG.RETRY_COUN
                     await new Promise(resolve => setTimeout(resolve, waitTime));
                     continue;
                 }
-                throw new Error(`HTTP ${response.status}`);
+                const httpError = new Error(`HTTP ${response.status}`);
+                httpError.status = response.status;
+                throw httpError;
             }
 
             const data = await response.json();
@@ -46,6 +54,8 @@ async function retryFetch(fetchFn, logPrefix, retryCount = API_CONFIG.RETRY_COUN
             return data;
 
         } catch (error) {
+            lastError = error;
+
             if (error.name === 'AbortError' && attempt < retryCount) {
                 console.warn(`[API] タイムアウト (試行 ${attempt}/${retryCount})`);
                 await new Promise(resolve => setTimeout(resolve, API_CONFIG.RETRY_DELAY_BASE * attempt));
@@ -60,27 +70,31 @@ async function retryFetch(fetchFn, logPrefix, retryCount = API_CONFIG.RETRY_COUN
 
             console.error(`[API] ${logPrefix} エラー (試行 ${attempt}/${retryCount}):`, error);
             if (attempt === retryCount) {
-                return null;
+                throw lastError;
             }
 
             await new Promise(resolve => setTimeout(resolve, API_CONFIG.RETRY_DELAY_BASE * attempt));
         }
     }
-    return null;
+    throw lastError || new Error(`${logPrefix}: APIリクエストに失敗しました`);
 }
 
 async function fetchPlayerStats(name, tag, retryCount = API_CONFIG.RETRY_COUNT) {
-    const data = await retryFetch(
+    return retryFetch(
         (signal) => fetch(`${config.API_BASE_URL}/v1/mmr/ap/${encodeURIComponent(name)}/${encodeURIComponent(tag)}`, { signal }),
         'fetchPlayerStats',
         retryCount
     );
-    // retryFetch はHTTPエラー/タイムアウトの最終失敗時に null を返すため、
-    // ここで throw に変換して呼び出し側が「エラー」と「データなし」を区別できるようにする
-    if (data === null) {
-        throw new Error('fetchPlayerStats: APIリクエストに失敗しました');
-    }
-    return data;
+}
+
+// retryFetch/fetchPlayerStats が投げたエラーの原因ごとに、ユーザーに見せる説明文を出し分ける
+function describeApiError(error) {
+    const status = error && error.status;
+    if (status === 404) return 'プレイヤーが見つかりません';
+    if (status === 429) return 'APIのレート制限中です。しばらく待ってから再試行してください';
+    if (typeof status === 'number' && status >= 500) return 'APIサーバーエラーが発生しました。しばらくしてから再試行してください';
+    if (error && error.name === 'AbortError') return 'リクエストがタイムアウトしました';
+    return '通信エラーが発生しました。しばらくしてから再試行してください';
 }
 
 async function fetchPlayerProfile(name, tag, retryCount = API_CONFIG.RETRY_COUNT) {

@@ -1,5 +1,6 @@
 // フォーム入力に対するリアルタイムプレビュー層 (ES Module)
 // fetchPlayerStats / getRankImageUrl は js/api.js (classic script) が定義するグローバル関数を参照する
+import { updateChampionOverlay } from './champion.js';
 
 let previewTimeout = null;
 let isPreviewLoading = false;
@@ -47,7 +48,9 @@ export async function loadPreviewData(name, tag) {
         console.log('[Preview] API Response:', stats);
 
         if (!stats || !stats.data) {
-            throw new Error('プレイヤーが見つかりません');
+            const notFoundError = new Error('プレイヤーが見つかりません');
+            notFoundError.status = 404; // describeApiError() で「見つからない」系のメッセージに分類させる
+            throw notFoundError;
         }
 
         // プレビュー更新（stats.dataを直接渡す）
@@ -60,7 +63,7 @@ export async function loadPreviewData(name, tag) {
 
     } catch (error) {
         console.error('[Preview] エラー:', error);
-        previewStatus.textContent = '✗ プレイヤーが見つかりません';
+        previewStatus.textContent = `✗ ${describeApiError(error)}`;
         previewStatus.className = 'preview-status error';
         resetPreviewDisplay();
     } finally {
@@ -118,6 +121,8 @@ export function updatePreviewDisplay(playerData) {
             mmrGaugeFill.style.backgroundColor = '#4CAF50';
             lastMatchSection.style.display = 'flex';
         }
+
+        updateChampionOverlay({ rankName, rankIconSrc: rankIcon.src, rr, delta: mmrChange });
     } else {
         console.log('[Preview] No rank data available');
         resetPreviewDisplay();
@@ -136,6 +141,8 @@ export function resetPreviewDisplay() {
     rankText.textContent = 'ランクなし';
     rrText.textContent = '0RR';
     lastMatchSection.style.display = 'none';
+
+    updateChampionOverlay({ rankName: 'ランクなし', rankIconSrc: 'assets/images/ranks/unranked.png', rr: 0, delta: undefined });
 }
 
 // プレイヤー名/タグ入力欄のリアルタイムプレビュー配線
