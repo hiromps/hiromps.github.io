@@ -19,9 +19,13 @@ const ALLOWED_ORIGINS = new Set([
 
 const UPSTREAM_HOST = 'https://api.henrikdev.xyz';
 
-// Cloudflare KV の expirationTtl は60秒未満を指定できない制約があるため、
-// リアルタイム性の高いデータ(現在のランク等)もこれを下限にする。
-const KV_MIN_TTL_SECONDS = 60;
+// リアルタイム性の高いデータ(現在のランク等)のキャッシュ保持時間。
+// 注意: OBSオーバーレイの自動更新間隔(既定60秒, js/overlay/auto-update.js)と
+// ほぼ一致する値にすると、ポーリングのたびにキャッシュが切れて毎回 KV.put() が
+// 走ってしまう(=Workers KV の無料枠 1,000 回/日の書き込み上限をすぐ超過する)。
+// ポーリング間隔より十分長く取ることで、同一プレイヤーへの連続ポーリングは
+// ほとんど HIT にし、実際の書き込み回数を抑える。
+const VOLATILE_TTL_SECONDS = 180;
 
 // パスごとにキャッシュ保持時間(秒)を決める。0 = キャッシュしない(素通し)。
 function getCacheTtlSeconds(pathname) {
@@ -34,10 +38,12 @@ function getCacheTtlSeconds(pathname) {
     return 60 * 60; // 1時間
   }
   // リーダーボード: 頻繁な更新は不要
-  if (/^\/valorant\/v2\/leaderboard\//.test(pathname)) {
+  // v2は非推奨(ページング非対応でリージョン全体を返し数MBに肥大化するため、
+  // クライアント側はv3+size/pageへ移行済み。v2は後方互換のため残すのみ)
+  if (/^\/valorant\/v2\/leaderboard\//.test(pathname) || /^\/valorant\/v3\/leaderboard\//.test(pathname)) {
     return 60 * 5; // 5分
   }
-  // 現在のランク/MMR、マッチ一覧、MMR履歴: 変化しうるので短め(KVの下限=60秒)
+  // 現在のランク/MMR、マッチ一覧、MMR履歴: 変化しうるので短め
   if (
     /^\/valorant\/v1\/mmr\//.test(pathname) ||
     /^\/valorant\/v2\/mmr\//.test(pathname) ||
@@ -45,7 +51,7 @@ function getCacheTtlSeconds(pathname) {
     /^\/valorant\/v4\/matches\//.test(pathname) ||
     /^\/valorant\/v1\/by-puuid\/mmr-history\//.test(pathname)
   ) {
-    return KV_MIN_TTL_SECONDS;
+    return VOLATILE_TTL_SECONDS;
   }
   return 0;
 }
@@ -128,9 +134,17 @@ export default {
 
     const bodyText = await upstreamResponse.text();
 
-    // 成功レスポンスのみキャッシュする(エラー/レート制限応答は保存しない)
+    // 成功レスポンスのみキャッシュする(エラー/レート制限応答は保存しない)。
+    // KV書き込みが失敗しても(例: 無料枠の1,000回/日の上限超過で429)、
+    // レスポンス自体は既に返しているので致命的にはならない。
+    // ただしキャッシュが効かなくなり実質毎回アップストリームへ流れるため、
+    // ログにだけ残して静かに諦める。
     if (cacheEnabled && upstreamResponse.ok) {
-      ctx.waitUntil(env.VALORANT_CACHE.put(cacheKey, bodyText, { expirationTtl: ttl }));
+      ctx.waitUntil(
+        env.VALORANT_CACHE.put(cacheKey, bodyText, { expirationTtl: ttl }).catch((err) => {
+          console.error('KV cache write failed:', err);
+        })
+      );
     }
 
     return new Response(bodyText, {
