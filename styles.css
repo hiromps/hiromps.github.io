@@ -268,7 +268,7 @@ body.obs-mode .overlay {
     transform: translateY(-2px);
 }
 
-.input-section h2 {
+.input-section h1 {
     text-align: center;
     margin-bottom: 20px;
     color: #ff4655;
@@ -897,7 +897,7 @@ body.obs-mode .overlay {
         flex: none; /* モバイルではflexを無効に */
     }
 
-    .input-section h2 {
+    .input-section h1 {
         font-size: 1.3em; /* モバイルでは少し小さく */
         white-space: nowrap; /* 改行を防ぐ */
         overflow: hidden;
