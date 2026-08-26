@@ -337,21 +337,24 @@ async function fetchMatchHistory(name, tag, region = 'ap', gameMode = 'competiti
 
 // リーダーボードを取得する関数
 //
-// 注意: v2エンドポイント(/v2/leaderboard/{region})はページング機能がなく、
-// リージョン全体(数千〜1万5千件超)を一括返却するため、レスポンスが数MBに肥大化し
-// タイムアウトやHenrikDev側のレート制限(429)を誘発しやすかった。
-// v3エンドポイント(/v3/leaderboard/{region}/{platform})はsize/pageに対応しており、
-// 表示に必要な上位プレイヤーのみを取得できる。
+// リーダーボードはRiot公式API(val-ranked-v1)へ移行済み。
+// Workerの /riot/leaderboard/{region} がactId解決・tier推定を行い、
+// Henrik v3リーダーボードと同じレスポンス形式に変換して返すため、
+// 呼び出し側(leaderboard.html)のデータ処理は移行前と変わらない。
+// Riot側が失敗した場合はWorker内部でHenrik v3にフォールバックする
+// (レスポンスヘッダ X-Leaderboard-Source: riot | henrik-fallback で判別可能)。
 async function fetchLeaderboard(region = 'ap', retryCount = 3, size = 100, page = 1) {
     for (let attempt = 1; attempt <= retryCount; attempt++) {
         try {
             console.log(`[API] fetchLeaderboard リクエスト送信中 (試行 ${attempt}/${retryCount})`);
-            console.log(`[API] URL: ${config.API_BASE_URL}/v3/leaderboard/${region}/pc?size=${size}&page=${page}`);
+            console.log(`[API] URL: ${config.RIOT_API_BASE_URL}/leaderboard/${region}?size=${size}&page=${page}`);
 
             const controller = new AbortController();
             const timeoutId = setTimeout(() => controller.abort(), 15000);
 
-            const url = `${config.API_BASE_URL}/v3/leaderboard/${region}/pc?size=${size}&page=${page}`;
+            // Riot公式API経路(Worker側でHenrik v3互換形式に変換して返す。
+            // Riot側が失敗した場合のHenrikフォールバックもWorker内部で行う)
+            const url = `${config.RIOT_API_BASE_URL}/leaderboard/${region}?size=${size}&page=${page}`;
 
             const response = await fetch(url, {
                 signal: controller.signal,
