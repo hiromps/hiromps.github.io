@@ -1,15 +1,16 @@
-name = "hiromps-valorant-proxy"
-main = "worker.js"
+name = "valorant-proxy"
+pages_build_output_dir = "public"
 compatibility_date = "2025-01-01"
 
 # APIキーはここに書かず、以下のコマンドで secret として登録する:
-#   wrangler secret put HENRIKDEV_API_KEY
-#   wrangler secret put RIOT_API_KEY
+#   wrangler pages secret put HENRIKDEV_API_KEY --project-name=valorant-proxy
+#   wrangler pages secret put RIOT_API_KEY      --project-name=valorant-proxy
 # ローカル開発では cloudflare-worker/.dev.vars に KEY=値 の形式で置く(gitignore済み)
 
 # キャッシュ用 KV namespace。
-# `wrangler kv namespace create VALORANT_CACHE` を実行して発行された id に
-# 書き換えてください(下の値はプレースホルダーです)。
+# 主キャッシュは Cache API(エッジ)で、KV は「エッジをまたいで共有する価値が高く、
+# 書き込み回数が積み上がらないもの」だけに使う = マッチ詳細と Riot の現行アクトID。
+# (KVの書き込みは無料枠 1日1,000回で、Cloudflareアカウント全体の共有枠)
 [[kv_namespaces]]
 binding = "VALORANT_CACHE"
 id = "ca07f85574414b6ab8899791335ba37c"

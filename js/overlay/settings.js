@@ -179,7 +179,10 @@ function buildGeneratedURL() {
     urlParams.append('name', playerName);
     urlParams.append('tag', playerTag);
     urlParams.append('obs', ''); // OBSモードパラメータをデフォルトで追加
-    urlParams.append('updateInterval', '30'); // 自動更新間隔（30秒）に短縮
+    // 自動更新間隔。Worker側のキャッシュ保持時間(エッジ180秒/ブラウザ60秒)より
+    // 短くしてもキャッシュが返るだけで表示は変わらないため、60秒にしている。
+    // 一度配布したURLはこの値が焼き込まれたまま変更できないので、短くしすぎないこと。
+    urlParams.append('updateInterval', '60');
 
     // カスタマイズ設定をURLパラメータとして追加(色ごとに独立して存在チェック)
     COLOR_SETTINGS.forEach(entry => {
