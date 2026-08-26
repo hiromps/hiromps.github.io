@@ -154,15 +154,51 @@ function withCors(response, origin, cacheStatus) {
   return out;
 }
 
+// アクトIDをエッジキャッシュに置くための内部レスポンス。
+// Cache API のキーには実在しない内部パスを使う(外部から叩かれても
+// API 経路ではないので静的アセット側に流れて 404 になる)。
+function makeActCacheResponse(actId) {
+  return new Response(JSON.stringify({ actId }), {
+    status: 200,
+    headers: {
+      'Content-Type': 'application/json',
+      'Cache-Control': `public, s-maxage=${RIOT_ACT_TTL_SECONDS}`,
+    },
+  });
+}
+
 // 現行アクトのIDを val-content-v1 から解決する。
-// content-v1 のレスポンスは巨大なので、KVには actId だけを保存する。
+// content-v1 のレスポンスは巨大なので、キャッシュには actId だけを保存する。
 // アクトはリージョン共通なので content の取得は ap シャード固定でよい
 // (content-v1 は 250req/10s と余裕があり、6時間に1回程度しか呼ばれない)。
-async function resolveActiveActId(env, ctx, riotKey) {
+//
+// エッジ・KV の両方に置く。KV バインディングは Pages のプロジェクト設定でしか
+// 追加できず未設定のこともあるため、KV が無くても colo 内で使い回せるようにする。
+async function resolveActiveActId(env, ctx, riotKey, actCacheKeyRequest) {
+  const cache = caches.default;
+
+  const edgeHit = await cache.match(actCacheKeyRequest);
+  if (edgeHit) {
+    try {
+      const cached = await edgeHit.json();
+      if (cached && cached.actId) {
+        return cached.actId;
+      }
+    } catch (err) {
+      console.error('Edge act cache read failed:', err);
+    }
+  }
+
   if (env.VALORANT_CACHE) {
     try {
       const cached = await env.VALORANT_CACHE.get(RIOT_ACT_CACHE_KEY, 'json');
       if (cached && cached.actId) {
+        // エッジにも載せておき、次回は KV を読まずに済むようにする
+        ctx.waitUntil(
+          cache
+            .put(actCacheKeyRequest, makeActCacheResponse(cached.actId))
+            .catch((err) => console.error('Edge act cache write failed:', err))
+        );
         return cached.actId;
       }
     } catch (err) {
@@ -187,6 +223,11 @@ async function resolveActiveActId(env, ctx, riotKey) {
     return null;
   }
 
+  ctx.waitUntil(
+    cache
+      .put(actCacheKeyRequest, makeActCacheResponse(act.id))
+      .catch((err) => console.error('Edge act cache write failed:', err))
+  );
   if (env.VALORANT_CACHE) {
     ctx.waitUntil(
       env.VALORANT_CACHE.put(RIOT_ACT_CACHE_KEY, JSON.stringify({ actId: act.id }), {
@@ -268,21 +309,25 @@ function requestRiotLeaderboard(region, actId, size, startIndex, riotKey) {
 
 // Riot 公式経路でリーダーボードを取得し、Henrik 互換形式で返す。
 // 失敗時は null を返し、呼び出し元が Henrik フォールバックに切り替える。
-async function fetchRiotLeaderboard(region, size, startIndex, env, ctx, riotKey) {
-  let actId = await resolveActiveActId(env, ctx, riotKey);
+async function fetchRiotLeaderboard(region, size, startIndex, env, ctx, riotKey, actCacheKeyRequest) {
+  let actId = await resolveActiveActId(env, ctx, riotKey, actCacheKeyRequest);
   if (!actId) return null;
 
   let response = await requestRiotLeaderboard(region, actId, size, startIndex, riotKey);
 
   // アクト切替直後はキャッシュ済み actId が失効して 400/404 になるため、
-  // キャッシュを破棄して再解決し、1回だけリトライする
+  // キャッシュを破棄して再解決し、1回だけリトライする。
+  // エッジ側も消さないと古い actId を掴んだまま TTL 切れまで失敗し続ける。
   if (response.status === 400 || response.status === 404) {
+    await caches.default.delete(actCacheKeyRequest).catch((err) => {
+      console.error('Edge act cache delete failed:', err);
+    });
     if (env.VALORANT_CACHE) {
       await env.VALORANT_CACHE.delete(RIOT_ACT_CACHE_KEY).catch((err) => {
         console.error('KV act cache delete failed:', err);
       });
     }
-    actId = await resolveActiveActId(env, ctx, riotKey);
+    actId = await resolveActiveActId(env, ctx, riotKey, actCacheKeyRequest);
     if (!actId) return null;
     response = await requestRiotLeaderboard(region, actId, size, startIndex, riotKey);
   }
@@ -381,7 +426,10 @@ async function handleRiotRequest(url, env, ctx, origin) {
   // (secret 登録前に先行デプロイしても壊れない)
   if (env.RIOT_API_KEY) {
     try {
-      const result = await fetchRiotLeaderboard(region, size, startIndex, env, ctx, env.RIOT_API_KEY);
+      const actCacheKeyRequest = edgeCacheKey(url, `/__cache/${RIOT_ACT_CACHE_KEY}`);
+      const result = await fetchRiotLeaderboard(
+        region, size, startIndex, env, ctx, env.RIOT_API_KEY, actCacheKeyRequest
+      );
       if (result) {
         const bodyText = JSON.stringify(result);
         const sourceHeader = { 'X-Leaderboard-Source': 'riot' };

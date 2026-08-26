@@ -7,9 +7,9 @@ const config = {
     // Workers を *.workers.dev で動かすと Cache API が no-op になり、
     // キャッシュを全て Workers KV で賄うことになって書き込み上限(1日1,000回)を
     // 超過するため、Pages Functions に移行した。
-    API_BASE_URL: 'https://valorant-proxy.pages.dev/valorant',
+    API_BASE_URL: 'https://valorant-proxy-d8j.pages.dev/valorant',
     // Riot公式API経路(同じプロキシ)。リーダーボードはこちらを使う。
     // キーはプロキシ側のsecret(RIOT_API_KEY)のみ。Riot側が失敗した場合は
     // プロキシ内部でHenrikDev v3に自動フォールバックする。
-    RIOT_API_BASE_URL: 'https://valorant-proxy.pages.dev/riot'
+    RIOT_API_BASE_URL: 'https://valorant-proxy-d8j.pages.dev/riot'
 };
