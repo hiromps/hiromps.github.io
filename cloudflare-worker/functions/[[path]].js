@@ -51,28 +51,27 @@ const RIOT_ACT_TTL_SECONDS = 60 * 60 * 6;
 const RIOT_ACT_CACHE_KEY = 'riot:content:active-act';
 
 // リアルタイム性の高いデータ(現在のランク等)の保持時間。
-// ブラウザ側の保持時間と合算した値が実データとの最大ズレになる(180+60=最大4分)。
-const VOLATILE_EDGE_TTL_SECONDS = 180;
-const VOLATILE_BROWSER_TTL_SECONDS = 60;
+// これがそのまま実データとの最大ズレになる(3分)。
+const VOLATILE_TTL_SECONDS = 180;
 
 // リーダーボードの保持時間。Riot の val-ranked-v1 は 10req/10s 制限なので、
 // リージョン数 × この間隔なら十分収まる。
-const LEADERBOARD_POLICY = { edge: 60 * 5, browser: 60 * 2, kv: 0 };
+const LEADERBOARD_POLICY = { edge: 60 * 5, kv: 0 };
 
 // パスごとのキャッシュ方針を返す。null = キャッシュしない(素通し)。
-//   edge    : Cloudflareエッジ / s-maxage に入れる秒数
-//   browser : ブラウザ / max-age に入れる秒数
-//   kv      : Workers KV の expirationTtl 秒数。0 = KVを使わない
+//   edge : 保持秒数。ブラウザ(max-age)とエッジ(s-maxage)の両方に使う
+//          (理由は cacheControlValue() のコメント参照)
+//   kv   : Workers KV の expirationTtl 秒数。0 = KVを使わない
 function getCachePolicy(pathname) {
   // マッチ詳細: 過去の試合結果は変化しないため長期キャッシュしてよい。
   // KVを使う唯一の /valorant 配下のパス。1試合につき1回だけ書き込まれ、以後は
   // 再利用されるので書き込み回数が積み上がらず、colo をまたいで効く価値も大きい。
   if (/^\/valorant\/v4\/match\/[^/]+\/[^/]+$/.test(pathname)) {
-    return { edge: 60 * 60 * 24 * 7, browser: 60 * 60 * 24, kv: 60 * 60 * 24 * 30 };
+    return { edge: 60 * 60 * 24 * 7, kv: 60 * 60 * 24 * 30 };
   }
   // アカウント情報(名前/タグ → PUUID解決): 変化がまれ
   if (/^\/valorant\/v2\/account\//.test(pathname)) {
-    return { edge: 60 * 60, browser: 60 * 5, kv: 0 };
+    return { edge: 60 * 60, kv: 0 };
   }
   // リーダーボード: 頻繁な更新は不要
   // v2は非推奨(ページング非対応でリージョン全体を返し数MBに肥大化するため、
@@ -88,7 +87,7 @@ function getCachePolicy(pathname) {
     /^\/valorant\/v4\/matches\//.test(pathname) ||
     /^\/valorant\/v1\/by-puuid\/mmr-history\//.test(pathname)
   ) {
-    return { edge: VOLATILE_EDGE_TTL_SECONDS, browser: VOLATILE_BROWSER_TTL_SECONDS, kv: 0 };
+    return { edge: VOLATILE_TTL_SECONDS, kv: 0 };
   }
   return null;
 }
@@ -123,8 +122,16 @@ function edgeCacheKey(url, normalizedKey) {
   return new Request(`https://${url.host}${normalizedKey}`);
 }
 
+// ブラウザ(max-age)とエッジ(s-maxage)に同じ秒数を渡す。
+//
+// エッジから返るレスポンスには、そこで何秒保持されていたかが Age ヘッダに載る
+// (実測で確認済み)。ブラウザは max-age - Age を残り寿命として扱うので、両者を
+// 同じ値にしても実データとのズレがこの秒数を超えることはない。
+// 逆に max-age をこれより短くすると、エッジで max-age 以上経過したレスポンスは
+// 受け取った時点でブラウザにとって期限切れになり、ブラウザキャッシュが全く
+// 効かなくなる(OBSオーバーレイの定期ポーリングを吸収できなくなる)。
 function cacheControlValue(policy) {
-  return `public, max-age=${policy.browser}, s-maxage=${policy.edge}`;
+  return `public, max-age=${policy.edge}, s-maxage=${policy.edge}`;
 }
 
 // エッジキャッシュへ保存する用のレスポンスを作る。
