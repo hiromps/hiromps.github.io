@@ -225,17 +225,17 @@ export async function getMmrData(region, gameName, tagLine, retryCount = 3) {
 
     let lastError = null;
     for (let attempt = 1; attempt <= retryCount; attempt++) {
-        try {
-            const data = await apiFetch(baseUrl);
-            if (data.status === 200 && data.data) {
-                return data.data;
-            }
-            lastError = new Error(`MMRデータの取得に失敗しました。レスポンス: ` + JSON.stringify(data));
-            console.warn(`MMRデータの取得に失敗しました (試行 ${attempt}/${retryCount})。レスポンス: ` + JSON.stringify(data));
-        } catch (error) {
-            lastError = error;
-            console.warn(`MMRデータの取得中にエラー (試行 ${attempt}/${retryCount}): `, error);
+        // apiFetch が例外を投げた時点で内部のリトライ(429/5xx/タイムアウト)は尽きている。
+        // ここでさらに繰り返すと1回の取得で最大9リクエストになり、レート制限を悪化させる
+        // だけなので、ハード失敗はそのまま呼び出し元へ投げる。
+        const data = await apiFetch(baseUrl);
+        if (data.status === 200 && data.data) {
+            return data.data;
         }
+
+        // 以降はソフト失敗(HTTP 200 だが本文が不完全)のみのリトライ
+        lastError = new Error(`MMRデータの取得に失敗しました。レスポンス: ` + JSON.stringify(data));
+        console.warn(`MMRデータの取得に失敗しました (試行 ${attempt}/${retryCount})。レスポンス: ` + JSON.stringify(data));
 
         if (attempt < retryCount) {
             await new Promise(resolve => setTimeout(resolve, 800 * attempt));
@@ -258,17 +258,16 @@ export async function getMmrHistory(region, puuid, retryCount = 3) {
 
     let lastError = null;
     for (let attempt = 1; attempt <= retryCount; attempt++) {
-        try {
-            const data = await apiFetch(baseUrl);
-            if (data.status === 200 && data.data) {
-                return data.data; // MMR履歴データの配列
-            }
-            lastError = new Error(`MMR履歴の取得に失敗しました。レスポンス: ` + JSON.stringify(data));
-            console.warn(`MMR履歴の取得に失敗しました (試行 ${attempt}/${retryCount})。レスポンス: ` + JSON.stringify(data));
-        } catch (error) {
-            lastError = error;
-            console.warn(`MMR履歴の取得中にエラー (試行 ${attempt}/${retryCount}): `, error);
+        // getMmrData と同様、apiFetch のハード失敗はここでは再試行しない(内部で
+        // リトライ済みのため、繰り返すとレート制限を悪化させるだけ)。
+        const data = await apiFetch(baseUrl);
+        if (data.status === 200 && data.data) {
+            return data.data; // MMR履歴データの配列
         }
+
+        // 以降はソフト失敗(HTTP 200 だが本文が不完全)のみのリトライ
+        lastError = new Error(`MMR履歴の取得に失敗しました。レスポンス: ` + JSON.stringify(data));
+        console.warn(`MMR履歴の取得に失敗しました (試行 ${attempt}/${retryCount})。レスポンス: ` + JSON.stringify(data));
 
         if (attempt < retryCount) {
             await new Promise(resolve => setTimeout(resolve, 800 * attempt));
