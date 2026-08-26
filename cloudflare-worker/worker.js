@@ -141,39 +141,34 @@ async function resolveActiveActId(env, ctx, riotKey) {
   return act.id;
 }
 
-// 公式リーダーボードには per-player の tier フィールドが無いため、
-// レスポンス内の tierDetails (Immortal1/2/3=24/25/26, Radiant=27 の
-// startingIndex / rankedRatingThreshold) から推定する。
+// プレイヤーの tier (24=Immortal1 〜 27=Radiant) を求める。
+// 通常は各プレイヤーの competitiveTier がそのまま使える(実レスポンスで全件
+// 含まれることを確認済み)。欠けていた場合のみ tierDetails の startingIndex
+// から順位ベースで補う。
+//
+// 注意: tierDetails.rankedRatingThreshold での判定はできない。Radiant かどうかは
+// RR ではなくリーダーボード順位(上位N人)で決まるため、境界付近では同じ RR でも
+// tier が分かれる(実測: ap の 499〜503位はいずれも rr=431 だが tier は 27/27/26/26/26)。
 function estimateTier(player, tierDetails) {
-  // 実レスポンスに competitiveTier が含まれる場合はそれが最も正確
   if (typeof player.competitiveTier === 'number' && player.competitiveTier > 0) {
     return player.competitiveTier;
   }
 
-  const details = tierDetails || {};
-  const tiers = Object.keys(details)
-    .map((key) => ({ tier: Number(key), info: details[key] }))
-    .filter((entry) => Number.isFinite(entry.tier));
-
-  // 位置ベース: リーダーボードは tier 降順に並ぶので、プレイヤーの0始まり
-  // 順位以下で最大の startingIndex を持つ tier がそのプレイヤーの tier になる
+  // startingIndex は1始まりで leaderboardRank と同じ基準
+  // (実測: tier 26 の startingIndex=501 に対し、501位のプレイヤーが tier 26)。
+  // 順位以下で最大の startingIndex を持つ tier がそのプレイヤーの tier になる。
   if (typeof player.leaderboardRank === 'number' && player.leaderboardRank > 0) {
-    const playerIndex = player.leaderboardRank - 1;
-    const byPosition = tiers
-      .filter((entry) => typeof entry.info.startingIndex === 'number' && entry.info.startingIndex <= playerIndex)
-      .sort((a, b) => b.info.startingIndex - a.info.startingIndex);
+    const byPosition = Object.keys(tierDetails || {})
+      .map((key) => ({ tier: Number(key), startingIndex: tierDetails[key].startingIndex }))
+      .filter(
+        (entry) =>
+          Number.isFinite(entry.tier) &&
+          typeof entry.startingIndex === 'number' &&
+          entry.startingIndex <= player.leaderboardRank
+      )
+      .sort((a, b) => b.startingIndex - a.startingIndex);
     if (byPosition.length > 0) {
       return byPosition[0].tier;
-    }
-  }
-
-  // RRしきい値ベース(startingIndex が使えない場合の代替)
-  if (typeof player.rankedRating === 'number') {
-    const byThreshold = tiers
-      .filter((entry) => typeof entry.info.rankedRatingThreshold === 'number' && player.rankedRating >= entry.info.rankedRatingThreshold)
-      .sort((a, b) => b.tier - a.tier);
-    if (byThreshold.length > 0) {
-      return byThreshold[0].tier;
     }
   }
 
