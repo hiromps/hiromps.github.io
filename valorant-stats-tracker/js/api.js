@@ -8,6 +8,13 @@ const API_BASE_URL = (typeof config !== 'undefined' && config.API_BASE_URL)
     ? config.API_BASE_URL
     : 'https://api.henrikdev.xyz/valorant';
 
+// RR(ランクレーティング)は Riot 公式API経路。Worker側で Immortal1以上は Riot 公式
+// リーダーボード由来、それ未満は HenrikDev への自動フォールバックというハイブリッド
+// 方式で解決する(詳細は cloudflare-worker/functions/[[path]].js のコメント参照)。
+const RIOT_BASE_URL = (typeof config !== 'undefined' && config.RIOT_API_BASE_URL)
+    ? config.RIOT_API_BASE_URL
+    : 'https://api.henrikdev.xyz/valorant';
+
 // --- CONFIGURATION ---
 
 // --- API CALLS ---
@@ -219,9 +226,7 @@ export async function getMatchDetails(matchIds, region, onProgress) {
 // レート制限(429)にかかっている状態で null を返してしまうと、ランクを持つ
 // プレイヤーでも "ランク情報なし" という誤った表示になってしまうことを確認済み。
 export async function getMmrData(region, gameName, tagLine, retryCount = 3) {
-    const baseUrl = `${API_BASE_URL}/v2/mmr/${region}/${encodeURIComponent(gameName)}/${encodeURIComponent(tagLine)}`;
-    // PUUIDベースのエンドポイントも利用可能:
-    // const baseUrl = `${API_BASE_URL}/v2/by-puuid/mmr/${region}/${puuid}`;
+    const baseUrl = `${RIOT_BASE_URL}/mmr/v2/${region}/${encodeURIComponent(gameName)}/${encodeURIComponent(tagLine)}`;
 
     let lastError = null;
     for (let attempt = 1; attempt <= retryCount; attempt++) {
@@ -253,8 +258,10 @@ export async function getMmrData(region, gameName, tagLine, retryCount = 3) {
 // 区別できるようにする。以前は失敗時に空配列を返していたため、レート制限中は
 // 全試合が一律で "-- RR" 表示になり、あたかも正常にRRデータが存在しないかのように
 // 見えてしまっていた。
-export async function getMmrHistory(region, puuid, retryCount = 3) {
-    const baseUrl = `${API_BASE_URL}/v1/by-puuid/mmr-history/${region}/${puuid}`;
+// 注意: 旧HenrikDev版はpuuidで引いていたが、Riot経路のmmr-historyはRiotのpuuid
+// (ACCOUNT-V1由来)とHenrikのpuuid(UUID形式)が別物であるため、name/tagで引く。
+export async function getMmrHistory(region, gameName, tagLine, retryCount = 3) {
+    const baseUrl = `${RIOT_BASE_URL}/mmr-history/${region}/${encodeURIComponent(gameName)}/${encodeURIComponent(tagLine)}`;
 
     let lastError = null;
     for (let attempt = 1; attempt <= retryCount; attempt++) {

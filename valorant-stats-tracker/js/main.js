@@ -257,7 +257,7 @@ async function handleSearch() {
         console.log('[ステップ4] MMRデータを取得中...');
         const [mmrData, mmrHistory] = await Promise.allSettled([
             getMmrData(userRegion, gameName, tagLine),
-            getMmrHistory(userRegion, puuid)
+            getMmrHistory(userRegion, gameName, tagLine)
         ]);
 
         const finalMmrData = mmrData.status === 'fulfilled' ? mmrData.value : null;

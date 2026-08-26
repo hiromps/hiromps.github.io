@@ -153,11 +153,20 @@ function mergeMmrIntoMatches(processedMatchHistory, mmrHistory, mmrFetchFailedBy
         if (historyEntry) {
             const rrChange = historyEntry.mmr_change_to_last_game;
             const currentRRInTier = historyEntry.ranking_in_tier;
-            const sign = rrChange >= 0 ? '+' : '';
-            matchRankPoints = `${sign}${rrChange} RR (${currentRRInTier} RR)`;
+            // rrChange が undefined の行(自前RR追跡の記録開始前の試合など、差分の
+            // 基準値が無いもの)では "undefined RR" ではなく "-- RR" 相当の表示にする。
+            if (typeof rrChange === 'number') {
+                const sign = rrChange >= 0 ? '+' : '';
+                matchRankPoints = `${sign}${rrChange} RR (${currentRRInTier} RR)`;
+            } else {
+                matchRankPoints = `-- RR (${currentRRInTier} RR)`;
+            }
 
-            if (historyEntry.currenttier_patched) {
-                rankName = historyEntry.currenttier_patched;
+            // Henrikは currenttierpatched(アンダースコアなし)で返す。
+            // currenttier_patched は存在しないキーで、この分岐は常にfalseだった
+            // (=試合ごとの確定ランクアイコン上書きが機能していなかったバグ)。
+            if (historyEntry.currenttierpatched) {
+                rankName = historyEntry.currenttierpatched;
                 rankIcon = RANK_FILES[rankName] ? rankImageUrl(rankName) : 'https://placehold.co/48x48/1f2937/7f1d1d?text=R';
             }
         }

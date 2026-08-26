@@ -79,9 +79,13 @@ async function retryFetch(fetchFn, logPrefix, retryCount = API_CONFIG.RETRY_COUN
     throw lastError || new Error(`${logPrefix}: APIリクエストに失敗しました`);
 }
 
+// RR(ランクレーティング)は Riot 公式API経路(config.RIOT_API_BASE_URL)を使う。
+// Worker側で Immortal1以上は Riot 公式リーダーボード由来、それ未満は HenrikDev への
+// 自動フォールバックというハイブリッド方式で解決し、Henrik v1/mmr 互換の形で返す
+// (詳細は cloudflare-worker/functions/[[path]].js のコメント参照)。
 async function fetchPlayerStats(name, tag, retryCount = API_CONFIG.RETRY_COUNT) {
     return retryFetch(
-        (signal) => fetch(`${config.API_BASE_URL}/v1/mmr/ap/${encodeURIComponent(name)}/${encodeURIComponent(tag)}`, { signal }),
+        (signal) => fetch(`${config.RIOT_API_BASE_URL}/mmr/v1/ap/${encodeURIComponent(name)}/${encodeURIComponent(tag)}`, { signal }),
         'fetchPlayerStats',
         retryCount
     );

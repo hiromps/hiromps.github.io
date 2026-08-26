@@ -14,3 +14,12 @@ compatibility_date = "2025-01-01"
 [[kv_namespaces]]
 binding = "VALORANT_CACHE"
 id = "ca07f85574414b6ab8899791335ba37c"
+
+# 自前RR追跡用 D1 database。
+# KVの1日1,000書き込み上限とは別枠(D1は無料枠で書き込み10万行/日)なので、
+# RRの差分記録・試合ごとのRR履歴はこちらに置く。
+# 適用: wrangler d1 execute valorant-rr --file=schema.sql --remote
+[[d1_databases]]
+binding = "VALORANT_RR"
+database_name = "valorant-rr"
+database_id = "21e006ee-4106-4c9a-8024-249ddb8173c0"
