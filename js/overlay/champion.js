@@ -33,18 +33,21 @@ const IMAGE_THEME_LAYOUTS = {
         gaugeTrack: { x: 605, y: 576, width: 865, height: 44 }
     },
     chaos: {
+        // 元画像(1200x896)は上下に大きな余白(上238px・下264px、全体の56%)があり、
+        // width:100%; height:auto で表示すると縦に間延びしてページレイアウトが崩れる原因になっていた。
+        // 上下の余白を詰めてy=238〜632(高さ394px, 比率3.05:1)にクロップ済み(座標は全てクロップ後基準)。
         background: 'assets/images/theme/chaos.png',
-        viewBox: '0 0 1200 896',
-        badge: { x: 85, y: 349, size: 157 },
-        panel: { top: 361, bottom: 471 },
+        viewBox: '0 0 1200 394',
+        badge: { x: 85, y: 111, size: 157 },
+        panel: { top: 123, bottom: 233 },
         rankNameZone: { left: 303, right: 826 },
         rrZone: { left: 844, right: 1137 },
         rankFont: { min: 26, max: 81 },
         rrFont: { min: 28, max: 78 },
         // chaosのdeltaパネルは縦幅が狭く、"LAST MATCH"見出しと数値を2段で収める余地がないため見出しは非表示にする
         hasLastMatchLabel: false,
-        delta: { centerX: 313, baseline: 542, maxWidth: 108, fontMin: 14, fontMax: 34 },
-        gaugeTrack: { x: 474, y: 521, width: 661, height: 26 }
+        delta: { centerX: 313, baseline: 304, maxWidth: 108, fontMin: 14, fontMax: 34 },
+        gaugeTrack: { x: 474, y: 283, width: 661, height: 26 }
     }
 };
 
