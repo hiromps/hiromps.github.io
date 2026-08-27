@@ -43,7 +43,7 @@ const IMAGE_THEME_LAYOUTS = {
         rrFont: { min: 28, max: 78 },
         // chaosのdeltaパネルは縦幅が狭く、"LAST MATCH"見出しと数値を2段で収める余地がないため見出しは非表示にする
         hasLastMatchLabel: false,
-        delta: { centerX: 313, baseline: 539, maxWidth: 112, fontMin: 14, fontMax: 26 },
+        delta: { centerX: 313, baseline: 542, maxWidth: 108, fontMin: 14, fontMax: 34 },
         gaugeTrack: { x: 474, y: 521, width: 661, height: 26 }
     }
 };
