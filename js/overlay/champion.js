@@ -19,18 +19,25 @@ import { state } from './state.js';
 // このオブジェクトにエントリを追加する(index.html/theme.jsの改修は不要)。
 const IMAGE_THEME_LAYOUTS = {
     champion: {
+        // 元画像(1672x941)は上に220px・下に246px(全体の50%)の余白があった。
+        // 緩い透過判定(alpha>0)だとごく薄いエンバー粒子が遠くまで散っていて見逃していたが、
+        // 密度ベースで見ると実質的な枠はy=220〜695にしかなく、chaos.pngと同じ理由(表示時に
+        // 縦へ間延びしてページ下方のOBS設定ガイドとの間が空きすぎる)で崩れていた。
+        // y=220〜695(1672x475, 比率3.52:1)にクロップ済み。以下の座標は全てクロップ後基準
+        // (クロップ前の座標からyを220引いた値)。パネル高さ等の相対関係は変えていないため
+        // フォントサイズ類の再計算は不要だった。
         background: 'assets/images/theme/champion.png',
-        viewBox: '0 0 1672 941',
-        badge: { x: 115, y: 329, size: 250 },
-        panel: { top: 385, bottom: 525 },
+        viewBox: '0 0 1672 475',
+        badge: { x: 115, y: 109, size: 250 },
+        panel: { top: 165, bottom: 305 },
         rankNameZone: { left: 460, right: 1095 },
         rrZone: { left: 1140, right: 1560 },
         rankFont: { min: 34, max: 104 },
         rrFont: { min: 36, max: 100 },
         hasLastMatchLabel: true,
-        lastMatchLabel: { x: 440, y: 580 },
-        delta: { centerX: 440, baseline: 617, maxWidth: 136, fontMin: 20, fontMax: 44 },
-        gaugeTrack: { x: 605, y: 576, width: 865, height: 44 }
+        lastMatchLabel: { x: 440, y: 360 },
+        delta: { centerX: 440, baseline: 397, maxWidth: 136, fontMin: 20, fontMax: 44 },
+        gaugeTrack: { x: 605, y: 356, width: 865, height: 44 }
     },
     chaos: {
         // 元画像(1200x896)は上下に大きな余白(上238px・下264px、全体の56%)があり、
