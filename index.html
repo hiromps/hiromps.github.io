@@ -1144,15 +1144,24 @@
             position: relative;
             width: 100%;
         }
+        /* .right-column は他テーマ用に max-width:420px 等で狭く制限されている(styles.css)。
+           画像テーマの横長バナーはそれより広い表示幅が要るため、この時だけ上限を緩和する。
+           flex-grow:0 のままなので他テーマ同様「必要な分だけ」広がり、.input-section の
+           flex:1 と競合しない。min-width:0 は狭い画面でちゃんと縮められるようにする
+           flexboxの定石(付けないとコンテンツの内在サイズで縮小が止まりレイアウトが崩れる)。 */
+        .theme-image-type .right-column {
+            max-width: min(640px, 100%);
+            min-width: 0;
+        }
         .theme-image-type .overlay {
             background: transparent;
             backdrop-filter: none;
             border: none;
             box-shadow: none;
             padding: 0;
-            width: min(640px, 92vw);
+            width: 100%;
+            max-width: 640px;
             min-width: 0;
-            max-width: none;
             display: block;
         }
         .champion-bg {
