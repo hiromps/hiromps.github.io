@@ -453,7 +453,10 @@
 
             } catch (error) {
                 console.error('リーダーボード取得エラー:', error);
-                content.innerHTML = '<div class="error">リーダーボードの取得に失敗しました。しばらく後にお試しください。</div>';
+                const reason = error && error.name === 'AbortError'
+                    ? 'リクエストがタイムアウトしました'
+                    : (error && error.message) || '不明なエラー';
+                content.innerHTML = `<div class="error">リーダーボードの取得に失敗しました。しばらく後にお試しください。<br><small>(${reason})</small></div>`;
             }
         }
         

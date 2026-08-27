@@ -371,8 +371,7 @@ async function fetchLeaderboard(region = 'ap', retryCount = 3, size = 100, page 
             const response = await fetch(url, {
                 signal: controller.signal,
                 headers: {
-                    'Accept': 'application/json',
-                    'User-Agent': 'VALORANT-Tracker/1.0'
+                    'Accept': 'application/json'
                 }
             });
 
