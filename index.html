@@ -1163,6 +1163,14 @@
             max-width: 640px;
             min-width: 0;
             display: block;
+            order: 2;
+        }
+        /* 画像テーマは横長バナーで縦に長くなりがちで、カスタマイズボタンをオーバーレイの後ろに
+           流し込むと入力フォーム側の高さと揃わずページ下方に離れて見える。.right-columnの
+           flex子要素の並び順をこの時だけ入れ替え、ボタンをプレビュー見出し直下(オーバーレイの上)に
+           固定表示する(DOM順は変えないのでJS側の挙動には影響しない)。 */
+        .theme-image-type .customize-button-container {
+            order: 1;
         }
         .champion-bg {
             display: block;
