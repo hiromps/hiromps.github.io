@@ -34,13 +34,40 @@ function formatMatchDate(timestampMs) {
     return `${y}/${m}/${day}`;
 }
 
+// 試合中の「自分」を特定する。puuid照合を先に行い、失敗したときだけ name/tag 照合
+// (小文字化して比較)に落とす。
+//
+// Worker のマッチ系ルート(/riot/match)は変換に失敗した試合だけを HenrikDev へ
+// フォールバックする(X-Match-Source: henrik-fallback)ため、1回の検索の中で
+// Riot体系のpuuid(78文字)と Henrik体系のpuuid(36文字UUID)が混在しうる。
+// puuid照合だけだと一致しない試合が「自分が見つからない」として静かに除外され、
+// 全試合がフォールバックした場合は表示が0件になる(逆に、アカウント解決だけが
+// Henrikへフォールバックした場合も同じ事故が起きる)。
+//
+// puuidを先に見るのは、リネーム済みプレイヤーの過去試合には試合当時の名前が
+// 記録されており、name/tag照合が偽陰性になりうるため(puuidはリネームで変わらない)。
+function findSelfPlayer(players, puuid, gameName, tagLine) {
+    const byPuuid = players.find(p => p.puuid === puuid);
+    if (byPuuid) return byPuuid;
+
+    if (!gameName || !tagLine) return null;
+    const name = String(gameName).toLowerCase();
+    const tag = String(tagLine).toLowerCase();
+    return players.find(p =>
+        typeof p.name === 'string' && typeof p.tag === 'string' &&
+        p.name.toLowerCase() === name && p.tag.toLowerCase() === tag
+    ) || null;
+}
+
 // --- DATA PROCESSING ---
 // seasonScope: 'current'(デフォルト、今シーズンのみ) | 'all'(全シーズン/通期をそのまま表示)
 // 「今シーズン」は取得できた試合のうち最も新しいものの season.short を基準にする。
 // (MMRデータの by_season から「現行アクト」を推測する方式を試したことがあるが、
 // まだ実試合が無い先のアクトを指すことがあり、直近の実試合まで除外してしまう
 // 不具合が起きたため廃止した。取得できた試合そのものの情報を信頼する方が確実。)
-export function processMatchData(matches, puuid, seasonScope = 'current') {
+// gameName / tagLine は自己特定のフォールバック用(findSelfPlayer 参照)。
+// 省略した場合は puuid 照合のみになる。
+export function processMatchData(matches, puuid, seasonScope = 'current', gameName = null, tagLine = null) {
 
     if (!matches || matches.length === 0) {
         return [];
@@ -93,7 +120,7 @@ export function processMatchData(matches, puuid, seasonScope = 'current') {
             return null;
         }
 
-        const player = match.players.find(p => p.puuid === puuid);
+        const player = findSelfPlayer(match.players, puuid, gameName, tagLine);
 
         if (!player || !player.stats || !player.agent) {
             console.warn("Player not found, or player missing stats/agent in match:", match, "for puuid:", puuid);

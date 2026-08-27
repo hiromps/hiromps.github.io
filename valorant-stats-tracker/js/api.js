@@ -1,16 +1,15 @@
-// HenrikDev API 呼び出し層 (ES Module)
+// VALORANT API 呼び出し層 (ES Module)
 
 // APIのベースURLはルートの config.js (classic script) が定義するグローバル config
 // から取得する。config.js が欠落していてもモジュール全体が落ちないように typeof でガードする。
-// APIキー自体はクライアントに一切渡さず、config.API_BASE_URL が指す Cloudflare Worker
+// APIキー自体はクライアントに一切渡さず、config が指す Cloudflare Pages Functions
 // プロキシ側のsecretとしてのみ保持する。
-const API_BASE_URL = (typeof config !== 'undefined' && config.API_BASE_URL)
-    ? config.API_BASE_URL
-    : 'https://api.henrikdev.xyz/valorant';
-
-// RR(ランクレーティング)は Riot 公式API経路。Worker側で Immortal1以上は Riot 公式
-// リーダーボード由来、それ未満は HenrikDev への自動フォールバックというハイブリッド
-// 方式で解決する(詳細は cloudflare-worker/functions/[[path]].js のコメント参照)。
+//
+// アカウント解決・マッチ系・RR(ランクレーティング)は Riot 公式API経路を使う。
+// RRだけは公式に per-player エンドポイントが無いため、Worker側で Immortal1以上は
+// Riot 公式リーダーボード由来、それ未満は HenrikDev への自動フォールバックという
+// ハイブリッド方式で解決する(詳細は cloudflare-worker/functions/[[path]].js のコメント参照)。
+// アカウント/マッチ系は Riot 公式で完結し、変換に失敗した場合だけ HenrikDev へ倒れる。
 const RIOT_BASE_URL = (typeof config !== 'undefined' && config.RIOT_API_BASE_URL)
     ? config.RIOT_API_BASE_URL
     : 'https://api.henrikdev.xyz/valorant';
@@ -108,11 +107,15 @@ export async function apiFetch(url, retryCount = 3) {
     }
 }
 
+// Riot公式API経路(ACCOUNT-V1 の by-riot-id + active-shards)。region は
+// active-shards 由来で、後続のマッチ系・MMR系にもこの値が流れる。
+// puuid と region のどちらかが解決できない場合は Worker 内部で HenrikDev の
+// /v2/account にフォールバックする(X-Account-Source: riot | henrik-fallback)。
 export async function getPuuid(gameName, tagLine) {
-    const baseUrl = `${API_BASE_URL}/v2/account/${encodeURIComponent(gameName)}/${encodeURIComponent(tagLine)}`;
+    const baseUrl = `${RIOT_BASE_URL}/account/${encodeURIComponent(gameName)}/${encodeURIComponent(tagLine)}`;
     const data = await apiFetch(baseUrl);
     if (!data.status || data.status !== 200 || !data.data || !data.data.puuid || !data.data.region) {
-        throw new Error('PUUIDまたはリージョンの取得に失敗しました (HenrikDev API)。レスポンス: ' + JSON.stringify(data));
+        throw new Error('PUUIDまたはリージョンの取得に失敗しました。レスポンス: ' + JSON.stringify(data));
     }
     return data.data; // PUUIDだけでなく、リージョン情報も含むdata.data全体を返す
 }
@@ -120,6 +123,9 @@ export async function getPuuid(gameName, tagLine) {
 // HenrikDev API v4/matches は size パラメータの値によらず実際には常に最大10件/リクエストしか
 // 返さないことを実APIレスポンスで確認済み(size=30を指定しても10件しか返らない)。
 // start(オフセット)によるページネーションは正しく機能するため、これでページ単位に取得する。
+// Riot公式経路(/riot/matches)へ移行後も、1ページ10件・start によるページ送りという
+// この構造はそのまま維持する(Worker側の size 上限は15件)。ただし Riot の matchlist は
+// 直近95件(全キュー混在)しか返さないため、深いページ送りでは HenrikDev より早く尽きる。
 //
 // 以前は検索1回につき常に3ページ(最大30件)を一気に取得していたが、これだと
 // 1回の検索で「マッチID3リクエスト + マッチ詳細最大30リクエスト」という大きなバーストが
@@ -136,12 +142,13 @@ export const MATCH_LIST_PAGE_SIZE = 10;
 // hasMore は「ちょうどページサイズ分返ってきた(=まだ続きがある可能性が高い)」かどうかの目安。
 export async function getMatchIdsPage(gameName, tagLine, region, page) {
     const start = (page - 1) * MATCH_LIST_PAGE_SIZE;
-    const baseUrl = `${API_BASE_URL}/v4/matches/${region}/pc/${encodeURIComponent(gameName)}/${encodeURIComponent(tagLine)}`;
+    // Riot公式経路は Henrik の /v4/matches と違い region 直下に name/tag が来る(pc セグメントは無い)
+    const baseUrl = `${RIOT_BASE_URL}/matches/${region}/${encodeURIComponent(gameName)}/${encodeURIComponent(tagLine)}`;
     const urlWithParams = `${baseUrl}?mode=competitive&size=${MATCH_LIST_PAGE_SIZE}&start=${start}`;
 
     const data = await apiFetch(urlWithParams);
     if (!data.status || data.status !== 200 || !data.data) {
-        throw new Error('マッチIDの取得に失敗しました (HenrikDev API)。レスポンス: ' + JSON.stringify(data));
+        throw new Error('マッチIDの取得に失敗しました。レスポンス: ' + JSON.stringify(data));
     }
 
     const ids = data.data.map(match => match.metadata.match_id);
@@ -162,8 +169,9 @@ function sleep(ms) {
 //
 // レート制限等で失敗した試合は、全件を1周した後に少し待ってから直列でもう一度だけ再試行する。
 async function fetchMatchDetail(matchId, region) {
-    // v2からv4に変更し、regionをパスパラメータに追加
-    const url = `${API_BASE_URL}/v4/match/${region}/${matchId}`;
+    // Riot公式経路(VAL-MATCH-V1 → Henrik v4 互換に変換)。変換できない試合だけ
+    // Worker内部で HenrikDev へフォールバックする(X-Match-Source: henrik-fallback)。
+    const url = `${RIOT_BASE_URL}/match/${region}/${matchId}`;
     try {
         const data = await apiFetch(url);
         if (!data.status || data.status !== 200 || !data.data) {

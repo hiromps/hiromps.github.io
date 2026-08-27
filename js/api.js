@@ -256,9 +256,15 @@ async function apiFetch(url, retryCount = 3) {
 }
 
 // プレイヤーアカウント情報とPUUIDを取得
+//
+// Riot公式API経路(ACCOUNT-V1 の by-riot-id + active-shards)。puuid と region の
+// どちらかが解決できない場合は Worker 内部で HenrikDev の /v2/account に
+// フォールバックする(X-Account-Source: riot | henrik-fallback で判別可能)。
+// マッチ系も同じ Riot 経路にしてあるため、通常は puuid 体系が揃い、
+// processMatchDataForHistory の自己特定(puuid照合)がそのまま成立する。
 async function getPlayerAccount(gameName, tagLine) {
-    const baseUrl = `${config.API_BASE_URL}/v2/account/${encodeURIComponent(gameName)}/${encodeURIComponent(tagLine)}`;
-    const data = await apiFetch(baseUrl); 
+    const baseUrl = `${config.RIOT_API_BASE_URL}/account/${encodeURIComponent(gameName)}/${encodeURIComponent(tagLine)}`;
+    const data = await apiFetch(baseUrl);
     if (!data.status || data.status !== 200 || !data.data || !data.data.puuid || !data.data.region) {
         throw new Error('PUUIDまたはリージョンの取得に失敗しました。レスポンス: ' + JSON.stringify(data));
     }
@@ -266,8 +272,10 @@ async function getPlayerAccount(gameName, tagLine) {
 }
 
 // マッチIDリストを取得（戦績トラッカーと同じ方式）
+// Riot公式API経路(VAL-MATCH-V1 → Henrik v4 互換に変換)。Henrik の
+// /v4/matches と違い region 直下に name/tag が来る(pc セグメントは無い)。
 async function getMatchIds(gameName, tagLine, region, gameMode = 'competitive', size = 10) {
-    const baseUrl = `${config.API_BASE_URL}/v4/matches/${region}/pc/${encodeURIComponent(gameName)}/${encodeURIComponent(tagLine)}`;
+    const baseUrl = `${config.RIOT_API_BASE_URL}/matches/${region}/${encodeURIComponent(gameName)}/${encodeURIComponent(tagLine)}`;
     const urlWithParams = `${baseUrl}?mode=${gameMode}&size=${size}`;
     const data = await apiFetch(urlWithParams);
     if (!data.status || data.status !== 200 || !data.data) {
@@ -280,7 +288,7 @@ async function getMatchIds(gameName, tagLine, region, gameMode = 'competitive', 
 async function getMatchDetails(matchIds, region) {
     const matchDetailsArray = [];
     for (const matchId of matchIds) {
-        const url = `${config.API_BASE_URL}/v4/match/${region}/${matchId}`;
+        const url = `${config.RIOT_API_BASE_URL}/match/${region}/${matchId}`;
         try {
             const data = await apiFetch(url);
             if (!data.status || data.status !== 200 || !data.data) {

@@ -132,7 +132,7 @@ function updateMatchHistoryTitle(seasonShort) {
 function reprocessAndRender() {
     const { puuid, gameName, tagLine, accountData, finalMmrData, finalMmrHistory, mmrFetchFailedByRateLimit } = searchContext;
 
-    const processedMatchHistory = processMatchData(rawMatches, puuid, getSeasonScope());
+    const processedMatchHistory = processMatchData(rawMatches, puuid, getSeasonScope(), gameName, tagLine);
     updateMatchHistoryTitle(processedMatchHistory[0] ? processedMatchHistory[0].seasonShort : null);
 
     if (processedMatchHistory.length === 0) {
@@ -180,7 +180,7 @@ async function loadMoreMatches() {
         loadedRawPage = nextPage;
         console.log(`[追加ページ取得完了] 累計${rawMatches.length}件の生データ`);
 
-        const processedMatchHistory = processMatchData(rawMatches, searchContext.puuid, getSeasonScope());
+        const processedMatchHistory = processMatchData(rawMatches, searchContext.puuid, getSeasonScope(), searchContext.gameName, searchContext.tagLine);
         updateMatchHistoryTitle(processedMatchHistory[0] ? processedMatchHistory[0].seasonShort : null);
 
         consecutiveEmptyLoads = processedMatchHistory.length === lastVisibleMatchCount
@@ -286,7 +286,7 @@ async function handleSearch() {
 
         // 5. Process and render data
         console.log('[ステップ5] データ処理中...');
-        const processedMatchHistory = processMatchData(rawMatches, puuid, getSeasonScope());
+        const processedMatchHistory = processMatchData(rawMatches, puuid, getSeasonScope(), gameName, tagLine);
         currentSeasonShort = processedMatchHistory[0] ? processedMatchHistory[0].seasonShort : null;
         lastVisibleMatchCount = processedMatchHistory.length;
         updateMatchHistoryTitle(currentSeasonShort);

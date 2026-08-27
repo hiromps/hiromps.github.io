@@ -370,7 +370,9 @@ APIレスポンス: ${JSON.stringify(data, null, 2)}</pre>
                 }
                 
                 // マッチ履歴用の簡単なデータ処理
-                const processedMatches = processMatchDataForHistory(matches, accountData.puuid);
+                const processedMatches = processMatchDataForHistory(
+                    matches, accountData.puuid, currentSearchedPlayer.name, currentSearchedPlayer.tag
+                );
                 displayMatchHistory(processedMatches);
                 
             } catch (error) {
@@ -445,8 +447,32 @@ API設定:
             }
         }
         
+        // 試合中の「自分」を特定する。puuid照合を先に行い、失敗したときだけ name/tag 照合
+        // (小文字化して比較)に落とす。
+        //
+        // Worker のマッチ系ルート(/riot/match)は変換に失敗した試合だけを HenrikDev へ
+        // フォールバックするため、1回の検索の中で Riot体系のpuuid(78文字)と
+        // Henrik体系のpuuid(36文字UUID)が混在しうる。puuid照合だけだと一致しない試合が
+        // 静かに除外され、全試合がフォールバックした場合は表示が0件になる。
+        // puuidを先に見るのは、リネーム済みプレイヤーの過去試合には試合当時の名前が
+        // 記録されており、name/tag照合が偽陰性になりうるため(puuidはリネームで変わらない)。
+        // (戦績トラッカー側の同等処理は valorant-stats-tracker/js/process.js の findSelfPlayer)
+        function findSelfPlayerInMatch(players, puuid, gameName, tagLine) {
+            const byPuuid = players.find(p => p.puuid === puuid);
+            if (byPuuid) return byPuuid;
+
+            if (!gameName || !tagLine) return null;
+            const name = String(gameName).toLowerCase();
+            const tag = String(tagLine).toLowerCase();
+            return players.find(p =>
+                typeof p.name === 'string' && typeof p.tag === 'string' &&
+                p.name.toLowerCase() === name && p.tag.toLowerCase() === tag
+            ) || null;
+        }
+
         // マッチ履歴用のデータ処理関数（戦績トラッカーの簡略版）
-        function processMatchDataForHistory(matches, puuid) {
+        // gameName / tagLine は自己特定のフォールバック用(findSelfPlayerInMatch 参照)
+        function processMatchDataForHistory(matches, puuid, gameName, tagLine) {
             console.log("processMatchDataForHistory received matches:", matches.length);
             console.log("processMatchDataForHistory received puuid:", puuid);
 
@@ -463,7 +489,7 @@ API設定:
                 }
 
                 // プレイヤーを見つける
-                const player = match.players.find(p => p.puuid === puuid);
+                const player = findSelfPlayerInMatch(match.players, puuid, gameName, tagLine);
                 if (!player || !player.stats || !player.agent) {
                     console.warn("Player not found in match:", match, "for puuid:", puuid);
                     return null;
