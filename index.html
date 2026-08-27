@@ -1221,9 +1221,14 @@
         .champion-delta.is-negative {
             fill: #ff4655;
         }
+        /* モバイルでは親(.right-column)の実幅ではなくビューポート基準のvwを使うと、
+           .main-content-container の余白分だけ .right-column の実幅がビューポートより
+           狭くなるため、94vw指定時に.overlayが親からはみ出し右側にだけ偏って表示されていた
+           (align-items:centerは効くが、はみ出し量ぶんだけ右寄りに見える不具合)。
+           親の実幅にそのまま追従する100%に変更して解消。 */
         @media screen and (max-width: 768px) {
             .theme-image-type .overlay {
-                width: 94vw;
+                width: 100%;
             }
         }
         /* 画像テーマ選択時はカラーカスタマイズUIを隠し、固定デザインの案内を表示する */
