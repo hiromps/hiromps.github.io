@@ -33,3 +33,14 @@ yarn.lock
 .dev.vars
 .dev.vars.*
 .wrangler/
+
+# 内部向けドキュメント(作業手順・実装ログ・設計仕様・調査メモ。公開リポジトリには含めない)
+GitHubデータ完全置き換え手順.md
+IMPLEMENTATION_SUMMARY.md
+OPTIMIZATION_GUIDE.md
+claudedocs/refactor-replay-spec.md
+claudedocs/riot-api-henrik-replacement-findings.md
+claudedocs/rr-self-hosted-mmr-prompt.md
+cloudflare-worker/README.md
+assets/images/theme/DESIGN.md
+assets/images/theme/overlay-pattern-prompts.md
