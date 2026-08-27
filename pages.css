@@ -19,6 +19,13 @@ body {
     overflow-x: hidden;
 }
 
+/* iOS Safariはスクロール終端のバウンス(ラバーバンド)領域を <html> の背景色で
+   描画するため、body側だけに背景を付けていると、下(または上)にオーバースクロール
+   した瞬間だけ白背景が一瞬見える。<html> にも同じ背景を敷いて防ぐ。 */
+html {
+    background: linear-gradient(135deg, #0f1419 0%, #1a252f 50%, #2d3748 100%);
+}
+
 body {
     margin: 0;
     background: linear-gradient(135deg, #0f1419 0%, #1a252f 50%, #2d3748 100%);
@@ -446,7 +453,7 @@ h2, h3 {
     width: 100%;
     flex-shrink: 0;
     margin-top: auto;
-    padding: 1.5rem 1rem 2rem;
+    padding: 1.5rem 1rem calc(2rem + env(safe-area-inset-bottom));
     border-top: 1px solid rgba(255, 70, 85, 0.25);
     background-color: rgba(15, 25, 35, 0.6);
     text-align: center;
@@ -487,5 +494,9 @@ h2, h3 {
 @media (max-width: 480px) {
     .site-footer .footer-links {
         gap: 0.5rem 1rem;
+    }
+
+    .site-footer {
+        padding: 1.25rem 1rem calc(2.5rem + env(safe-area-inset-bottom));
     }
 }
