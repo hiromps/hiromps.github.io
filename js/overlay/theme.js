@@ -1,15 +1,19 @@
 // テーマ切替層 (ES Module)
 import { state } from './state.js';
 import { resetLastMatchWidthForClassic, adjustLastMatchWidth } from './layout.js';
+import { refreshChampionOverlay } from './champion.js';
 
-// テーマ定義。type: 'code' はCSS+カスタマイズ可能な既存4テーマ、'image' は背景画像+動的SVGの固定ビジュアル(Champion)。
-// customizable: false のテーマは colorCustomizationFields が非表示になる(index.html の body.theme-* CSSで制御)。
+// テーマ定義。type: 'code' はCSS+カスタマイズ可能な既存4テーマ、'image' は背景画像+動的SVGの固定ビジュアル
+// (Champion/Chaos等)。zone座標・viewBoxなどレイアウト詳細は champion.js の IMAGE_THEME_LAYOUTS が持つ
+// (THEME_META.background はUI/ドキュメント用の参照情報)。
+// customizable: false のテーマは colorCustomizationFields が非表示になる(index.html の body.theme-image-type CSSで制御)。
 export const THEME_META = {
     classic: { id: 'classic', name: 'クラシック', type: 'code', customizable: true },
     modern: { id: 'modern', name: 'モダン', type: 'code', customizable: true },
     shadcn: { id: 'shadcn', name: 'Cyber', type: 'code', customizable: true },
     neon: { id: 'neon', name: 'Neon', type: 'code', customizable: true },
-    champion: { id: 'champion', name: 'Champion', type: 'image', customizable: false, background: 'assets/images/theme/champion.png' }
+    champion: { id: 'champion', name: 'Champion', type: 'image', customizable: false, background: 'assets/images/theme/champion.png' },
+    chaos: { id: 'chaos', name: 'Chaos', type: 'image', customizable: false, background: 'assets/images/theme/chaos.png' }
 };
 
 const ALL_THEME_CLASSES = Object.keys(THEME_META).map(id => `theme-${id}`);
@@ -20,6 +24,8 @@ export function applyTheme(theme) {
     body.classList.remove(...ALL_THEME_CLASSES);
     // 新しいテーマクラスを追加
     body.classList.add(`theme-${theme}`);
+    // 画像テーマ(Champion/Chaos等)共通の表示切替クラス。CSS側は個別テーマ名ではなくこちらにフックする
+    body.classList.toggle('theme-image-type', THEME_META[theme]?.type === 'image');
     state.currentTheme = theme;
 
     // テーマをlocalStorageに保存
@@ -39,6 +45,9 @@ export function applyTheme(theme) {
         overlay.style.minWidth = '';
         overlay.style.maxWidth = '';
     }
+
+    // 画像テーマの背景/viewBox/座標は選択中テーマ依存のため、切替の都度、直近データで再描画する
+    refreshChampionOverlay();
 
     // Cyberテーマの場合、スキャンライン効果を追加
     if (theme === 'shadcn') {
